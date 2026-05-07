@@ -333,6 +333,7 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
   }
 }
 
+
 /* =========================
    DESIGN SYSTEM TOKEN
 ========================= */
@@ -341,28 +342,31 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 }
 
 /* =========================
-   HERO BASE LAYOUT
+   HERO BASE LAYOUT (SAAS CLEAN)
 ========================= */
 .hero{
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+
   align-items: center;
-  justify-content: center;
+  gap: clamp(32px, 5vw, 72px);
 
-  padding: calc(var(--grid) * 2) calc(var(--grid) * 0.8);
+  padding: 140px 60px;
 
-  text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
-  gap: calc(var(--grid) * 0.5);
+  text-align: left;
 }
 
-/* ensure content layering */
-.hero > *{
+/* SAFE GRID CHILDREN */
+.hero-left,
+.hero-right{
+  min-width: 0;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* =========================
@@ -394,47 +398,21 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 }
 
 /* =========================
-   WATERMARK SYSTEM
-========================= */
-.hero::before{
-  content: "Savvion &\A Agency";
-  white-space: pre-line;
-
-  position: absolute;
-
-  top: calc(50% - var(--grid));
-  left: 50%;
-  transform: translateX(-50%);
-
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(64px, 11vw, 160px);
-  line-height: 1;
-
-  letter-spacing: -2px;
-  color: rgba(0, 0, 0, 0.04);
-
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* =========================
-   HERO BADGE
+   WATERMARK
 ========================= */
 .hero::before{
   content: "Savvion \A Agency";
 
   position: absolute;
-  top: calc(50% - var(--grid));
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 
   font-family: var(--font-display);
   font-weight: 800;
 
   font-size: clamp(64px, 11vw, 160px);
   line-height: 1;
-
   letter-spacing: -2px;
 
   color: rgba(0, 0, 0, 0.04);
@@ -445,16 +423,17 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
   z-index: 0;
 }
 
-.hero-badge-dot{
-  width: 6px;
-  height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
+/* =========================
+   LEFT CONTENT
+========================= */
+.hero-left{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-/* =========================
-   HEADLINE
-========================= */
+/* HEADLINE */
 .hero-headline{
   font-family: var(--font-display);
   font-size: clamp(48px, 7.5vw, 88px);
@@ -464,55 +443,38 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
   letter-spacing: -3px;
 
   color: var(--ink);
+
   max-width: 900px;
 
   margin-bottom: calc(var(--grid) * 0.4);
-
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeUp 0.8s var(--ease-out) 0.25s forwards;
-
-  transform: translateY(calc(var(--grid) * -0.1));
 }
 
 .hero-headline .hl{
   color: var(--accent);
 }
 
-/* =========================
-   SUBTEXT
-========================= */
+/* SUBTEXT */
 .hero-sub{
   font-size: 18px;
   font-weight: 300;
   line-height: 1.75;
 
   color: var(--ink-muted);
+
   max-width: 540px;
 
   margin-bottom: calc(var(--grid) * 0.6);
-
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 0.8s var(--ease-out) 0.4s forwards;
 }
 
 /* =========================
-   CTA SECTION
+   CTA SYSTEM
 ========================= */
 .hero-ctas{
   display: flex;
-  justify-content: center;
-  align-items: center;
-
   gap: calc(var(--grid) * 0.25);
   flex-wrap: wrap;
 
   margin-bottom: calc(var(--grid) * 0.8);
-
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 0.8s var(--ease-out) 0.55s forwards;
 }
 
 /* PRIMARY BUTTON */
@@ -573,66 +535,90 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 }
 
 /* =========================
-   TICKER (GRID ALIGNED)
+   RIGHT SIDE (SINGLE IMAGE ONLY)
 ========================= */
-.ticker-wrap{
-  width: 100%;
-  margin-top: calc(var(--grid) * 1.2);
-
-  overflow: hidden;
-
-  opacity: 0;
-  animation: fadeUp 0.8s var(--ease-out) 0.7s forwards;
-}
-
-.ticker-label{
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-
-  color: var(--ink-faint);
-  font-weight: 500;
-
-  margin-bottom: calc(var(--grid) * 0.4);
-}
-
-.ticker-track{
+.hero-right{
   display: flex;
-  gap: calc(var(--grid) * 0.8);
-
-  width: max-content;
-
-  animation: ticker 28s linear infinite;
+  justify-content: center;
+  align-items: center;
 }
 
-.ticker-track:hover{
-  animation-play-state: paused;
+.hero-image-wrap{
+  width: 100%;
+  max-width: 520px;
+
+  animation: floatHero 6s ease-in-out infinite;
 }
 
-.ticker-item{
+.hero-image-wrap img{
+  width: 100%;
+  height: auto;
+
+  border-radius: 18px;
+
+  opacity: 0.75;
+  filter: saturate(1.1) contrast(1.05);
+
+  display: block;
+}
+
+/* SOFT FADE OVERLAY */
+.hero-image-wrap::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(
+    circle at center,
+    transparent 40%,
+    rgba(255,255,255,0.65) 100%
+  );
+
+  pointer-events: none;
+}
+
+/* FLOAT ANIMATION */
+@keyframes floatHero{
+  0%,100%{ transform: translateY(10px); }
+  50%{ transform: translateY(-10px); }
+}
+
+/* =========================
+   METRICS BAND (SEPARATE SECTION)
+========================= */
+.metrics{
+  padding: 80px 60px;
+  background: #f7f7f5;
+}
+
+.metrics-inner{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 40px;
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.metric{
+  text-align: center;
+}
+
+.metric h3{
+  font-size: 42px;
+  font-weight: 800;
   font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 600;
-
-  white-space: nowrap;
-  letter-spacing: -0.3px;
-
-  color: var(--ink-faint);
-  transition: color 0.2s;
 }
 
-.ticker-item:hover{
+.metric p{
+  font-size: 14px;
   color: var(--ink-muted);
 }
 
 /* =========================
    ANIMATIONS
 ========================= */
-@keyframes ticker{
-  0%{ transform: translateX(0); }
-  100%{ transform: translateX(-50%); }
-}
-
 @keyframes fadeUp{
   to{
     opacity: 1;
@@ -641,78 +627,67 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 }
 
 /* =========================
-   FOOTER SYSTEM
+   RESPONSIVE SYSTEM
 ========================= */
-footer{
-  position: relative;
-  background: var(--ink);
-  color: #fff;
 
-  padding: calc(var(--grid) * 1.2) calc(var(--grid) * 0.8);
+/* TABLET */
+@media (max-width: 900px){
+  .hero{
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 100px 24px;
+  }
 
-  overflow: hidden;
+  .hero-left{
+    align-items: center;
+  }
+
+  .hero-sub{
+    max-width: 90%;
+  }
+
+  .hero-ctas{
+    justify-content: center;
+  }
+
+  .hero-image-wrap{
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .metrics-inner{
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-footer > *{
-  position: relative;
-  z-index: 1;
-}
+/* MOBILE */
+@media (max-width: 480px){
+  .hero-headline{
+    font-size: 34px;
+    letter-spacing: -1.5px;
+  }
 
-/* GRID */
-.footer-grid{
-  position: absolute;
-  inset: 0;
+  .hero-sub{
+    font-size: 15px;
+  }
 
-  background-image:
-    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  .hero-ctas{
+    flex-direction: column;
+  }
 
-  background-size: var(--grid) var(--grid);
+  .btn-primary,
+  .btn-outline{
+    width: 100%;
+    justify-content: center;
+  }
 
-  opacity: 0.35;
+  .metrics-inner{
+    grid-template-columns: 1fr;
+  }
 
-  mask-image: radial-gradient(
-    ellipse 80% 60% at 50% 50%,
-    black 40%,
-    transparent 100%
-  );
-
-  z-index: 0;
-}
-
-/* WATERMARK */
-footer::before{
-  content: "Savvion \A Agency";
-
-  position: absolute;
-  top: calc(50% - var(--grid));
-  left: 50%;
-  transform: translateX(-50%);
-
-  font-family: var(--font-display);
-  font-weight: 800;
-
-  font-size: clamp(60px, 10vw, 140px);
-  line-height: 1;
-
-  letter-spacing: -2px;
-
-  color: rgba(255,255,255,0.04);
-
-  white-space: nowrap;
-
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* LAYOUT */
-.footer-top{
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-
-  gap: calc(var(--grid) * 0.6);
-
-  margin-bottom: calc(var(--grid) * 0.8);
+  .hero-image-wrap{
+    max-width: 300px;
+  }
 }
 
 /* =========================
@@ -3046,35 +3021,33 @@ body.dark-theme .preloader-progress-bar{
   <a href="#contact" class="btn-nav">Let's talk →</a>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
-  <h1 class="hero-headline">Building Web Systems That<br>Turn Traffic Into <span class="hl">Leads.</span></h1>
-  <div class="hero-ctas">
-    <a href="#contact" class="btn-primary">Get a free audit →</a>
-    <a href="#services" class="btn-outline">See what we do</a>
-  </div>
-  <div class="ticker-wrap">
-    <div class="ticker-label">Trusted by growing teams</div>
-    <div class="ticker-track">
-      <span class="ticker-item">Startups</span><span class="ticker-item">·</span>
-      <span class="ticker-item">SaaS Founders</span><span class="ticker-item">·</span>
-      <span class="ticker-item">E-commerce Brands</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Growth-Stage SMEs</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Nonprofits</span><span class="ticker-item">·</span>
-      <span class="ticker-item">B2B Platforms</span><span class="ticker-item">·</span>
-      <span class="ticker-item">MVP Builders</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Digital Agencies</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Startups</span><span class="ticker-item">·</span>
-      <span class="ticker-item">SaaS Founders</span><span class="ticker-item">·</span>
-      <span class="ticker-item">E-commerce Brands</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Growth-Stage SMEs</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Nonprofits</span><span class="ticker-item">·</span>
-      <span class="ticker-item">B2B Platforms</span><span class="ticker-item">·</span>
-      <span class="ticker-item">MVP Builders</span><span class="ticker-item">·</span>
-      <span class="ticker-item">Digital Agencies</span><span class="ticker-item">·</span>
+
+  <!-- LEFT -->
+  <div class="hero-left">
+    <h1 class="hero-headline">
+      Building Web Systems That<br>
+      Turn Traffic Into <span class="hl">Leads.</span>
+    </h1>
+
+    <p class="hero-sub">
+      We design and develop high-performance digital systems, CRMs, and landing funnels that convert attention into measurable growth.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#contact" class="btn-primary">Get a free audit →</a>
+      <a href="#services" class="btn-outline">See what we do</a>
     </div>
   </div>
+
+  <!-- RIGHT (ONLY IMAGE) -->
+  <div class="hero-right">
+    <div class="hero-image-wrap">
+      <img src="Savvion-bg-meshakh.png" alt="UI/UX Preview">
+    </div>
+  </div>
+
 </section>
 
 <!-- STATS -->
