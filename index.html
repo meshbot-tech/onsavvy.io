@@ -1347,6 +1347,91 @@ html{
     border-color 0.4s ease;
 }
 
+/* ================================
+   MOBILE RESPONSIVE FIX
+================================ */
+
+@media (max-width: 768px) {
+  .capabilities {
+    padding: 72px 20px;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-sub {
+    max-width: 100%;
+    font-size: 15px;
+  }
+
+  .cap-item,
+  .cap-item:nth-child(even),
+  .cap-item.no-image {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none !important;
+    margin-bottom: 20px;
+    transform: none !important;
+  }
+
+  .cap-num,
+  .cap-main,
+  .cap-cover,
+  .cap-arrow {
+    border: none !important;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .cap-num {
+    padding-bottom: 0;
+    font-size: 11px;
+  }
+
+  .cap-main {
+    padding-top: 8px;
+  }
+
+  .cap-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .cap-desc {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .cap-cover {
+    padding-top: 0;
+  }
+
+  .cap-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 220px;
+    object-fit: cover;
+  }
+
+  .cap-arrow {
+    padding-top: 0;
+    font-size: 18px;
+    justify-content: flex-end;
+  }
+
+  .capabilities-list:has(.cap-item.active) .cap-item:not(.active) {
+    opacity: 1;
+    transform: none;
+  }
+
+  body,
+  html {
+    overflow-x: hidden;
+  }
+}
+
 /* WORK */
 .work{
   padding:96px 48px;
