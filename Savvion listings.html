@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savvion Listings — Marketplace Layer by Savvion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0C0C0A;--ink-2:#1C1C18;--ink-muted:#5A5A52;--ink-faint:#9A9A90;
+  --surface:#F8F7F2;--surface-2:#EFEDE6;--surface-3:#E5E2D8;--white:#FFFFFF;
+  --gold:#C8922A;--gold-light:#FDF5E6;--gold-dark:#A0721A;
+  --accent:#16A066;--accent-light:#E6F7F0;--accent-dark:#0D7A4E;
+  --border:rgba(0,0,0,0.07);--border-2:rgba(0,0,0,0.11);
+  --font-display:'Bricolage Grotesque',sans-serif;
+  --font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--surface);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* =========================
+   RECAPTCHA VERIFICATION OVERLAY
+   ========================= */
+#recaptcha-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:var(--surface);
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 0.5s ease;
+}
+#recaptcha-overlay.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+.recaptcha-content{
+  text-align:center;
+  max-width:400px;
+  padding:40px;
+}
+.recaptcha-icon{
+  width:64px;
+  height:64px;
+  margin:0 auto 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--accent-light);
+  border-radius:50%;
+}
+.recaptcha-icon svg{
+  width:32px;
+  height:32px;
+  stroke:var(--accent);
+  fill:none;
+  stroke-width:2;
+}
+.recaptcha-title{
+  font-family:var(--font-display);
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.recaptcha-subtitle{
+  font-size:15px;
+  color:var(--ink-muted);
+  margin-bottom:24px;
+  line-height:1.6;
+}
+.recaptcha-loader{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-top:16px;
+}
+.recaptcha-loader-dot{
+  width:8px;
+  height:8px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:recaptchaPulse 1.4s ease-in-out infinite both;
+}
+.recaptcha-loader-dot:nth-child(1){animation-delay:-0.32s}
+.recaptcha-loader-dot:nth-child(2){animation-delay:-0.16s}
+@keyframes recaptchaPulse{
+  0%,80%,100%{transform:scale(0);opacity:0.5}
+  40%{transform:scale(1);opacity:1}
+}
+body.verified{
+  overflow:auto;
+}
+body:not(.verified){
+  overflow:hidden;
+}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(10,10,8,0);backdrop-filter:blur(0px);border-bottom:1px solid transparent;transition:all 0.4s var(--ease)}
+nav.scrolled{background:rgba(10,10,8,0.92);backdrop-filter:blur(16px);border-bottom-color:rgba(255,255,255,0.08)}
+.nav-logo{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center}
+.nav-logo-mark svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-by{font-size:11px;color:rgba(255,255,255,0.3);font-weight:300;margin-left:2px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-link{font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.2s}
+.nav-link:hover{color:#fff}
+.btn-nav-gold{background:var(--gold);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:all 0.2s;display:inline-block}
+.btn-nav-gold:hover{background:var(--gold-dark);transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:64px;background:var(--ink);position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-200px;right:-200px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(200,146,42,0.07) 0%,transparent 60%);pointer-events:none}
+.hero-glow-2{position:absolute;bottom:-200px;left:-100px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(22,160,102,0.05) 0%,transparent 60%);pointer-events:none}
+.hero-left{position:relative;z-index:1}
+.hero-right{position:relative;z-index:1}
+.hero-by{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,146,42,0.9);background:rgba(200,146,42,0.1);padding:5px 13px;border-radius:100px;margin-bottom:24px;border:1px solid rgba(200,146,42,0.2);opacity:0;transform:translateY(16px);animation:up 0.6s var(--ease) 0.1s forwards}
+.hero-by-dot{width:5px;height:5px;background:var(--gold);border-radius:50%;animation:bpulse 2s infinite}
+@keyframes bpulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero-headline{font-family:var(--font-display);font-size:clamp(44px,5.5vw,66px);font-weight:800;letter-spacing:-2.5px;line-height:1.02;color:#fff;margin-bottom:20px;opacity:0;transform:translateY(24px);animation:up 0.7s var(--ease) 0.2s forwards}
+.hero-headline .hl{color:var(--gold)}
+.hero-sub{font-size:17px;font-weight:300;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:36px;max-width:440px;opacity:0;transform:translateY(16px);animation:up 0.7s var(--ease) 0.32s forwards}
+.hero-ctas{display:flex;align-items:center;gap:12px;flex-wrap:wrap;opacity:0;transform:translateY(16px);animation:up 0.7s var(--ease) 0.44s forwards}
+.btn-gold{background:var(--gold);color:#fff;font-family:var(--font-body);font-size:14.5px;font-weight:600;padding:14px 28px;border-radius:9px;border:none;cursor:pointer;text-decoration:none;transition:all 0.22s var(--ease);display:inline-flex;align-items:center;gap:8px}
+.btn-gold:hover{background:var(--gold-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,146,42,0.3)}
+.btn-ghost-w{font-size:14.5px;font-weight:400;color:rgba(255,255,255,0.55);text-decoration:none;display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:2px;transition:all 0.2s}
+.btn-ghost-w:hover{color:#fff;border-color:rgba(255,255,255,0.5)}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;opacity:0;animation:up 0.7s var(--ease) 0.55s forwards}
+.hero-tag{font-size:12px;font-weight:400;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:100px}
+@keyframes up{to{opacity:1;transform:translateY(0)}}
+
+/* hero UI mockup */
+.hero-ui{opacity:0;animation:up 0.8s var(--ease) 0.5s forwards}
+.ui-shell{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden}
+.ui-topbar{background:rgba(255,255,255,0.05);padding:10px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.ui-dot{width:8px;height:8px;border-radius:50%}
+.ui-urlbar{flex:1;background:rgba(255,255,255,0.06);border-radius:5px;padding:5px 10px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.3);margin-left:8px}
+.ui-cards{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.uic{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:9px;overflow:hidden;transition:border-color 0.2s}
+.uic:hover{border-color:rgba(200,146,42,0.3)}
+.uic-img{height:80px;display:flex;align-items:center;justify-content:center;position:relative}
+.uic-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;padding:3px 7px;border-radius:100px}
+.badge-p{color:rgba(200,146,42,0.9);background:rgba(200,146,42,0.15);border:1px solid rgba(200,146,42,0.25)}
+.badge-v{color:rgba(22,160,102,0.9);background:rgba(22,160,102,0.15);border:1px solid rgba(22,160,102,0.25)}
+.uic-body{padding:8px 10px}
+.uic-price{font-family:var(--font-mono);font-size:12px;color:var(--gold);margin-bottom:2px}
+.uic-name{font-size:11px;font-weight:500;color:rgba(255,255,255,0.75);margin-bottom:2px}
+.uic-meta{font-size:10px;color:rgba(255,255,255,0.3)}
+
+/* SECTION COMMONS */
+.section-label{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-label.gold{color:var(--gold-dark)}
+.section-title{font-family:var(--font-display);font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:var(--ink);margin-bottom:12px}
+.section-sub{font-size:16px;font-weight:300;color:var(--ink-muted);line-height:1.75}
+
+/* =========================
+   DESIGN SYSTEM BASE
+========================= */
+
+.demo{
+  padding:90px 48px;
+  background:var(--white);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* TYPOGRAPHY */
+.section-title{
+  font-size:34px;
+  font-weight:700;
+  letter-spacing:-0.6px;
+  color:var(--ink);
+  text-align:center;
+}
+
+.section-sub{
+  font-size:14.5px;
+  color:var(--ink-muted);
+  margin-top:8px;
+  text-align:center;
+  max-width:520px;
+}
+
+/* SECTION HEADINGS */
+.section-label{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.section-title{
+  text-align:center;
+  margin-bottom:14px;
+}
+
+.section-sub{
+  max-width:760px;
+  margin:0 auto;
+  text-align:center;
+  line-height:1.7;
+}
+
+/* DEMO HEADING WRAPPER */
+.demo-heading{
+  width:100%;
+  max-width:1100px;
+  margin:0 auto 40px;
+  text-align:center;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* =========================
+   CATEGORY TABS (FIXED SAAS SEGMENTED CONTROL)
+========================= */
+
+.cat-tabs{
+  display:flex;
+  gap:10px;
+  background:var(--surface-2);
+  padding:6px;
+  border-radius:14px;
+  margin-top:28px;
+  margin-bottom:50px;
+  border:1px solid var(--border);
+  align-items:center;
+  justify-content:center;
+  width:fit-content;
+}
+
+.cat-tab{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding:10px 18px;
+  border-radius:10px;
+
+  border:none;
+  background:transparent;
+  cursor:pointer;
+
+  font-size:13px;
+  font-weight:500;
+  font-family:var(--font-body);
+  color:var(--ink-muted);
+
+  transition:all .25s ease;
+  white-space:nowrap;
+}
+
+.cat-tab svg{
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+  display:block;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.cat-tab span{
+  line-height:1;
+}
+
+.cat-tab:hover{
+  background:rgba(255,255,255,0.7);
+  color:var(--ink);
+}
+
+.cat-tab.active{
+  background:var(--white);
+  color:var(--ink);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   GRID SYSTEM (RESPONSIVE SAAS)
+========================= */
+
+.demo-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:22px;
+  width:100%;
+  max-width:1150px;
+}
+
+/* =========================
+   CARD SYSTEM (AIRBNB / STRIPE STYLE)
+========================= */
+
+.dc{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+
+  display:flex;
+  flex-direction:column;
+
+  transition:all .3s ease;
+  position:relative;
+}
+
+.dc:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 55px rgba(0,0,0,0.12);
+  border-color:rgba(0,0,0,0.08);
+}
+
+/* =========================
+   IMAGE SYSTEM
+========================= */
+
+.dc-img{
+  height:220px;
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#f5f5f5,#eaeaea);
+}
+
+.dc-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .5s ease;
+}
+
+.dc:hover .dc-img img{
+  transform:scale(1.08);
+}
+
+/* IMAGE OVERLAY */
+.dc-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:12px;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 60%);
+}
+
+/* BADGE */
+.dc-badge{
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.6);
+  color:#fff;
+  backdrop-filter:blur(8px);
+}
+
+/* FAVORITE */
+.dc-fav{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+/* =========================
+   BODY CONTENT
+========================= */
+
+.dc-body{
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+}
+
+.dc-price{
+  font-size:15px;
+  font-weight:600;
+  color:var(--gold);
+  margin-bottom:6px;
+}
+
+.dc-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:4px;
+}
+
+.dc-meta{
+  font-size:12.5px;
+  color:var(--ink-muted);
+  margin-bottom:12px;
+}
+
+/* SPECS */
+.dc-specs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.spec{
+  font-size:11.5px;
+  background:var(--surface-2);
+  padding:5px 10px;
+  border-radius:999px;
+  color:var(--ink-muted);
+}
+
+/* =========================
+   CTA SYSTEM (SAAS CONVERSION UX)
+========================= */
+
+.dc-actions{
+  display:flex;
+  gap:10px;
+  margin-top:auto;
+}
+
+.dc-actions a{
+  flex:1;
+  text-align:center;
+  padding:11px 14px;
+  border-radius:12px;
+
+  font-size:13px;
+  font-weight:600;
+  text-decoration:none;
+
+  transition:all .25s ease;
+
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+
+  position:relative;
+}
+
+/* HOVER */
+.dc-actions a:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* PRIMARY CTA */
+.primary-cta{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+}
+
+/* =========================
+   WHATSAPP HOVER PREVIEW
+========================= */
+
+.btn-whatsapp{
+  background:var(--surface-2);
+}
+
+.wa-preview{
+  position:absolute;
+  left:50%;
+  bottom:100%;
+  transform:translateX(-50%);
+  background:var(--ink);
+  color:#fff;
+  font-size:11px;
+  padding:6px 10px;
+  border-radius:8px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s ease;
+  white-space:nowrap;
+  margin-bottom:8px;
+}
+
+.btn-whatsapp:hover .wa-preview{
+  opacity:1;
+}
+
+/* =========================
+   MOBILE STICKY CTA BAR
+========================= */
+
+.mobile-sticky-actions{
+  display:none;
+}
+
+/* =========================
+   RESPONSIVE SYSTEM
+========================= */
+
+@media(max-width:1024px){
+  .demo-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:768px){
+
+  .demo{
+    padding:70px 20px;
+  }
+
+  .demo-grid{
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  .cat-tabs{
+    width:100%;
+    justify-content:stretch;
+  }
+
+  .cat-tab{
+    flex:1;
+  }
+
+  .dc-actions{
+    flex-direction:column;
+  }
+
+  .mobile-sticky-actions{
+    display:flex;
+    position:sticky;
+    bottom:0;
+    background:var(--white);
+    border-top:1px solid var(--border);
+    padding:10px;
+    gap:10px;
+    z-index:10;
+  }
+
+  .mobile-sticky-actions a{
+    flex:1;
+    text-align:center;
+    padding:12px;
+    border-radius:10px;
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+  }
+}
+
+@media(max-width:480px){
+  .section-title{
+    font-size:22px;
+  }
+
+  .dc-img{
+    height:190px;
+  }
+}
+
+/* FEATURES GRID */
+.feats{padding:96px 48px;background:var(--surface-2)}
+.feats-header{max-width:560px;margin-bottom:56px}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.fc{background:var(--white);padding:36px 30px;transition:background 0.2s}
+.fc:hover{background:var(--surface)}
+.fc:first-child{border-radius:14px 0 0 0}
+.fc:nth-child(4){border-radius:0 14px 0 0}
+.fc:nth-child(5){border-radius:0 0 0 14px}
+.fc:last-child{border-radius:0 0 14px 0}
+.fc-icon{width:42px;height:42px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.fc-icon.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark))}
+.fc-icon svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fc-title{font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:8px}
+.fc-desc{font-size:13px;color:var(--ink-muted);font-weight:300;line-height:1.7}
+
+/* VERTICALS */
+.verts{padding:96px 48px;background:var(--white)}
+.vert-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:56px}
+.vc{padding:56px 48px;position:relative;overflow:hidden;transition:all 0.25s var(--ease);cursor:pointer}
+.vc:first-child{background:var(--ink);border-radius:14px 0 0 14px}
+.vc:last-child{background:var(--surface-2);border-radius:0 14px 14px 0}
+.vc:first-child:hover{background:#181814}
+.vc:last-child:hover{background:var(--surface-3)}
+.vc-num{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.2);margin-bottom:20px}
+.vc:last-child .vc-num{color:var(--ink-faint)}
+.vc-icon{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.vc:first-child .vc-icon{background:rgba(255,255,255,0.08)}
+.vc:last-child .vc-icon{background:var(--ink)}
+.vc-icon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.vc-title{font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+.vc:first-child .vc-title{color:#fff}
+.vc:last-child .vc-title{color:var(--ink)}
+.vc-desc{font-size:15px;font-weight:300;line-height:1.8;margin-bottom:24px;max-width:380px}
+.vc:first-child .vc-desc{color:rgba(255,255,255,0.5)}
+.vc:last-child .vc-desc{color:var(--ink-muted)}
+.vc-list{display:flex;flex-direction:column;gap:9px;margin-bottom:28px}
+.vc-item{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:300}
+.vc:first-child .vc-item{color:rgba(255,255,255,0.6)}
+.vc:last-child .vc-item{color:var(--ink-muted)}
+.vc-ck{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vc:first-child .vc-ck{background:rgba(200,146,42,0.15);border:1px solid rgba(200,146,42,0.3)}
+.vc:last-child .vc-ck{background:var(--accent-light);border:1px solid rgba(22,160,102,0.2)}
+.vc-ck svg{width:8px;height:8px;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.vc:first-child .vc-ck svg{stroke:var(--gold)}
+.vc:last-child .vc-ck svg{stroke:var(--accent)}
+.vc-link{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;text-decoration:none;padding-bottom:2px;transition:gap 0.2s}
+.vc:first-child .vc-link{color:var(--gold);border-bottom:1px solid rgba(200,146,42,0.3)}
+.vc:last-child .vc-link{color:var(--accent-dark);border-bottom:1px solid rgba(22,160,102,0.3)}
+.vc-link:hover{gap:14px}
+
+/* HOW */
+.how{padding:96px 48px;background:var(--surface)}
+.how-track{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:64px;position:relative}
+.how-track-line{position:absolute;top:26px;left:12.5%;right:12.5%;height:1px;background:var(--border-2)}
+.hs{position:relative;z-index:1;padding-right:20px}
+.hs-bubble{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--border-2);background:var(--white);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--ink-muted);transition:all 0.2s}
+.hs:first-child .hs-bubble,.hs:hover .hs-bubble{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
+.hs-title{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:8px}
+.hs-desc{font-size:13.5px;color:var(--ink-muted);font-weight:300;line-height:1.75}
+
+/* CTA */
+.cta{padding:96px 48px;background:var(--ink);text-align:center}
+.cta-inner{max-width:820px;margin:0 auto}
+.cta-ey{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.cta-h{font-family:var(--font-display);font-size:clamp(34px,5vw,58px);font-weight:800;letter-spacing:-2px;line-height:1.05;color:#fff;margin-bottom:16px}
+.cta-s{font-size:16px;font-weight:300;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-acts{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{background:#060606;padding:36px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border-top:1px solid rgba(255,255,255,0.05)}
+.fl{display:flex;align-items:center;gap:10px}
+.fl-mark{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center}
+.fl-mark svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fl-name{font-family:var(--font-display);font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.3px}
+.fl-by{font-size:11.5px;color:rgba(255,255,255,0.25)}
+.flinks{display:flex;gap:18px}
+.flinks a{font-size:12.5px;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.flinks a:hover{color:rgba(255,255,255,0.7)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s var(--ease),transform 0.65s var(--ease)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+
+@media(max-width:960px){
+  nav{padding:0 20px}
+  .hero,.demo,.feats,.verts,.how,.cta,footer{padding-left:20px;padding-right:20px}
+  .hero{grid-template-columns:1fr;padding-top:100px}
+  .hero-right{display:none}
+  .demo-grid{grid-template-columns:1fr 1fr}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .fc:first-child,.fc:nth-child(4),.fc:nth-child(5),.fc:last-child{border-radius:0}
+  .fc:first-child{border-radius:14px 14px 0 0}
+  .fc:last-child{border-radius:0 0 14px 14px}
+  .vert-row{grid-template-columns:1fr}
+  .vc:first-child{border-radius:14px 14px 0 0}
+  .vc:last-child{border-radius:0 0 14px 14px}
+  .how-track{grid-template-columns:1fr 1fr;gap:32px}
+  .how-track-line{display:none}
+  footer{flex-direction:column;text-align:center}
+}
+@media(max-width:600px){.demo-grid{grid-template-columns:1fr}.feat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="recaptcha-overlay">
+  <div class="recaptcha-content">
+    <div class="recaptcha-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+    </div>
+    <h3 class="recaptcha-title">Verifying Access</h3>
+    <p class="recaptcha-subtitle">Please wait while we verify you're not a robot...</p>
+    <div class="recaptcha-loader">
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">
+  <div class="nav-logo-mark"><img src="savvionagency-logo.png" alt="Savvion Agency Logo" width="16" height="16"></div>
+  Savvion Listings <span class="nav-by">Powered by Savvion</span>
+</a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-link">← Savvion</a>
+    <a href="Savvion bookings.html" class="nav-link">Savvion Bookings →</a>
+    <a href="index.html#contact" class="btn-nav-gold">Get this built →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div><div class="hero-glow-2"></div>
+  <div class="hero-left">
+    <div class="hero-by"><span class="hero-by-dot"></span>Savvion Product</div>
+    <h1 class="hero-headline">Your Marketplace.<br>Built to <span class="hl">List & Sell.</span></h1>
+    <p class="hero-sub">Savvion Listings is a turnkey marketplace layer for businesses that need to publish, manage, and convert property or vehicle listings — without building from scratch.</p>
+    <div class="hero-ctas">
+      <a href="index.html#contact" class="btn-gold">Get this built for you →</a>
+      <a href="#verticals" class="btn-ghost-w">See what it covers</a>
+    </div>
+    <div class="hero-tags">
+      <span class="hero-tag">Property Listings</span>
+      <span class="hero-tag">Vehicle Dealerships</span>
+      <span class="hero-tag">Search & Filter</span>
+      <span class="hero-tag">Lead Capture</span>
+      <span class="hero-tag">Admin CMS</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-ui">
+      <div class="ui-shell">
+        <div class="ui-topbar">
+          <div class="ui-dot" style="background:rgba(255,100,100,0.4)"></div>
+          <div class="ui-dot" style="background:rgba(255,200,0,0.4)"></div>
+          <div class="ui-dot" style="background:rgba(50,200,100,0.4)"></div>
+          <div class="ui-urlbar">savvion.yourbusiness.co.ke/listings</div>
+        </div>
+        <div class="ui-cards">
+          <div class="uic"><div class="uic-img" style="background:linear-gradient(135deg,#1e1e18,#2e2822)"><div class="uic-badge badge-p">Property</div><svg width="36" height="36" viewBox="0 0 40 40" fill="none"><path d="M6 36V18l14-9 14 9v18" stroke="rgba(200,146,42,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="24" width="12" height="12" rx="1" stroke="rgba(200,146,42,0.3)" stroke-width="1"/></svg></div><div class="uic-body"><div class="uic-price">KSh 12.5M</div><div class="uic-name">3BR Apartment, Westlands</div><div class="uic-meta">3 bed · 2 bath · 145m²</div></div></div>
+          <div class="uic"><div class="uic-img" style="background:linear-gradient(135deg,#161e1c,#1c2a22)"><div class="uic-badge badge-v">Vehicle</div><svg width="36" height="36" viewBox="0 0 40 40" fill="none"><path d="M6 28h28M10 28l4-10h12l4 10" stroke="rgba(22,160,102,0.4)" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="31" r="3" stroke="rgba(22,160,102,0.4)" stroke-width="1.2"/><circle cx="26" cy="31" r="3" stroke="rgba(22,160,102,0.4)" stroke-width="1.2"/></svg></div><div class="uic-body"><div class="uic-price">KSh 3.2M</div><div class="uic-name">Toyota RAV4 2021</div><div class="uic-meta">45,000 km · Petrol · Auto</div></div></div>
+          <div class="uic"><div class="uic-img" style="background:linear-gradient(135deg,#1a1a16,#262420)"><div class="uic-badge badge-p">To Let</div><svg width="36" height="36" viewBox="0 0 40 40" fill="none"><rect x="8" y="12" width="24" height="22" rx="2" stroke="rgba(200,146,42,0.3)" stroke-width="1.5"/><path d="M14 12V9a6 6 0 0112 0v3" stroke="rgba(200,146,42,0.2)" stroke-width="1.2" fill="none"/></svg></div><div class="uic-body"><div class="uic-price">KSh 85K/mo</div><div class="uic-name">Office Space, CBD</div><div class="uic-meta">Open plan · 320m² · Lift</div></div></div>
+          <div class="uic"><div class="uic-img" style="background:linear-gradient(135deg,#14201a,#1c2a20)"><div class="uic-badge badge-v">Dealership</div><svg width="36" height="36" viewBox="0 0 40 40" fill="none"><path d="M4 30h32M8 30l5-12h14l5 12" stroke="rgba(22,160,102,0.35)" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="33" r="3" stroke="rgba(22,160,102,0.4)" stroke-width="1.2"/><circle cx="26" cy="33" r="3" stroke="rgba(22,160,102,0.4)" stroke-width="1.2"/></svg></div><div class="uic-body"><div class="uic-price">KSh 1.8M</div><div class="uic-name">Honda Fit 2019</div><div class="uic-meta">32,000 km · Hybrid · CVT</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Savvion LISTINGS -->
+ <section class="demo">
+<div style="width:100%;max-width:1100px">
+  <div class="section-label gold">Savvion System</div>
+  <h2 class="section-title">One system. Multiple business workflows.</h2>
+  <p class="section-sub">
+    Manage listings, customer conversations, bookings, and lead pipelines from a single connected web platform.
+  </p>
+</div>
+
+  <div class="cat-tabs">
+  <button class="cat-tab active" onclick="switchCat('property',this)">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 12V6l6-3 6 3v6l-6 3-6-3z"/>
+    </svg>
+    <span>Property</span>
+  </button>
+
+  <button class="cat-tab" onclick="switchCat('vehicle',this)">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 11h12M4 11l2-5h4l2 5"/>
+      <circle cx="5" cy="13" r="1.5"/>
+      <circle cx="11" cy="13" r="1.5"/>
+    </svg>
+    <span>Vehicles</span>
+  </button>
+</div>
+
+  <!-- ================= PROPERTY GRID ================= -->
+  <div class="demo-grid" id="propGrid">
+
+    <!-- CARD -->
+    <div class="dc reveal" data-category="property">
+
+      <div class="dc-img">
+        <img src="savvion-karenke-.jpg" alt="2BR Townhouse — Karen"/>
+
+        <div class="dc-overlay">
+          <div class="dc-badge">For Sale</div>
+          <div class="dc-fav">♡</div>
+        </div>
+      </div>
+
+      <div class="dc-body">
+
+        <div class="dc-price">KSh 18,500,000</div>
+        <div class="dc-title">2BR Townhouse — Karen</div>
+        <div class="dc-meta">Karen, Nairobi · Listed 3 days ago</div>
+
+        <div class="dc-specs">
+          <div class="spec">4 Bed</div>
+          <div class="spec">3 Bath</div>
+          <div class="spec">280m²</div>
+        </div>
+
+        <!-- CTA -->
+        <div class="dc-actions">
+          <a href="tel:+254713082563" class="btn-call primary-cta js-primary">
+            Check Availability
+          </a>
+
+          <a href="https://wa.me/254713082563" class="btn-whatsapp js-whatsapp">
+            WhatsApp
+            <span class="wa-preview">+254 713 082 563</span>
+          </a>
+        </div>
+
+        <!-- MOBILE STICKY BAR -->
+        <div class="mobile-sticky-actions">
+          <a href="tel:+254713082563">Call</a>
+          <a href="https://wa.me/254713082563">WhatsApp</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="dc reveal reveal-delay-1" data-category="property">
+
+      <div class="dc-img">
+        <img src="savvion-property.jpg" alt="Apartment"/>
+
+        <div class="dc-overlay">
+          <div class="dc-badge">To Let</div>
+          <div class="dc-fav">♡</div>
+        </div>
+      </div>
+
+      <div class="dc-body">
+
+        <div class="dc-price">KSh 120,000 /mo</div>
+        <div class="dc-title">2BR Apartment — Lavington</div>
+        <div class="dc-meta">Lavington, Nairobi · Available now</div>
+
+        <div class="dc-specs">
+          <div class="spec">2 Bed</div>
+          <div class="spec">2 Bath</div>
+          <div class="spec">Furnished</div>
+        </div>
+
+        <div class="dc-actions">
+          <a href="tel:+254713082563" class="btn-call primary-cta js-primary">
+            Check Availability
+          </a>
+
+          <a href="https://wa.me/254713082563" class="btn-whatsapp js-whatsapp">
+            WhatsApp
+            <span class="wa-preview">+254 713 082 563</span>
+          </a>
+        </div>
+
+        <div class="mobile-sticky-actions">
+          <a href="tel:+254713082563">Call</a>
+          <a href="https://wa.me/254713082563">WhatsApp</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="dc reveal reveal-delay-2" data-category="property">
+
+      <div class="dc-img">
+        <img src="savvion-office-listings.jpg" alt="Office"/>
+
+        <div class="dc-overlay">
+          <div class="dc-badge">Commercial</div>
+          <div class="dc-fav">♡</div>
+        </div>
+      </div>
+
+      <div class="dc-body">
+
+        <div class="dc-price">KSh 350,000 /mo</div>
+        <div class="dc-title">Office Floor — Upper Hill</div>
+        <div class="dc-meta">Upper Hill, Nairobi · Grade A</div>
+
+        <div class="dc-specs">
+          <div class="spec">Open plan</div>
+          <div class="spec">520m²</div>
+          <div class="spec">Parking</div>
+        </div>
+
+        <div class="dc-actions">
+          <a href="tel:+254713082563" class="btn-call primary-cta js-primary">
+            Check Availability
+          </a>
+
+          <a href="https://wa.me/254713082563" class="btn-whatsapp js-whatsapp">
+            WhatsApp
+            <span class="wa-preview">+254 713 082 563</span>
+          </a>
+        </div>
+
+        <div class="mobile-sticky-actions">
+          <a href="tel:+254713082563">Call</a>
+          <a href="https://wa.me/254713082563">WhatsApp</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= VEHICLE GRID ================= -->
+<div class="demo-grid" id="vehGrid" style="display:none">
+
+  <div class="dc reveal" data-category="vehicle">
+
+    <div class="dc-img">
+      <img src="savvion-landcruise-2025.jpg" alt="Toyota Land Cruiser Prado 2025"/>
+
+      <div class="dc-overlay">
+        <div class="dc-badge">For Sale</div>
+        <div class="dc-fav">♡</div>
+      </div>
+    </div>
+
+    <div class="dc-body">
+
+      <div class="dc-price">KSh 18,000,000</div>
+      <div class="dc-title">Toyota Land Cruiser Prado 2025</div>
+      <div class="dc-meta">Nairobi · Verified dealer</div>
+
+      <div class="dc-specs">
+        <div class="spec">62,000 km</div>
+        <div class="spec">Diesel</div>
+        <div class="spec">Auto</div>
+      </div>
+
+      <div class="dc-actions">
+        <a href="tel:0795582978" class="btn-call primary-cta js-primary">
+          Check Availability
+        </a>
+
+        <a href="https://wa.me/254795582978" class="btn-whatsapp js-whatsapp">
+          WhatsApp
+          <span class="wa-preview">+254 795 582 978</span>
+        </a>
+      </div>
+
+      <div class="mobile-sticky-actions">
+        <a href="tel:0795582978">Call</a>
+        <a href="https://wa.me/254795582978">WhatsApp</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dc reveal" data-category="vehicle">
+
+    <div class="dc-img">
+      <img src="savvion-mercedes AMG E63s.jpg" alt="Mercedes AMG E63s"/>
+
+      <div class="dc-overlay">
+        <div class="dc-badge">For Sale</div>
+        <div class="dc-fav">♡</div>
+      </div>
+    </div>
+
+    <div class="dc-body">
+
+      <div class="dc-price">KSh 11,999,999</div>
+      <div class="dc-title">Mercedes AMG E63s</div>
+      <div class="dc-meta">Industrial Area · Private seller</div>
+
+      <div class="dc-specs">
+        <div class="spec">4.0L twin-turbo V8</div>
+        <div class="spec">603 hp</div>
+        <div class="spec">850 Nm torque</div>
+      </div>
+
+      <div class="dc-actions">
+        <a href="tel:0795582978" class="btn-call primary-cta js-primary">
+          Check Availability
+        </a>
+
+        <a href="https://wa.me/254795582978" class="btn-whatsapp js-whatsapp">
+          WhatsApp
+          <span class="wa-preview">+254 795 582 978</span>
+        </a>
+      </div>
+
+      <div class="mobile-sticky-actions">
+        <a href="tel:0795582978">Call</a>
+        <a href="https://wa.me/254795582978">WhatsApp</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dc reveal" data-category="vehicle">
+
+    <div class="dc-img">
+      <img src="savvion-Audi A6 2018 Gray.jpg" alt="Audi A6 2018"/>
+
+      <div class="dc-overlay">
+        <div class="dc-badge">Dealership</div>
+        <div class="dc-fav">♡</div>
+      </div>
+    </div>
+
+    <div class="dc-body">
+
+      <div class="dc-price">KSh 4,900,000</div>
+      <div class="dc-title">Audi A6 2018</div>
+      <div class="dc-meta">Kiambu · Certified dealer</div>
+
+      <div class="dc-specs">
+        <div class="spec">74,430 km</div>
+        <div class="spec">Automatic</div>
+        <div class="spec">Petrol</div>
+      </div>
+
+      <div class="dc-actions">
+        <a href="tel:0795582978" class="btn-call primary-cta js-primary">
+          Check Availability
+        </a>
+
+        <a href="https://wa.me/254795582978" class="btn-whatsapp js-whatsapp">
+          WhatsApp
+          <span class="wa-preview">+254 795 582 978</span>
+        </a>
+      </div>
+
+      <div class="mobile-sticky-actions">
+        <a href="tel:0795582978">Call</a>
+        <a href="https://wa.me/254795582978">WhatsApp</a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- FEATURES -->
+<section class="feats">
+  <div class="feats-header reveal">
+    <div class="section-label gold">Built-in capabilities</div>
+    <h2 class="section-title">Everything a marketplace needs</h2>
+    <p class="section-sub">No plugins stitched together. Purpose-built as a single, coherent marketplace layer.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="fc reveal"><div class="fc-icon gold"><svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M17 17l-4-4"/></svg></div><div class="fc-title">Smart Search & Filters</div><p class="fc-desc">Location, price, property type, bedrooms, vehicle make/model/year — all filterable in real time.</p></div>
+    <div class="fc reveal reveal-delay-1"><div class="fc-icon"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M3 8h14M7 12h2M11 12h2"/></svg></div><div class="fc-title">Listing Management CMS</div><p class="fc-desc">Admin dashboard to publish, edit, archive, and feature listings. Bulk import via CSV or API.</p></div>
+    <div class="fc reveal reveal-delay-2"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M4 4h12v12H4z"/><path d="M4 9h12M9 4v12"/></svg></div><div class="fc-title">Lead Capture Built In</div><p class="fc-desc">Inquiry forms, WhatsApp CTAs, call-to-action overlays — every listing is a conversion surface.</p></div>
+    <div class="fc reveal reveal-delay-3"><div class="fc-icon gold"><svg viewBox="0 0 20 20"><path d="M3 14l4-5 3 3 4-6 3 3"/></svg></div><div class="fc-title">Analytics & Performance</div><p class="fc-desc">Listing views, inquiry rates, most-searched filters — visible in a clean dashboard or Google Analytics.</p></div>
+    <div class="fc reveal"><div class="fc-icon"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3a10 10 0 010 14"/></svg></div><div class="fc-title">SEO-Optimised Structure</div><p class="fc-desc">Each listing gets a unique, indexable URL with schema markup. Sitemap auto-generated. Built to rank.</p></div>
+    <div class="fc reveal reveal-delay-1"><div class="fc-icon"><svg viewBox="0 0 20 20"><rect x="4" y="2" width="12" height="16" rx="2"/><path d="M7 7h6M7 10h6M7 13h4"/></svg></div><div class="fc-title">Multi-Agent / Dealer Support</div><p class="fc-desc">Assign listings to agents, branches, or dealerships. Each with their own dashboard and performance view.</p></div>
+    <div class="fc reveal reveal-delay-2"><div class="fc-icon gold"><svg viewBox="0 0 20 20"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L10 14.5l-4.8 2.4.9-5.4L2.2 7.7l5.4-.8L10 2z"/></svg></div><div class="fc-title">Featured & Boosted Listings</div><p class="fc-desc">Mark listings as featured, urgent, or premium. Supports your own internal or paid-boost revenue model.</p></div>
+    <div class="fc reveal reveal-delay-3"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M4 4h12v4H4zM4 12h12v4H4z"/><path d="M8 4v12M14 4v12"/></svg></div><div class="fc-title">Mobile-First & Fast</div><p class="fc-desc">Responsive, image-optimised, lazy-loaded, and Core Web Vitals-ready. Works on 3G and low-end devices.</p></div>
+  </div>
+</section>
+
+<!-- VERTICALS -->
+<section class="verts" id="verticals">
+  <div class="reveal">
+    <div class="section-label gold">Two verticals. One platform.</div>
+    <h2 class="section-title">Property & Vehicles — covered</h2>
+  </div>
+  <div class="vert-row">
+    <div class="vc reveal">
+      <div class="vc-num">01 /</div>
+      <div class="vc-icon"><svg viewBox="0 0 28 28"><path d="M4 22V11L14 5l10 6v11" stroke-linecap="round" stroke-linejoin="round"/><rect x="9" y="14" width="10" height="8" rx="1"/></svg></div>
+      <div class="vc-title">Property Listings</div>
+      <p class="vc-desc">For real estate agencies, property managers, landlords, and developers. Residential, commercial, short-let, and land — all in one searchable marketplace.</p>
+      <div class="vc-list">
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>For sale, to let, short-let, off-plan</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Floor plan & gallery uploads</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Google Maps integration</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Agent / agency profiles</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Valuation request CTA</div>
+      </div>
+      <a href="index.html#contact" class="vc-link">Build my property listings <span>→</span></a>
+    </div>
+    <div class="vc reveal reveal-delay-1">
+      <div class="vc-num">02 /</div>
+      <div class="vc-icon"><svg viewBox="0 0 28 28"><path d="M4 20h20M7 20l4-9h6l4 9"/><circle cx="10" cy="22" r="2.5"/><circle cx="18" cy="22" r="2.5"/><path d="M12 13h4"/></svg></div>
+      <div class="vc-title">Vehicle / Dealership Listings</div>
+      <p class="vc-desc">For car dealers, importers, auction platforms, and individual sellers. Multi-brand, multi-branch — with deep spec filters buyers actually use.</p>
+      <div class="vc-list">
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Make, model, year, trim level</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Mileage, fuel type, transmission</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Dealer branch profiles</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>360° image & video support</div>
+        <div class="vc-item"><div class="vc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div>Test drive / enquiry CTA</div>
+      </div>
+      <a href="index.html#contact" class="vc-link">Build my vehicle listings <span>→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="reveal">
+    <div class="section-label gold">How it works</div>
+    <h2 class="section-title">From brief to live marketplace</h2>
+  </div>
+  <div class="how-track">
+    <div class="how-track-line"></div>
+    <div class="hs reveal"><div class="hs-bubble">1</div><div class="hs-title">Discovery & scope</div><p class="hs-desc">We map your listing categories, search requirements, CRM needs, and design direction in one structured session.</p></div>
+    <div class="hs reveal reveal-delay-1"><div class="hs-bubble">2</div><div class="hs-title">Design & prototype</div><p class="hs-desc">High-fidelity UI built to your brand — listing cards, filters, detail pages, admin dashboard. You approve before we build.</p></div>
+    <div class="hs reveal reveal-delay-2"><div class="hs-bubble">3</div><div class="hs-title">Build & integrate</div><p class="hs-desc">Full marketplace layer built — connected to your domain, CRM, WhatsApp, and analytics stack.</p></div>
+    <div class="hs reveal reveal-delay-3"><div class="hs-bubble">4</div><div class="hs-title">Launch & hand over</div><p class="hs-desc">Go live with full handover and training. Ongoing management available or we give you the keys.</p></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-ey">Ready to list?</div>
+    <h2 class="cta-h">Your marketplace.<br>Built by Savvion.</h2>
+    <p class="cta-s">Tell us what you're selling and who's buying — we'll scope, design, and build your Savvion Listings layer end to end.</p>
+    <div class="cta-acts">
+      <a href="index.html#contact" class="btn-gold">Get this built for me →</a>
+      <a href="savvion-bookings.html" class="btn-ghost-w">See Savvion Bookings →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl"><div class="fl-mark"><svg viewBox="0 0 16 16"><path d="M2 12V5l6-3 6 3v7l-6 3-6-3z"/><path d="M8 2v13M2 5l6 3 6-3"/></svg></div><div><div class="fl-name">Savvion Listings</div><div class="fl-by">A product by Savvion</div></div></div>
+  <div class="flinks"><a href="index.html">Savvion Listings</a><a href="savvion-bookings.html">Savvion Bookings</a><a href="index.html#contact">Contact</a><a href="mailto:hello@savvion.co.ke">hello@savvion.co.ke</a></div>
+</footer>
+
+<script>
+/* =========================
+   NAV SCROLL STATE
+========================= */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav')
+    .classList.toggle('scrolled', scrollY > 40);
+}, { passive: true });
+
+/* =========================
+   REVEAL ANIMATION SYSTEM
+========================= */
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      ro.unobserve(entry.target);
+    }
+  });
+}, {
+  threshold: 0.1,
+  rootMargin: '0px 0px -40px 0px'
+});
+
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+/* =========================
+   SMOOTH ANCHOR SCROLL
+========================= */
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', e => {
+    const target = document.querySelector(anchor.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
+});
+
+/* =========================
+   CATEGORY SWITCH SYSTEM
+========================= */
+function switchCat(cat, btn) {
+  document.querySelectorAll('.cat-tab')
+    .forEach(t => t.classList.remove('active'));
+
+  btn.classList.add('active');
+
+  document.getElementById('propGrid').style.display =
+    cat === 'property' ? 'grid' : 'none';
+
+  document.getElementById('vehGrid').style.display =
+    cat === 'vehicle' ? 'grid' : 'none';
+
+  // Re-run CTA logic when switching categories
+  applySmartCTA();
+}
+
+/* =========================
+   SMART CTA SYSTEM (SAAS UX)
+========================= */
+function applySmartCTA() {
+  document.querySelectorAll('.dc').forEach(card => {
+
+    const category = card.dataset.category;
+    const callBtn = card.querySelector('a[href^="tel"]');
+    const waBtn = card.querySelector('.btn-whatsapp');
+
+    if (!callBtn || !waBtn) return;
+
+    /* DEFAULT RESET */
+    callBtn.classList.remove('primary-cta');
+
+    /* =========================
+       PROPERTY LOGIC
+    ========================= */
+    if (category === 'property') {
+      callBtn.textContent = 'Check Availability';
+      callBtn.classList.add('primary-cta');
+      waBtn.textContent = 'WhatsApp';
+    }
+
+    /* =========================
+       VEHICLE LOGIC
+    ========================= */
+    if (category === 'vehicle') {
+      callBtn.textContent = 'Call Dealer';
+      callBtn.classList.add('primary-cta');
+      waBtn.textContent = 'WhatsApp';
+    }
+  });
+}
+
+/* Run once on load */
+applySmartCTA();
+
+/* =========================
+   WHATSAPP HOVER PREVIEW UX
+========================= */
+document.querySelectorAll('.btn-whatsapp').forEach(btn => {
+  const preview = btn.querySelector('.wa-preview');
+  if (!preview) return;
+
+  btn.addEventListener('mouseenter', () => {
+    preview.style.opacity = '1';
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    preview.style.opacity = '0';
+  });
+});
+
+/* =========================
+   RECAPTCHA VERIFICATION
+   ========================= */
+(function() {
+  const overlay = document.getElementById('recaptcha-overlay');
+  const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
+  
+  // Check if already verified in this session
+  if (sessionStorage.getItem('recaptchaVerified') === 'true') {
+    if (overlay) overlay.classList.add('hidden');
+    document.body.classList.add('verified');
+    return;
+  }
+  
+  // Function to verify reCaptcha token
+  function verifyRecaptcha() {
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) {
+            overlay.classList.add('hidden');
+            setTimeout(() => {
+              overlay.style.display = 'none';
+            }, 500);
+          }
+          document.body.classList.add('verified');
+        }).catch(function(error) {
+          console.error('reCaptcha error:', error);
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) overlay.classList.add('hidden');
+          document.body.classList.add('verified');
+        });
+      });
+    } else {
+      setTimeout(() => {
+        sessionStorage.setItem('recaptchaVerified', 'true');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.add('verified');
+      }, 2000);
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifyRecaptcha);
+  } else {
+    verifyRecaptcha();
+  }
+})();
+</script>
+</body>
+</html>

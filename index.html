@@ -25,21 +25,147 @@
   --font-body:'Inter',sans-serif;
   --ease-out:cubic-bezier(0.16,1,0.3,1);
 }
+/* Dark Theme Variables */
+body.dark-theme{
+  --ink:#E8E6E1;
+  --ink-2:#D0D0C8;
+  --ink-muted:#A0A098;
+  --ink-faint:#C0C0B8;
+  --surface:#12120E;
+  --surface-2:#1C1C16;
+  --surface-3:#25251E;
+  --white:#1E1E18;
+  --accent:#4DB88A;
+  --accent-light:#1A332A;
+  --accent-dark:#6AC89A;
+  --border:rgba(255,255,255,0.08);
+  --border-2:rgba(255,255,255,0.12);
+}
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--surface);color:var(--ink);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
 
+/* =========================
+   RECAPTCHA VERIFICATION OVERLAY
+   ========================= */
+#recaptcha-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:var(--surface);
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 0.5s ease;
+}
+#recaptcha-overlay.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+.recaptcha-content{
+  text-align:center;
+  max-width:400px;
+  padding:40px;
+}
+.recaptcha-icon{
+  width:64px;
+  height:64px;
+  margin:0 auto 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--accent-light);
+  border-radius:50%;
+}
+.recaptcha-icon svg{
+  width:32px;
+  height:32px;
+  stroke:var(--accent);
+  fill:none;
+  stroke-width:2;
+}
+.recaptcha-title{
+  font-family:var(--font-display);
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.recaptcha-subtitle{
+  font-size:15px;
+  color:var(--ink-muted);
+  margin-bottom:24px;
+  line-height:1.6;
+}
+.recaptcha-loader{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-top:16px;
+}
+.recaptcha-loader-dot{
+  width:8px;
+  height:8px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:recaptchaPulse 1.4s ease-in-out infinite both;
+}
+.recaptcha-loader-dot:nth-child(1){animation-delay:-0.32s}
+.recaptcha-loader-dot:nth-child(2){animation-delay:-0.16s}
+@keyframes recaptchaPulse{
+  0%,80%,100%{transform:scale(0);opacity:0.5}
+  40%{transform:scale(1);opacity:1}
+}
+body.verified{
+  overflow:auto;
+}
+body:not(.verified){
+  overflow:hidden;
+}
+
 /* NAV */
 nav{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
+  position:fixed;top:40px;left:0;right:0;z-index:1000;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 48px;height:64px;
   background:rgba(250,250,248,0);
   backdrop-filter:blur(0px);
   border-bottom:1px solid transparent;
   transition:background 0.4s var(--ease-out),backdrop-filter 0.4s,border-color 0.4s;
+}
+
+/* TOP TICKER BANNER */
+.top-ticker{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  background:var(--accent);
+  color:#fff;
+  text-align:center;
+  padding:10px 0;
+  z-index:1001;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.top-ticker-link{
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:500;
+  font-family:var(--font-body);
+  transition:opacity 0.2s;
+}
+
+.top-ticker-link:hover{
+  opacity:0.8;
 }
 nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border-bottom-color:var(--border)}
 .nav-logo{font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
@@ -48,6 +174,144 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 .nav-center{display:flex;align-items:center;gap:4px}
 .nav-center a{font-size:13.5px;color:var(--ink-muted);text-decoration:none;font-weight:400;padding:6px 14px;border-radius:6px;transition:color 0.2s,background 0.2s}
 .nav-center a:hover{color:var(--ink);background:var(--surface-2)}
+.btn-nav{background:var(--ink);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
+.btn-nav:hover{background:#2a2a2a;transform:translateY(-1px)}
+
+/* Theme Toggle */
+.theme-toggle{background:rgba(0,0,0,0.08);border:1px solid var(--border);color:var(--ink);width:44px;height:44px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s;flex-shrink:0}
+.theme-toggle:hover{background:var(--surface-2);transform:rotate(15deg)}
+.dark-theme .theme-toggle:hover{background:rgba(255,255,255,0.1)}
+.theme-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;transition:transform 0.4s ease}
+.dark-theme .theme-toggle svg{transform:rotate(40deg)}
+.theme-toggle .sun-icon{display:block}
+.theme-toggle .moon-icon{display:none}
+.dark-theme .theme-toggle .sun-icon{display:none}
+.dark-theme .theme-toggle .moon-icon{display:block}
+
+/* DROPDOWN TRIGGER */
+.nav-dropdown{position:relative}
+.nav-dropdown-trigger{
+  font-size:13.5px;color:var(--ink-muted);font-weight:400;
+  padding:6px 14px;border-radius:6px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:color 0.2s,background 0.2s;
+  user-select:none;border:none;background:none;font-family:var(--font-body);
+}
+.nav-dropdown-trigger:hover,.nav-dropdown:hover .nav-dropdown-trigger{color:var(--ink);background:var(--surface-2)}
+.nav-dropdown-trigger svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;transition:transform 0.25s var(--ease-out)}
+.nav-dropdown:hover .nav-dropdown-trigger svg{transform:rotate(180deg)}
+
+/* MEGA MENU */
+.mega-menu{
+  position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);
+  width:640px;
+  background:var(--white);border:1px solid var(--border-2);
+  border-radius:16px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
+  padding:24px;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateX(-50%) translateY(-8px);
+  transition:opacity 0.25s var(--ease-out),transform 0.25s var(--ease-out),visibility 0.25s;
+}
+.nav-dropdown:hover .mega-menu{
+  opacity:1;visibility:visible;pointer-events:all;
+  transform:translateX(-50%) translateY(0);
+}
+.mega-menu-header{
+  font-size:10.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:8px;padding:0 4px;
+}
+.mega-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.mega-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;border-radius:9px;cursor:pointer;
+  text-decoration:none;transition:background 0.15s;
+}
+.mega-item:hover{background:var(--surface)}
+.mega-item-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+  background:var(--surface-2);transition:background 0.15s;
+}
+.mega-item:hover .mega-item-icon{background:var(--accent-light)}
+.mega-item-icon svg{width:15px;height:15px;stroke:var(--ink-muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.15s}
+.mega-item:hover .mega-item-icon svg{stroke:var(--accent-dark)}
+.mega-item-name{font-size:13px;font-weight:500;color:var(--ink);line-height:1.3;margin-bottom:2px}
+.mega-item-desc{font-size:11.5px;color:var(--ink-faint);font-weight:300;line-height:1.4}
+.mega-divider{height:1px;background:var(--border);margin:16px 0}
+/* products row inside mega */
+.mega-products{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.mega-product{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:9px;
+  text-decoration:none;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border);
+  transition:all 0.15s;
+}
+.mega-product:hover{background:var(--accent-light);border-color:rgba(22,160,102,0.25)}
+.mega-product-icon{width:32px;height:32px;border-radius:8px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mega-product-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round}
+.mega-product-name{font-size:12.5px;font-weight:600;color:var(--ink);letter-spacing:-0.2px}
+.mega-product-tag{font-size:10.5px;color:var(--accent-dark);font-weight:400}
+
+.mega-group-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px;padding:0 4px}
+.mega-item-accent{background:var(--accent-light)!important;border:1px solid rgba(22,160,102,0.15);border-radius:9px}
+.mega-item-accent:hover{background:#d4f0e4!important}
+.mega-icon-accent{background:var(--accent-light)!important;border:1px solid rgba(22,160,102,0.2)!important}
+.mega-icon-accent svg{stroke:var(--accent-dark)!important}
+.mega-icon-ai{background:linear-gradient(135deg,#1A1A1A,#333)!important}
+.mega-icon-ai svg{stroke:#fff!important}
+.mega-item-gsc{background:var(--surface-2);border-radius:9px;border:1px solid var(--border)}
+.mega-item-gsc:hover{background:var(--surface-3)!important}
+.mega-icon-gsc{background:linear-gradient(135deg,#1558D6,#0D3E9E)!important}
+.mega-icon-gsc svg{stroke:#fff!important}
+
+/* PRODUCTS NAV ITEM */
+.nav-products-trigger{
+  font-size:13.5px;color:var(--accent-dark);font-weight:500;
+  padding:5px 12px;border-radius:6px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  background:var(--accent-light);border:1px solid rgba(22,160,102,0.2);
+  transition:all 0.2s;user-select:none;position:relative;
+}
+.nav-products-trigger:hover{background:#d4f0e4;border-color:rgba(22,160,102,0.35)}
+.nav-products-trigger svg{width:12px;height:12px;stroke:var(--accent-dark);fill:none;stroke-width:2;stroke-linecap:round;transition:transform 0.25s var(--ease-out)}
+.nav-dropdown:hover .nav-products-trigger svg{transform:rotate(180deg)}
+
+/* products mini-menu */
+.products-menu{
+  position:absolute;top:calc(100% + 10px);right:0;
+  width:300px;
+  background:var(--white);border:1px solid var(--border-2);
+  border-radius:14px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
+  padding:16px;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(-8px);
+  transition:opacity 0.25s var(--ease-out),transform 0.25s var(--ease-out),visibility 0.25s;
+}
+.nav-dropdown:hover .products-menu{
+  opacity:1;visibility:visible;pointer-events:all;
+  transform:translateY(0);
+}
+.products-menu-header{font-size:10.5px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;padding:0 4px}
+.product-link{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:10px;text-decoration:none;
+  transition:background 0.15s;border:1px solid transparent;margin-bottom:6px;
+}
+.product-link:last-child{margin-bottom:0}
+.product-link:hover{background:var(--surface);border-color:var(--border)}
+.product-link-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.product-link-icon.listings{background:linear-gradient(135deg,#0A0A0A,#2a2a2a)}
+.product-link-icon.bookings{background:linear-gradient(135deg,#16A066,#0D7A4E)}
+.product-link-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.product-link-name{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;margin-bottom:2px}
+.product-link-desc{font-size:11.5px;color:var(--ink-faint);font-weight:300}
+.product-link-arrow{margin-left:auto;font-size:14px;color:var(--ink-faint);transition:all 0.15s;flex-shrink:0}
+.product-link:hover .product-link-arrow{color:var(--accent);transform:translate(2px,-2px)}
+
 .btn-nav{background:var(--ink);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
 .btn-nav:hover{background:#2a2a2a;transform:translateY(-1px)}
 
@@ -140,7 +404,7 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
    HERO BADGE
 ========================= */
 .hero::before{
-  content: "Savv &\A Ion";
+  content: "Savvion \A Agency";
 
   position: absolute;
   top: calc(50% - var(--grid));
@@ -400,7 +664,7 @@ footer > *{
 
 /* WATERMARK */
 footer::before{
-  content: "Sovvion \A Agency";
+  content: "Savvion \A Agency";
 
   position: absolute;
   top: calc(50% - var(--grid));
@@ -1772,7 +2036,52 @@ footer{
 }
 
 .footer-bottom-right a:hover{
+   color:#fff;
+ }
+
+/* MESHIAKH WHATSAPP HOVER */
+.footer-meshakh{
+  color:var(--accent);
+  text-decoration:none;
+  position:relative;
+  transition:all 0.2s ease;
+}
+.footer-meshakh:hover{
+  color:var(--accent-dark);
+  transform:translateY(-1px);
+}
+.footer-meshakh::after{
+  content:"WhatsApp";
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--ink);
   color:#fff;
+  font-size:10px;
+  padding:4px 8px;
+  border-radius:4px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.2s;
+  white-space:nowrap;
+  margin-bottom:6px;
+}
+.footer-meshakh::before{
+  content:"";
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  border:4px solid transparent;
+  border-top-color:var(--ink);
+  opacity:0;
+  transition:opacity 0.2s;
+  margin-bottom:2px;
+}
+.footer-meshakh:hover::after,
+.footer-meshakh:hover::before{
+  opacity:1;
 }
 
 /* RESPONSIVE */
@@ -1781,6 +2090,107 @@ footer{
     grid-template-columns:1fr 1fr;
     gap:32px;
   }
+}
+
+/* =========================
+   PRELOADER
+   ========================= */
+#preloader{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:var(--surface);
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 0.6s var(--ease-out),visibility 0.6s;
+}
+#preloader.hidden{
+  opacity:0;
+  visibility:hidden;
+}
+.preloader-content{
+  text-align:center;
+  padding:40px;
+}
+.preloader-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+.preloader-logo-mark{
+  width:36px;
+  height:36px;
+  background:var(--ink);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.preloader-logo-mark svg{
+  width:18px;
+  height:18px;
+  stroke:#fff;
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+}
+.preloader-logo span{
+  font-family:var(--font-display);
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+  color:var(--ink);
+}
+.preloader-text{
+  font-size:14px;
+  font-weight:400;
+  color:var(--ink-muted);
+  margin-bottom:32px;
+  letter-spacing:0.5px;
+}
+.preloader-progress{
+  width:200px;
+  height:3px;
+  background:var(--surface-2);
+  border-radius:2px;
+  overflow:hidden;
+  margin:0 auto;
+}
+.preloader-progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  border-radius:2px;
+  transition:width 0.3s ease;
+  animation:preloaderLoad 2s ease-in-out forwards;
+}
+@keyframes preloaderLoad{
+  0%{width:0%}
+  50%{width:70%}
+  100%{width:100%}
+}
+
+/* Dark theme preloader */
+body.dark-theme #preloader{
+  background:var(--ink);
+}
+body.dark-theme .preloader-logo-mark{
+  background:var(--accent);
+}
+body.dark-theme .preloader-logo span{
+  color:#fff;
+}
+body.dark-theme .preloader-progress{
+  background:rgba(255,255,255,0.1);
+}
+body.dark-theme .preloader-progress-bar{
+  background:var(--accent);
 }
 
 @media(max-width:768px){
@@ -1901,10 +2311,10 @@ footer{
 .reveal-delay-3{transition-delay:0.3s}
 
 /* CUSTOM CURSOR */
-.cursor{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--accent);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s}
-.cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid rgba(22,160,102,0.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width 0.35s var(--ease-out),height 0.35s var(--ease-out),border-color 0.2s}
-body.cursor-hover .cursor{width:12px;height:12px}
-body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,102,0.2)}
+#cursor{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--accent);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s}
+#cursor-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid rgba(22,160,102,0.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width 0.35s var(--ease-out),height 0.35s var(--ease-out),border-color 0.2s}
+body.cursor-hover #cursor{width:12px;height:12px}
+body.cursor-hover #cursor-ring{width:56px;height:56px;border-color:rgba(22,160,102,0.2)}
 
 /* RESPONSIVE */
 @media(max-width:960px){
@@ -2025,35 +2435,517 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
     flex: 1;
   }
 }
+
+/* =========================
+   PRELOADER
+   ========================= */
+#preloader{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:var(--surface);
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 0.6s var(--ease-out),visibility 0.6s;
+}
+#preloader.hidden{
+  opacity:0;
+  visibility:hidden;
+}
+.preloader-content{
+  text-align:center;
+  padding:40px;
+}
+.preloader-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+.preloader-logo-mark{
+  width:36px;
+  height:36px;
+  background:var(--ink);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.preloader-logo-mark svg{
+  width:18px;
+  height:18px;
+  stroke:#fff;
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+}
+.preloader-logo span{
+  font-family:var(--font-display);
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+  color:var(--ink);
+}
+.preloader-text{
+  font-size:14px;
+  font-weight:400;
+  color:var(--ink-muted);
+  margin-bottom:32px;
+  letter-spacing:0.5px;
+}
+.preloader-progress{
+  width:200px;
+  height:3px;
+  background:var(--surface-2);
+  border-radius:2px;
+  overflow:hidden;
+  margin:0 auto;
+}
+.preloader-progress-bar{
+   height:100%;
+   width:0%;
+   background:var(--accent);
+   border-radius:2px;
+   transition:width 0.3s ease;
+   animation:preloaderLoad 3s ease-in-out forwards;
+}
+@keyframes preloaderLoad{
+   0%{width:0%}
+   100%{width:100%}
+}
+@keyframes preloaderRotate{
+   from{transform:rotate(0deg)}
+   to{transform:rotate(360deg)}
+}
+
+/* Dark theme preloader */
+body.dark-theme #preloader{
+  background:var(--ink);
+}
+body.dark-theme .preloader-logo-mark{
+  background:var(--accent);
+}
+body.dark-theme .preloader-logo span{
+  color:#fff;
+}
+body.dark-theme .preloader-progress{
+  background:rgba(255,255,255,0.1);
+}
+body.dark-theme .preloader-progress-bar{
+  background:var(--accent);
+}
 </style>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+  <style>
+/* =========================
+   COOKIE PREFERENCES BANNER
+   ========================= */
+#cookie-banner{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:var(--white);
+  border-top:1px solid var(--border-2);
+  box-shadow:0 -4px 24px rgba(0,0,0,0.12);
+  z-index:9999;
+  padding:0;
+  transform:translateY(100%);
+  transition:transform 0.4s var(--ease-out);
+}
+#cookie-banner.visible{
+  transform:translateY(0);
+}
+.cookie-banner-content{
+  max-width:1200px;
+  margin:0 auto;
+  padding:24px;
+}
+.cookie-banner-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.cookie-banner-title{
+  font-family:var(--font-display);
+  font-size:18px;
+  font-weight:600;
+  color:var(--ink);
+}
+.cookie-banner-close{
+  background:none;
+  border:none;
+  color:var(--ink-muted);
+  cursor:pointer;
+  padding:8px;
+  border-radius:8px;
+  transition:all 0.2s;
+}
+.cookie-banner-close:hover{
+  background:var(--surface-2);
+  color:var(--ink);
+}
+.cookie-banner-close svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+}
+.cookie-banner-text{
+  font-size:14px;
+  color:var(--ink-muted);
+  margin-bottom:20px;
+  line-height:1.6;
+}
+.cookie-banner-text a{
+  color:var(--accent);
+  text-decoration:none;
+}
+.cookie-banner-text a:hover{
+  text-decoration:underline;
+}
+.cookie-options{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+.cookie-option{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 16px;
+  background:var(--surface-2);
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+.cookie-option.required{
+  opacity:0.7;
+}
+.cookie-option-info{
+  flex:1;
+}
+.cookie-option-name{
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink);
+  margin-bottom:2px;
+}
+.cookie-option-desc{
+  font-size:11px;
+  color:var(--ink-faint);
+}
+.cookie-toggle{
+  position:relative;
+  display:inline-block;
+  width:40px;
+  height:22px;
+  flex-shrink:0;
+}
+.cookie-toggle input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+.cookie-slider{
+  position:absolute;
+  cursor:pointer;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:var(--border-2);
+  border-radius:22px;
+  transition:0.3s;
+}
+.cookie-slider:before{
+  position:absolute;
+  content:"";
+  height:16px;
+  width:16px;
+  left:3px;
+  bottom:3px;
+  background:var(--white);
+  border-radius:50%;
+  transition:0.3s;
+}
+.cookie-toggle input:checked + .cookie-slider{
+  background:var(--accent);
+}
+.cookie-toggle input:checked + .cookie-slider:before{
+  transform:translateX(18px);
+}
+.cookie-toggle input:disabled + .cookie-slider{
+  cursor:not-allowed;
+}
+.cookie-banner-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.cookie-btn{
+  padding:10px 20px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all 0.2s;
+  border:none;
+  font-family:var(--font-body);
+}
+.cookie-btn-reject{
+  background:var(--surface-2);
+  color:var(--ink);
+}
+.cookie-btn-reject:hover{
+  background:var(--surface-3);
+}
+.cookie-btn-accept{
+  background:var(--accent);
+  color:#fff;
+}
+.cookie-btn-accept:hover{
+  background:var(--accent-dark);
+}
+.cookie-btn-save{
+  background:var(--ink);
+  color:#fff;
+}
+.cookie-btn-save:hover{
+  background:#2a2a2a;
+}
+
+/* Dark theme adjustments */
+.dark-theme #cookie-banner{
+  background:var(--surface-2);
+}
+.dark-theme .cookie-option{
+  background:var(--surface-3);
+}
+   </style>
 </head>
-<body>
+<body id="top">
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="preloader-content">
+     <div class="preloader-logo">
+       <img src="savvionagency-logo.png" alt="Savvion Logo" width="36" height="36">
+       <span>Savvion</span>
+     </div>
+    <div class="preloader-text">Savvion System Loading</div>
+    <div class="preloader-progress">
+      <div class="preloader-progress-bar"></div>
+    </div>
+  </div>
+</div>
 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
+<!-- TOP TICKER BANNER -->
+<div class="top-ticker">
+  <a href="domain.html" class="top-ticker-link">Request your domain with us</a>
+</div>
+
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">
-    <div class="nav-logo-mark">
-      <svg viewBox="0 0 14 14"><polyline points="2 10 7 4 12 8"/></svg>
-    </div>
-    Savvion
-  </a>
+   <a href="#" class="nav-logo">
+     <img src="savvionagency-logo.png" alt="Savvion Logo" width="28" height="28">
+     Savvion
+   </a>
+
   <div class="nav-center">
-    <a href="#services">Services</a>
+
+    <!-- SERVICES MEGA DROPDOWN -->
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-trigger">
+        Services
+        <svg viewBox="0 0 12 12"><polyline points="2 4 6 8 10 4"/></svg>
+      </button>
+      <div class="mega-menu" style="width:700px">
+
+        <!-- ROW 1: Conversion & Design -->
+        <div class="mega-group-label">Conversion & Design</div>
+        <div class="mega-cols" style="margin-bottom:6px">
+          <a href="#services" class="mega-item mega-item-accent">
+            <div class="mega-item-icon mega-icon-accent"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/><path d="M5 8h6M8 5v6"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Website Audits</div>
+              <div class="mega-item-desc">Identify UX, SEO & performance gaps</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="9" rx="2"/><path d="M2 6h12M6 10h4"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Landing Page Design</div>
+              <div class="mega-item-desc">Purpose-built pages designed to convert</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><path d="M3 13V8M8 13V5M13 13V2"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Conversion Systems</div>
+              <div class="mega-item-desc">Optimize user journeys and lead capture flows</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="mega-divider" style="margin:10px 0"></div>
+
+        <!-- ROW 2: Strategy & Growth -->
+        <div class="mega-group-label">Strategy & Growth</div>
+        <div class="mega-cols" style="margin-bottom:6px">
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><path d="M8 2L2 5v4c0 3.5 2.5 5.5 6 7 3.5-1.5 6-3.5 6-7V5L8 2z"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Brand Strategy</div>
+              <div class="mega-item-desc">Strategic positioning and identity development</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><path d="M2 11l3-4 3 2 3-5 3 3"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Digital Marketing</div>
+              <div class="mega-item-desc">Paid campaigns, strategy & digital growth</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M5 4V3a1 1 0 012 0v1M9 4V3a1 1 0 012 0v1M2 7h12"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">CRM Solutions & Setup</div>
+              <div class="mega-item-desc">Right CRM, fully implemented</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="mega-divider" style="margin:10px 0"></div>
+
+        <!-- ROW 3: Technical -->
+        <div class="mega-group-label">Technical</div>
+        <div class="mega-cols" style="margin-bottom:6px">
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="10" rx="2"/><path d="M2 8h12M6 12v2M10 12v2"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">Website Development</div>
+              <div class="mega-item-desc">Custom websites built for performance and scale</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2a9 9 0 000 12M8 2a9 9 0 010 12"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">SEO</div>
+              <div class="mega-item-desc">Improve visibility, rankings and organic growth</div>
+            </div>
+          </a>
+          <a href="#services" class="mega-item">
+            <div class="mega-item-icon mega-icon-ai"><svg viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M2 6h2M2 10h2M12 6h2M12 10h2M6 2v2M10 2v2M6 12v2M10 12v2"/></svg></div>
+            <div class="mega-item-text">
+              <div class="mega-item-name">AI & API Integration</div>
+              <div class="mega-item-desc">Automate, connect systems, scale intelligently</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- GSC full-width -->
+        <a href="domain.html" class="mega-item mega-item-gsc" style="margin-top:4px">
+          <div class="mega-item-icon mega-icon-gsc"><svg viewBox="0 0 16 16"><circle cx="11" cy="5" r="2"/><circle cx="5" cy="11" r="2"/><path d="M11 7v2a4 4 0 01-6 3.46"/></svg></div>
+          <div class="mega-item-text" style="display:flex;align-items:center;gap:12px;flex:1">
+            <div>
+              <div class="mega-item-name">Domain & Search Console Management</div>
+              <div class="mega-item-desc">Domains, indexing, audits, reporting & technical maintenance</div>
+            </div>
+            <span style="margin-left:auto;font-size:10.5px;font-weight:600;letter-spacing:0.5px;color:var(--accent-dark);background:var(--accent-light);padding:3px 9px;border-radius:100px;border:1px solid rgba(22,160,102,0.2);white-space:nowrap">Managed</span>
+          </div>
+        </a>
+
+        <div class="mega-divider" style="margin:14px 0 10px"></div>
+
+        <!-- PRODUCTS ROW -->
+        <div class="mega-group-label" style="margin-bottom:10px">Our Products</div>
+        <div class="mega-products">
+          <a href="Savvion listings.html" class="mega-product">
+            <div class="mega-product-icon" style="background:linear-gradient(135deg,#0A0A0A,#2a2a2a)">
+              <svg viewBox="0 0 16 16"><path d="M2 12V5l6-3 6 3v7l-6 3-6-3z"/><path d="M8 2v13M2 5l6 3 6-3"/></svg>
+            </div>
+            <div>
+              <div class="mega-product-name">Savvion Listings</div>
+              <div class="mega-product-tag">Property & vehicle marketplace layer</div>
+            </div>
+            <span style="margin-left:auto;font-size:16px;color:var(--ink-faint)">↗</span>
+          </a>
+          <a href="Savvion bookings.html" class="mega-product">
+            <div class="mega-product-icon" style="background:linear-gradient(135deg,#16A066,#0D7A4E)">
+              <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v3M11 1v3M2 7h12"/><circle cx="8" cy="10" r="1" fill="#fff" stroke="none"/></svg>
+            </div>
+            <div>
+              <div class="mega-product-name">Savvion Bookings</div>
+              <div class="mega-product-tag">Scheduling & appointment engine</div>
+            </div>
+            <span style="margin-left:auto;font-size:16px;color:var(--ink-faint)">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <a href="#work">Work</a>
     <a href="#audiences">Who we help</a>
     <a href="#faq">FAQ</a>
     <a href="domain.html">Domain Management</a>
-  </div>
+
+    <!-- SAVVION PRODUCTS DROPDOWN -->
+    <div class="nav-dropdown">
+      <button class="nav-products-trigger">
+        Savvion
+        <svg viewBox="0 0 12 12"><polyline points="2 4 6 8 10 4"/></svg>
+      </button>
+      <div class="products-menu">
+        <div class="products-menu-header">Our Products</div>
+        <a href="Savvion listings.html" class="product-link">
+          <div class="product-link-icon listings"><svg viewBox="0 0 18 18"><path d="M3 13V6l6-3 6 3v7l-6 3-6-3z"/><path d="M9 3v12M3 6l6 3 6-3"/></svg></div>
+          <div>
+            <div class="product-link-name">Savvion Listings</div>
+            <div class="product-link-desc">Property & vehicle marketplace layer</div>
+          </div>
+          <span class="product-link-arrow">↗</span>
+        </a>
+        <a href="Savvion bookings.html" class="product-link">
+          <div class="product-link-icon bookings"><svg viewBox="0 0 18 18"><rect x="3" y="4" width="12" height="11" rx="2"/><path d="M6 2v3M12 2v3M3 8h12"/><circle cx="9" cy="12" r="1.2" fill="#fff" stroke="none"/></svg></div>
+          <div>
+            <div class="product-link-name">Savvion Bookings</div>
+            <div class="product-link-desc">Scheduling & appointment engine</div>
+          </div>
+          <span class="product-link-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+
   <a href="#contact" class="btn-nav">Let's talk →</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
-  <div class="hero-badge"><span class="hero-badge-dot"></span>Conversion-First UX/UI Studio</div>
   <h1 class="hero-headline">Building Web Systems That<br>Turn Traffic Into <span class="hl">Leads.</span></h1>
   <div class="hero-ctas">
     <a href="#contact" class="btn-primary">Get a free audit →</a>
@@ -2101,9 +2993,9 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
     <div class="cap-item reveal">
       <div class="cap-num">01</div>
       <div class="cap-main">
-        <div class="cap-title">Conversion Audits</div>
-        <p class="cap-desc">Full UX/CRO review of your site or app. We find where visitors drop off, hesitate, or bounce — and exactly why. Every audit ends with a ranked action list, not a slide deck of observations.</p>
-        <div class="cap-tag">Most popular</div>
+        <div class="cap-title">Website Audits</div>
+        <p class="cap-desc">End-to-end audits that uncover UX, SEO, performance and technical issues — with clear recommendations prioritized for growth.</p>
+        <div class="cap-tag">Highly Rated</div>
        </div>
       <div class="cap-cover">
         <img
@@ -2119,6 +3011,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div class="cap-main">
         <div class="cap-title">Landing Page Design</div>
         <p class="cap-desc">High-converting pages built around your ICP, offer clarity, and a single compelling CTA. We design with the buyer's psychology in mind — not just visual aesthetics.</p>
+        <div class="cap-tag">Highly Rated</div>
       </div>
       <div class="cap-cover">
         <img
@@ -2134,6 +3027,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div class="cap-main">
         <div class="cap-title">Funnel Optimization</div>
         <p class="cap-desc">End-to-end funnel mapping and redesign — from first touchpoint to final conversion. We eliminate friction at every stage and restructure flows to move people forward.</p>
+        <div class="cap-tag">Highly Rated</div>
       </div>
       <div class="cap-cover">
         <img
@@ -2149,6 +3043,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div class="cap-main">
         <div class="cap-title">Brand Strategy & Positioning</div>
         <p class="cap-desc">Unlock the potential of your brand with expert brand strategy. We help you define who you are, who you serve, and what makes you different — then build the messaging, positioning, and competitive differentiation that makes your brand unmistakable.</p>
+        <div class="cap-tag">Most Premium</div>
       </div>
       <div class="cap-cover">
         <img
@@ -2164,6 +3059,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div class="cap-main">
         <div class="cap-title">UX Research & Testing</div>
         <p class="cap-desc">User interviews, heatmaps, session recordings, and A/B testing frameworks. We replace guesswork with evidence so every design decision is grounded in real behaviour.</p>
+        <div class="cap-tag">Highly Rated</div>
       </div>
       <div class="cap-cover">
         <img
@@ -2179,6 +3075,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div class="cap-main">
         <div class="cap-title">CRM Selection & Implementation </div>
         <p class="cap-desc">Choosing the wrong CRM costs time and money. We evaluate your business needs, team size, and processes — then recommend, implement, and configure the right CRM so your team is productive from day one, not six months later..</p>
+        <div class="cap-tag">Most Premium</div>
       </div>
       <div class="cap-cover">
         <img
@@ -2194,6 +3091,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
         <div class="cap-main">
             <div class="cap-title">Search Engine Optimization (SEO)</div>
             <p class="cap-desc">Technical SEO, on-page optimization, keyword strategy, and content structure designed to improve visibility, rankings, and qualified organic traffic.</p>
+            <div class="cap-tag">Top Tier</div>
             </div>
             <div class="cap-cover">
               <img
@@ -2209,6 +3107,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
             <div class="cap-main">
                 <div class="cap-title">Website Development & Management</div>
                 <p class="cap-desc">Custom websites development, deployed, and managed for performance, reliability, and growth. Services include CMS implementation, deployment and configuration, domain registration, DNS and domain propagation, website monitoring, analytics setup and reporting, ongoing maintenance, updates, performance optimization, and technical support.</p>
+                <div class="cap-tag">Recommended</div>
             </div>
             <div class="cap-cover">
               <img
@@ -2224,6 +3123,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
             <div class="cap-main">
                 <div class="cap-title">Digital Marketing Strategy</div>
                 <p class="cap-desc">Data-driven digital marketing strategies to increase brand awareness, generate leads, and drive revenue. We focus on performance marketing, content marketing, Ads and Campaigns and social media strategy.</p>
+                <div class="cap-tag">Premium Pick</div>
             </div>
             <div class="cap-cover">
               <img
@@ -2239,6 +3139,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
             <div class="cap-main">
                 <div class="cap-title">Artificial Intelligence Integration</div>
                 <p class="cap-desc">Leveraging AI technologies to automate processes, enhance customer experience, and drive data-driven decision-making across your business operations.</p>
+                <div class="cap-tag">Trending</div>
             </div>
             <div class="cap-cover">
               <img
@@ -2288,7 +3189,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
 
     <!-- LumiCore Consultants -->
     <div class="work-card reveal">
-      <div class="work-card-image">
+       <div class="work-card-img">
           <img 
             src="lumicore-digital-consultants.jpeg" 
             alt="LumiCore Consultants Website Preview"
@@ -2426,9 +3327,9 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
 <!-- VALUES -->
 <section class="values">
   <div class="section-label reveal">We are</div>
-  <h2 class="section-title reveal reveal-delay-1">Sovvion
+   <h2 class="section-title reveal reveal-delay-1">Savvion
 
-  </h2>
+   </h2>
   <div class="values-grid">
     <div class="value-card reveal">
       <div class="value-num">001</div>
@@ -2622,17 +3523,20 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
     <!-- RIGHT: form -->
     <div class="bwc-form reveal reveal-delay-1">
 
-      <!-- Name + Email -->
-      <div class="bwc-field-row">
-        <div class="bwc-field">
-          <div class="bwc-label">Full Name*</div>
-          <input class="bwc-input" type="text" placeholder="Your name here">
-        </div>
-        <div class="bwc-field">
-          <div class="bwc-label">Email*</div>
-          <input class="bwc-input" type="email" placeholder="your.email@example.com">
-        </div>
-      </div>
+       <!-- Name + Email -->
+       <div class="bwc-field-row">
+         <div class="bwc-field">
+           <div class="bwc-label">Full Name*</div>
+           <input class="bwc-input" type="text" placeholder="Your name here">
+         </div>
+         <div class="bwc-field">
+           <div class="bwc-label">Email*</div>
+           <input class="bwc-input" type="email" placeholder="your.email@example.com">
+         </div>
+       </div>
+       
+       <!-- CSRF Token -->
+       <input type="hidden" name="csrf_token" value="[CSRF_TOKEN_PLACEHOLDER]">
 
       <!-- Interested in pills -->
       <div>
@@ -2689,7 +3593,7 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <div style="margin-top:32px;display:flex;flex-direction:column;gap:14px">
         <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.5);font-size:13px">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(22,160,102,0.8)" stroke-width="1.5" stroke-linecap="round"><path d="M2 7l3 3 7-7"/></svg>
-          hello@sovvion.com
+           hello@savvion.com
         </div>
         <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.5);font-size:13px">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(22,160,102,0.8)" stroke-width="1.5" stroke-linecap="round"><path d="M2 7l3 3 7-7"/></svg>
@@ -2697,37 +3601,24 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
         </div>
       </div>
     </div>
-    <div class="cta-form">
-      <input type="text" placeholder="Your name here *">
-      <input type="email" placeholder="your.email@example.com *">
-      <select>
-        <option value="" disabled selected>Interested in…</option>
-        <option>Conversion Audit</option>
-        <option>Landing Page Design</option>
-        <option>Funnel Optimization</option>
-        <option>Brand Strategy & Positioning</option>
-        <option>UX Research &amp; Testing</option>
-        <option>CRM Selection & Implementation</option>
-      </select>
-      <input type="text" placeholder="Tell us about your project…">
-      <button class="btn-cta" id="submitBtn">Request your free audit →</button>
-    </div>
+     <div class="cta-form">
+       <input type="hidden" name="csrf_token" value="[CSRF_TOKEN_PLACEHOLDER]">
+       <input type="text" placeholder="Your name here *">
+       <input type="email" placeholder="your.email@example.com *">
+       <select>
+         <option value="" disabled selected>Interested in…</option>
+         <option>Conversion Audit</option>
+         <option>Landing Page Design</option>
+         <option>Funnel Optimization</option>
+         <option>Brand Strategy & Positioning</option>
+         <option>UX Research &amp; Testing</option>
+         <option>CRM Selection & Implementation</option>
+       </select>
+       <input type="text" placeholder="Tell us about your project…">
+        <button class="btn-cta" id="submitBtnCta">Request your free audit →</button>
+     </div>
   </div>
 </section>
-
-<div id="cookie-banner" class="cookie-banner">
-  <div class="cookie-content">
-    <p>
-      We use cookies to improve your browsing experience, analyze traffic, and
-      personalize content. By continuing, you agree to our use of cookies.
-    </p>
-
-    <div class="cookie-actions">
-      <button id="accept-cookies" class="btn-green">Accept</button>
-      <button id="decline-cookies" class="cookie-btn-secondary">Decline</button>
-    </div>
-  </div>
-</div>
 
 <!-- FOOTER -->
 <footer>
@@ -2739,9 +3630,9 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
       <p class="footer-tagline">A conversion-first UX/UI studio helping businesses design digital experiences that turn traffic into qualified leads, customers, and engaged users.</p>
       <a href="#contact" class="footer-cta-link">Let's talk →</a>
     </div>
-    <div>
-      <div class="footer-col-title">Services</div>
-      <div class="footer-links">
+     <div>
+       <div class="footer-col-title">Services</div>
+       <div class="footer-links">
         <a href="#services">Conversion Audits</a>
         <a href="#services">Landing Page Design</a>
         <a href="#services">Funnel Optimization</a>
@@ -2796,50 +3687,98 @@ body.cursor-hover .cursor-ring{width:56px;height:56px;border-color:rgba(22,160,1
 </div>
 
   <div class="footer-bottom">
-  <div class="footer-bottom-left">
-    © Savvion 2026. All rights reserved.
-  </div>
+   <div class="footer-bottom-left">
+     <span>Copyright 2026 Savvion. All Rights Reserved.</span>
+     <span class="footer-divider">|</span>
+     <span> Savvion | <a href="https://wa.me/254713082563" target="_blank" class="footer-meshakh" title="Chat on WhatsApp">Meshakh</a></span>
+   </div>
 
-  <div class="footer-bottom-center">
-    Conversion-First UX/UI Studio
-  </div>
-
-  <div class="footer-bottom-right">
-    <a href="#">Privacy Policy</a>
-    <span class="footer-divider">•</span>
-    <a href="#">Terms of Service</a>
-  </div>
+   <div class="footer-bottom-right">
+     <a href="privacy-policy.html">Privacy Policy</a>
+     <span class="footer-divider">|</span>
+     <a href="terms-of-service.html">Terms</a>
+   </div>
 </div>
 
 </div>
-<body id="top">
+
+<div id="recaptcha-overlay">
+  <div class="recaptcha-content">
+    <div class="recaptcha-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+    </div>
+    <h3 class="recaptcha-title">Verifying Access</h3>
+    <p class="recaptcha-subtitle">Please wait while we verify you're not a robot...</p>
+    <div class="recaptcha-loader">
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+    </div>
+  </div>
+</div>
 <a href="#top" class="back-to-top" aria-label="Back to top">
   ↑
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="main.js">gsap.registerPlugin(ScrollTrigger);</script>
+<script>gsap.registerPlugin(ScrollTrigger);</script>
+<script src="main.js"></script>
 
   <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const banner = document.getElementById("cookie-banner");
-  const acceptBtn = document.getElementById("accept-cookies");
-  const declineBtn = document.getElementById("decline-cookies");
-
-  if (localStorage.getItem("cookieConsent")) {
-    banner.classList.add("hidden");
+/* =========================
+   THEME TOGGLE SYSTEM
+   ========================= */
+(function() {
+  const themeToggle = document.getElementById('themeToggle');
+  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  // Check for saved theme preference or respect OS preference
+  const currentTheme = localStorage.getItem('reedleads-theme');
+  if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+    document.body.classList.add('dark-theme');
   }
-
-  acceptBtn.addEventListener("click", function () {
-    localStorage.setItem("cookieConsent", "accepted");
-    banner.classList.add("hidden");
+  
+  // Toggle theme function
+  function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('reedleads-theme', isDark ? 'dark' : 'light');
+  }
+  
+  // Add click event to theme toggle button
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  // Listen for OS theme changes (optional)
+  prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('reedleads-theme')) {
+      if (e.matches) {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+    }
   });
+})();
 
-  declineBtn.addEventListener("click", function () {
-    localStorage.setItem("cookieConsent", "declined");
-    banner.classList.add("hidden");
-  });
+// Preloader - hide after page load
+window.addEventListener('load', () => {
+  const preloader = document.getElementById('preloader');
+  if (preloader) {
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      // Remove from DOM after transition
+      setTimeout(() => {
+        if (preloader.parentNode) {
+          preloader.parentNode.removeChild(preloader);
+        }
+      }, 600);
+    }, 800);
+  }
 });
 
 // Nav scroll
@@ -2887,12 +3826,13 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 
 // Form submit
-document.getElementById('submitBtn').addEventListener('click', e => {
-  e.preventDefault();
-  const btn = e.currentTarget;
-  btn.textContent = '✓ Request received — we\'ll be in touch shortly';
-  btn.style.background = '#0D7A4E';
-  btn.style.pointerEvents = 'none';
+document.querySelectorAll('#submitBtn, #submitBtnCta').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    btn.textContent = '✓ Request received — we\'ll be in touch shortly';
+    btn.style.background = '#0D7A4E';
+    btn.style.pointerEvents = 'none';
+  });
 });
 
 // Stagger work card reveal delays
@@ -2901,6 +3841,227 @@ document.querySelectorAll('.work-card').forEach((c, i) => { c.style.transitionDe
 document.querySelectorAll('.audience-card').forEach((c, i) => { c.style.transitionDelay = (i * 0.08) + 's'; });
 // Stagger value card reveal delays
 document.querySelectorAll('.value-card').forEach((c, i) => { c.style.transitionDelay = (i * 0.08) + 's'; });
+
+// Pill toggles (multi-select for services, single-select for budget)
+const pills = document.querySelectorAll('.bwc-pill');
+if (pills.length) {
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const group = pill.dataset.group;
+      if (!group) return;
+
+      if (group === 'budget') {
+        // Single select for budget
+        document.querySelectorAll('.bwc-pill[data-group="budget"]')
+          .forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      } else {
+        // Multi-select for services
+        pill.classList.toggle('active');
+      }
+    });
+   });
+ }
+
+/* =========================
+   RECAPTCHA VERIFICATION
+   ========================= */
+(function() {
+  const overlay = document.getElementById('recaptcha-overlay');
+  const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
+  
+  // Check if already verified in this session
+  if (sessionStorage.getItem('recaptchaVerified') === 'true') {
+    if (overlay) overlay.classList.add('hidden');
+    document.body.classList.add('verified');
+    return;
+  }
+  
+  // Function to verify reCaptcha token
+  function verifyRecaptcha() {
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
+          // Token received - verify with your backend
+          // For now, we'll accept the token and allow access
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) {
+            overlay.classList.add('hidden');
+            setTimeout(() => {
+              overlay.style.display = 'none';
+            }, 500);
+          }
+          document.body.classList.add('verified');
+        }).catch(function(error) {
+          console.error('reCaptcha error:', error);
+          // On error, still allow access but log the issue
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) overlay.classList.add('hidden');
+          document.body.classList.add('verified');
+        });
+      });
+    } else {
+      // If grecaptcha isn't loaded, allow access after a delay
+      setTimeout(() => {
+        sessionStorage.setItem('recaptchaVerified', 'true');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.add('verified');
+      }, 2000);
+    }
+  }
+  
+  // Start verification when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifyRecaptcha);
+  } else {
+    verifyRecaptcha();
+  }
+})();
 </script>
+
+  <!-- Cookie Preferences Banner -->
+  <div id="cookie-banner">
+    <div class="cookie-banner-content">
+      <div class="cookie-banner-header">
+        <h3 class="cookie-banner-title">Cookie Preferences</h3>
+        <button class="cookie-banner-close" id="cookie-close" aria-label="Close cookie banner">
+          <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <p class="cookie-banner-text">
+        We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. 
+        Read our <a href="privacy-policy.html">Privacy Policy</a> to learn more.
+      </p>
+      <div class="cookie-options">
+        <div class="cookie-option required">
+          <div class="cookie-option-info">
+            <div class="cookie-option-name">Essential Cookies</div>
+            <div class="cookie-option-desc">Required for site functionality</div>
+          </div>
+          <label class="cookie-toggle">
+            <input type="checkbox" id="essential-cookies" checked disabled>
+            <span class="cookie-slider"></span>
+          </label>
+        </div>
+        <div class="cookie-option">
+          <div class="cookie-option-info">
+            <div class="cookie-option-name">Analytical Cookies</div>
+            <div class="cookie-option-desc">Help us improve our services</div>
+          </div>
+          <label class="cookie-toggle">
+            <input type="checkbox" id="analytical-cookies" checked>
+            <span class="cookie-slider"></span>
+          </label>
+        </div>
+        <div class="cookie-option">
+          <div class="cookie-option-info">
+            <div class="cookie-option-name">Marketing Cookies</div>
+            <div class="cookie-option-desc">For personalized advertising</div>
+          </div>
+          <label class="cookie-toggle">
+            <input type="checkbox" id="marketing-cookies">
+            <span class="cookie-slider"></span>
+          </label>
+        </div>
+        <div class="cookie-option">
+          <div class="cookie-option-info">
+            <div class="cookie-option-name">Preference Cookies</div>
+            <div class="cookie-option-desc">Remember your settings</div>
+          </div>
+          <label class="cookie-toggle">
+            <input type="checkbox" id="preference-cookies" checked>
+            <span class="cookie-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="cookie-banner-actions">
+        <button class="cookie-btn cookie-btn-reject" id="reject-all">Reject All</button>
+        <button class="cookie-btn cookie-btn-accept" id="accept-all">Accept All</button>
+        <button class="cookie-btn cookie-btn-save" id="save-preferences">Accept and Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* =========================
+     COOKIE PREFERENCES
+     ========================= */
+  (function() {
+    const banner = document.getElementById('cookie-banner');
+    const acceptAllBtn = document.getElementById('accept-all');
+    const rejectAllBtn = document.getElementById('reject-all');
+    const savePrefsBtn = document.getElementById('save-preferences');
+    const closeBtn = document.getElementById('cookie-close');
+    
+    const cookieToggles = {
+      essential: document.getElementById('essential-cookies'),
+      analytical: document.getElementById('analytical-cookies'),
+      marketing: document.getElementById('marketing-cookies'),
+      preference: document.getElementById('preference-cookies')
+    };
+    
+    // Check if user has already made a choice
+    const cookieChoice = localStorage.getItem('cookiePreferences');
+    
+    if (!cookieChoice) {
+      // Show banner if no choice has been made
+      setTimeout(() => {
+        banner.classList.add('visible');
+      }, 1000);
+     } else {
+       // Apply saved preferences to toggles
+       try {
+         const prefs = JSON.parse(cookieChoice);
+         if (prefs.analytical !== undefined) {
+           document.getElementById('analytical-cookies').checked = !!prefs.analytical;
+         }
+         if (prefs.marketing !== undefined) {
+           document.getElementById('marketing-cookies').checked = !!prefs.marketing;
+         }
+         if (prefs.preference !== undefined) {
+           document.getElementById('preference-cookies').checked = !!prefs.preference;
+         }
+       } catch (e) {
+         console.error('Failed to parse cookie preferences', e);
+       }
+     }
+     
+     // Button event listeners
+     acceptAllBtn.addEventListener('click', () => {
+       const allPrefs = { essential: true, analytical: true, marketing: true, preference: true };
+       localStorage.setItem('cookiePreferences', JSON.stringify(allPrefs));
+       document.getElementById('analytical-cookies').checked = true;
+       document.getElementById('marketing-cookies').checked = true;
+       document.getElementById('preference-cookies').checked = true;
+       banner.classList.remove('visible');
+     });
+     
+     rejectAllBtn.addEventListener('click', () => {
+       const rejectedPrefs = { essential: true, analytical: false, marketing: false, preference: false };
+       localStorage.setItem('cookiePreferences', JSON.stringify(rejectedPrefs));
+       document.getElementById('analytical-cookies').checked = false;
+       document.getElementById('marketing-cookies').checked = false;
+       document.getElementById('preference-cookies').checked = false;
+       banner.classList.remove('visible');
+     });
+     
+     savePrefsBtn.addEventListener('click', () => {
+       const selectedPrefs = {
+         essential: true,
+         analytical: document.getElementById('analytical-cookies').checked,
+         marketing: document.getElementById('marketing-cookies').checked,
+         preference: document.getElementById('preference-cookies').checked
+       };
+       localStorage.setItem('cookiePreferences', JSON.stringify(selectedPrefs));
+       banner.classList.remove('visible');
+     });
+     
+           if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          banner.classList.remove('visible');
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

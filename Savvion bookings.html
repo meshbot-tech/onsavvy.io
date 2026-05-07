@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savvion Bookings — Scheduling Engine by Savvion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0A0C0A;--ink-2:#141A14;--ink-muted:#545C54;--ink-faint:#94A094;
+  --surface:#F6F8F6;--surface-2:#ECF0EC;--surface-3:#E0E6E0;--white:#FFFFFF;
+  --green:#16A066;--green-light:#E6F7EE;--green-mid:#1DB87A;--green-dark:#0D7A4E;
+  --green-glow:rgba(22,160,102,0.15);
+  --teal:#0E8A72;--teal-light:#E4F5F1;
+  --border:rgba(0,0,0,0.07);--border-2:rgba(0,0,0,0.12);
+  --font-display:'Bricolage Grotesque',sans-serif;
+  --font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--surface);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* =========================
+   RECAPTCHA VERIFICATION OVERLAY
+   ========================= */
+#recaptcha-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:var(--surface);
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 0.5s ease;
+}
+#recaptcha-overlay.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+.recaptcha-content{
+  text-align:center;
+  max-width:400px;
+  padding:40px;
+}
+.recaptcha-icon{
+  width:64px;
+  height:64px;
+  margin:0 auto 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--green-light);
+  border-radius:50%;
+}
+.recaptcha-icon svg{
+  width:32px;
+  height:32px;
+  stroke:var(--green);
+  fill:none;
+  stroke-width:2;
+}
+.recaptcha-title{
+  font-family:var(--font-display);
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.recaptcha-subtitle{
+  font-size:15px;
+  color:var(--ink-muted);
+  margin-bottom:24px;
+  line-height:1.6;
+}
+.recaptcha-loader{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-top:16px;
+}
+.recaptcha-loader-dot{
+  width:8px;
+  height:8px;
+  background:var(--green);
+  border-radius:50%;
+  animation:recaptchaPulse 1.4s ease-in-out infinite both;
+}
+.recaptcha-loader-dot:nth-child(1){animation-delay:-0.32s}
+.recaptcha-loader-dot:nth-child(2){animation-delay:-0.16s}
+@keyframes recaptchaPulse{
+  0%,80%,100%{transform:scale(0);opacity:0.5}
+  40%{transform:scale(1);opacity:1}
+}
+body.verified{
+  overflow:auto;
+}
+body:not(.verified){
+  overflow:hidden;
+}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(10,12,10,0);backdrop-filter:blur(0px);border-bottom:1px solid transparent;transition:all 0.4s var(--ease)}
+nav.scrolled{background:rgba(10,12,10,0.94);backdrop-filter:blur(16px);border-bottom-color:rgba(255,255,255,0.07)}
+.nav-logo{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center}
+.nav-logo-mark svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-by{font-size:11px;color:rgba(255,255,255,0.3);font-weight:300;margin-left:2px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-link{font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.2s}
+.nav-link:hover{color:#fff}
+.btn-nav-green{background:var(--green);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:all 0.2s;display:inline-block}
+.btn-nav-green:hover{background:var(--green-dark);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:100px 48px 80px;gap:64px;background:var(--ink);position:relative;overflow:hidden}
+.hero-mesh{position:absolute;inset:0;background-image:radial-gradient(circle at 70% 30%,rgba(22,160,102,0.09) 0%,transparent 50%),radial-gradient(circle at 20% 80%,rgba(14,138,114,0.06) 0%,transparent 50%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none}
+.hero-left{position:relative;z-index:1}
+.hero-right{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--green-mid);background:rgba(22,160,102,0.12);padding:5px 13px;border-radius:100px;margin-bottom:24px;border:1px solid rgba(22,160,102,0.25);opacity:0;transform:translateY(16px);animation:up 0.6s var(--ease) 0.1s forwards}
+.hero-badge-dot{width:5px;height:5px;background:var(--green-mid);border-radius:50%;animation:gp 2s infinite}
+@keyframes gp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.75)}}
+.hero-headline{font-family:var(--font-display);font-size:clamp(44px,5.5vw,66px);font-weight:800;letter-spacing:-2.5px;line-height:1.02;color:#fff;margin-bottom:20px;opacity:0;transform:translateY(24px);animation:up 0.7s var(--ease) 0.2s forwards}
+.hero-headline .hl{color:var(--green-mid)}
+.hero-sub{font-size:17px;font-weight:300;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:36px;max-width:440px;opacity:0;transform:translateY(16px);animation:up 0.7s var(--ease) 0.32s forwards}
+.hero-ctas{display:flex;align-items:center;gap:12px;flex-wrap:wrap;opacity:0;transform:translateY(16px);animation:up 0.7s var(--ease) 0.44s forwards}
+.btn-green{background:var(--green);color:#fff;font-family:var(--font-body);font-size:14.5px;font-weight:600;padding:14px 28px;border-radius:9px;border:none;cursor:pointer;text-decoration:none;transition:all 0.22s var(--ease);display:inline-flex;align-items:center;gap:8px}
+.btn-green:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,160,102,0.35)}
+.btn-ghost-w{font-size:14.5px;font-weight:400;color:rgba(255,255,255,0.55);text-decoration:none;display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:2px;transition:all 0.2s}
+.btn-ghost-w:hover{color:#fff;border-color:rgba(255,255,255,0.5)}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;opacity:0;animation:up 0.7s var(--ease) 0.55s forwards}
+.hero-pill{font-size:12px;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:100px}
+@keyframes up{to{opacity:1;transform:translateY(0)}}
+
+/* ── BOOKING UI MOCKUP ── */
+.booking-ui{opacity:0;animation:up 0.8s var(--ease) 0.5s forwards}
+.bui{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden}
+.bui-bar{background:rgba(255,255,255,0.05);padding:10px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.bui-dot{width:8px;height:8px;border-radius:50%}
+.bui-url{flex:1;background:rgba(255,255,255,0.06);border-radius:5px;padding:5px 10px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.3);margin-left:8px}
+.bui-body{padding:16px;display:grid;grid-template-columns:1fr 1.2fr;gap:12px}
+/* calendar widget */
+.cal{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-month{font-size:12px;font-weight:600;color:#fff;letter-spacing:-0.3px}
+.cal-nav{font-size:16px;color:rgba(255,255,255,0.3);cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day-label{font-size:9px;color:rgba(255,255,255,0.25);text-align:center;font-weight:500;letter-spacing:0.5px;padding-bottom:4px}
+.cd{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;margin:0 auto}
+.cd:hover:not(.cd-empty):not(.cd-past){background:rgba(22,160,102,0.2);color:rgba(255,255,255,0.8)}
+.cd-past{opacity:0.25;cursor:default}
+.cd-avail{color:rgba(255,255,255,0.7)}
+.cd-selected{background:var(--green)!important;color:#fff!important;font-weight:600}
+.cd-today{border:1px solid rgba(22,160,102,0.4);color:var(--green-mid)}
+.cd-empty{}
+/* time slots */
+.slots{display:flex;flex-direction:column;gap:6px}
+.slots-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:4px}
+.slot{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:8px 12px;font-size:11.5px;color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center}
+.slot:hover,.slot.active{background:rgba(22,160,102,0.15);border-color:rgba(22,160,102,0.3);color:#fff}
+.slot-avail{font-size:10px;color:var(--green-mid);font-weight:500}
+.bui-confirm{margin:0 16px 14px;background:var(--green);border-radius:8px;padding:10px;text-align:center;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;transition:background 0.2s}
+.bui-confirm:hover{background:var(--green-dark)}
+
+/* ── SECTION COMMONS ── */
+.section-label{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:var(--ink);margin-bottom:12px}
+.section-sub{font-size:16px;font-weight:300;color:var(--ink-muted);line-height:1.75}
+
+/* ── USE CASES ── */
+.usecases{padding:96px 48px;background:var(--white)}
+.uc-header{margin-bottom:64px}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.ucc{background:var(--surface);padding:40px 34px;transition:background 0.2s;cursor:default;position:relative;overflow:hidden}
+.ucc:hover{background:var(--surface-2)}
+.ucc:first-child{border-radius:14px 0 0 0}
+.ucc:nth-child(3){border-radius:0 14px 0 0}
+.ucc:nth-child(4){border-radius:0 0 0 14px}
+.ucc:last-child{border-radius:0 0 14px 0}
+.ucc-num{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--green);font-weight:500;margin-bottom:20px}
+.ucc-icon{width:44px;height:44px;border-radius:11px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.ucc-icon.green{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.ucc-icon svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ucc-title{font-family:var(--font-display);font-size:19px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:10px}
+.ucc-desc{font-size:13.5px;color:var(--ink-muted);font-weight:300;line-height:1.75;margin-bottom:16px}
+.ucc-examples{display:flex;flex-wrap:wrap;gap:6px}
+.ucc-ex{font-size:11px;color:var(--green-dark);background:var(--green-light);padding:3px 9px;border-radius:100px;border:1px solid rgba(22,160,102,0.15);font-weight:500}
+
+/* ── HOW IT WORKS ── */
+.how{padding:96px 48px;background:var(--ink)}
+.how .section-label{color:var(--green-mid)}
+.how .section-title{color:#fff}
+.how .section-sub{color:rgba(255,255,255,0.45)}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:64px;position:relative}
+.how-line{position:absolute;top:26px;left:12.5%;right:12.5%;height:1px;background:rgba(255,255,255,0.08)}
+.hs{position:relative;z-index:1;padding-right:20px}
+.hs-bubble{width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-family:var(--font-display);font-size:16px;font-weight:700;color:rgba(255,255,255,0.4);transition:all 0.25s var(--ease)}
+.hs:first-child .hs-bubble{border-color:var(--green);color:var(--green)}
+.hs:hover .hs-bubble{border-color:var(--green);color:var(--green);background:rgba(22,160,102,0.08)}
+.hs-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.3px;margin-bottom:8px}
+.hs-desc{font-size:13.5px;color:rgba(255,255,255,0.4);font-weight:300;line-height:1.75}
+
+/* ── FEATURES ── */
+.feats{padding:96px 48px;background:var(--surface-2)}
+.feats-header{max-width:560px;margin-bottom:56px}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.fc{background:var(--white);padding:36px 30px;transition:background 0.2s}
+.fc:hover{background:var(--surface)}
+.fc:first-child{border-radius:14px 0 0 0}
+.fc:nth-child(4){border-radius:0 14px 0 0}
+.fc:nth-child(5){border-radius:0 0 0 14px}
+.fc:last-child{border-radius:0 0 14px 0}
+.fc-icon{width:42px;height:42px;border-radius:10px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.fc-icon.green{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.fc-icon svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fc-title{font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:8px}
+.fc-desc{font-size:13px;color:var(--ink-muted);font-weight:300;line-height:1.7}
+
+/* ── INTEGRATIONS ── */
+.integrations{padding:96px 48px;background:var(--white)}
+.int-header{margin-bottom:56px}
+.int-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.int-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;transition:all 0.2s var(--ease)}
+.int-card:hover{border-color:var(--green);background:var(--green-light);transform:translateY(-2px);box-shadow:0 6px 20px rgba(22,160,102,0.1)}
+.int-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.int-name{font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:-0.3px;color:var(--ink)}
+.int-desc{font-size:12.5px;color:var(--ink-muted);font-weight:300;line-height:1.6}
+.int-tag{font-size:10.5px;font-weight:500;color:var(--green-dark);background:var(--green-light);padding:3px 9px;border-radius:100px;border:1px solid rgba(22,160,102,0.15);margin-top:auto}
+.int-card:hover .int-tag{background:#c8f0dc;border-color:rgba(22,160,102,0.3)}
+
+/* ── FLOW DEMO ── */
+.flow{padding:96px 48px;background:var(--surface)}
+.flow-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:24px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.flow-step:last-child{border-bottom:none}
+.flow-step.active .fs-num{background:var(--green);border-color:var(--green);color:#fff}
+.flow-step.active .fs-title{color:var(--ink)}
+.flow-step:hover .fs-num{border-color:var(--green);color:var(--green)}
+.fs-num{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border-2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--ink-muted);margin-top:3px;transition:all 0.2s;flex-shrink:0}
+.fs-title{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-0.3px;color:var(--ink-muted);margin-bottom:4px;transition:color 0.2s}
+.fs-desc{font-size:13.5px;color:var(--ink-muted);font-weight:300;line-height:1.7}
+/* flow visual */
+.flow-visual{background:var(--white);border:1px solid var(--border-2);border-radius:16px;padding:32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);min-height:340px;display:flex;align-items:center;justify-content:center}
+.flow-screen{width:100%;display:flex;flex-direction:column;gap:16px}
+.fs-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fs-avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:16px}
+.fs-title-sm{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-0.3px}
+.fs-sub{font-size:12px;color:var(--ink-faint)}
+.fv-mini-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.fmc{width:100%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--ink-muted);cursor:pointer;transition:all 0.15s}
+.fmc:hover:not(.fmc-past){background:var(--green-light);color:var(--green-dark)}
+.fmc-past{opacity:0.3}
+.fmc-sel{background:var(--green)!important;color:#fff!important;font-weight:600}
+.fmc-today{border:1.5px solid var(--green);color:var(--green)}
+.fv-slots{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.fv-slot{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:8px;text-align:center;font-size:12px;color:var(--ink-muted);cursor:pointer;transition:all 0.2s}
+.fv-slot:hover,.fv-slot.fvs-active{border-color:var(--green);background:var(--green-light);color:var(--green-dark);font-weight:500}
+.fv-confirm{background:var(--green);color:#fff;border:none;border-radius:9px;padding:12px;width:100%;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s}
+.fv-confirm:hover{background:var(--green-dark)}
+.fv-success{text-align:center;padding:24px 16px}
+.fv-success-icon{width:52px;height:52px;border-radius:50%;background:var(--green-light);border:1px solid rgba(22,160,102,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
+.fv-success-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-0.3px}
+.fv-success-sub{font-size:13px;color:var(--ink-muted);font-weight:300;line-height:1.65}
+.fv-notif{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:flex-start;gap:10px}
+.fv-notif-icon{width:32px;height:32px;border-radius:8px;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.fv-notif-text{font-size:12.5px;color:var(--ink-muted);font-weight:300;line-height:1.6}
+.fv-notif-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+
+/* ── PRICING ── */
+.pricing{padding:96px 48px;background:var(--ink)}
+.pricing .section-label{color:var(--green-mid)}
+.pricing .section-title{color:#fff}
+.pricing .section-sub{color:rgba(255,255,255,0.45)}
+.pricing-header{margin-bottom:56px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pc{padding:44px 38px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);transition:background 0.2s;position:relative}
+.pc:first-child{border-radius:14px 0 0 14px}
+.pc:last-child{border-radius:0 14px 14px 0}
+.pc.featured{background:rgba(22,160,102,0.12);border-color:rgba(22,160,102,0.25);border-radius:0}
+.pc:hover{background:rgba(255,255,255,0.06)}
+.pc.featured:hover{background:rgba(22,160,102,0.16)}
+.pc-pill{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:var(--green-mid);background:rgba(22,160,102,0.15);padding:4px 11px;border-radius:100px;margin-bottom:18px;border:1px solid rgba(22,160,102,0.25)}
+.pc.featured .pc-pill{color:#fff;background:var(--green);border-color:var(--green)}
+.pc-name{font-family:var(--font-display);font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:4px}
+.pc-amount{font-family:var(--font-display);font-size:40px;font-weight:800;letter-spacing:-2px;color:#fff;line-height:1;margin:18px 0 4px}
+.pc-cur{font-size:18px;font-weight:500;vertical-align:super;letter-spacing:0;margin-right:1px}
+.pc-period{font-size:13px;font-weight:300;color:rgba(255,255,255,0.4);margin-bottom:20px}
+.pc-divider{height:1px;background:rgba(255,255,255,0.08);margin:20px 0}
+.pc-feats{display:flex;flex-direction:column;gap:11px;margin-bottom:28px}
+.pc-feat{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:rgba(255,255,255,0.55);font-weight:300;line-height:1.5}
+.pc-ck{width:17px;height:17px;border-radius:50%;background:rgba(22,160,102,0.15);border:1px solid rgba(22,160,102,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.pc-ck svg{width:8px;height:8px;stroke:var(--green-mid);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.btn-pc{display:block;width:100%;text-align:center;padding:12px 20px;border-radius:9px;font-family:var(--font-body);font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;transition:all 0.22s var(--ease);border:1.5px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.8)}
+.btn-pc:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:#fff}
+.btn-pc-green{background:var(--green);border-color:var(--green);color:#fff}
+.btn-pc-green:hover{background:var(--green-dark);border-color:var(--green-dark);box-shadow:0 6px 20px rgba(22,160,102,0.3)}
+.pc-popular{position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--green);padding:4px 14px;border-radius:0 0 8px 8px;white-space:nowrap}
+
+/* ── CTA ── */
+.cta{padding:96px 48px;background:var(--surface);text-align:center}
+.cta-inner{max-width:820px;margin:0 auto;background:var(--ink);border-radius:20px;padding:72px 64px;position:relative;overflow:hidden}
+.cta-glow{position:absolute;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(22,160,102,0.12) 0%,transparent 65%);pointer-events:none}
+.cta-ey{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--green-mid);margin-bottom:18px;position:relative;z-index:1}
+.cta-h{font-family:var(--font-display);font-size:clamp(32px,4.5vw,54px);font-weight:800;letter-spacing:-2px;line-height:1.06;color:#fff;margin-bottom:16px;position:relative;z-index:1}
+.cta-s{font-size:16px;font-weight:300;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto;position:relative;z-index:1}
+.cta-acts{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+
+/* ── FOOTER ── */
+footer{background:#060808;padding:36px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border-top:1px solid rgba(255,255,255,0.05)}
+.fl{display:flex;align-items:center;gap:10px}
+.fl-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center}
+.fl-mark svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fl-name{font-family:var(--font-display);font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.3px}
+.fl-by{font-size:11.5px;color:rgba(255,255,255,0.25)}
+.flinks{display:flex;gap:18px}
+.flinks a{font-size:12.5px;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.flinks a:hover{color:rgba(255,255,255,0.7)}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s var(--ease),transform 0.65s var(--ease)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:0 20px}
+  .hero,.usecases,.how,.feats,.integrations,.flow,.pricing,.cta,footer{padding-left:20px;padding-right:20px}
+  .hero{grid-template-columns:1fr;padding-top:100px;gap:40px}
+  .hero-right{display:none}
+  .uc-grid{grid-template-columns:1fr 1fr}
+  .ucc:first-child,.ucc:nth-child(3),.ucc:nth-child(4),.ucc:last-child{border-radius:0}
+  .ucc:first-child{border-radius:14px 14px 0 0}
+  .ucc:last-child{border-radius:0 0 14px 14px}
+  .how-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .how-line{display:none}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .fc:first-child,.fc:nth-child(4),.fc:nth-child(5),.fc:last-child{border-radius:0}
+  .fc:first-child{border-radius:14px 14px 0 0}
+  .fc:last-child{border-radius:0 0 14px 14px}
+  .int-grid{grid-template-columns:1fr 1fr}
+  .flow-inner{grid-template-columns:1fr;gap:40px}
+  .pricing-grid{grid-template-columns:1fr}
+  .pc:first-child,.pc:last-child{border-radius:0}
+  .pc:first-child{border-radius:14px 14px 0 0}
+  .pc:last-child{border-radius:0 0 14px 14px}
+  .cta-inner{padding:48px 28px}
+  footer{flex-direction:column;text-align:center}
+}
+@media(max-width:600px){
+  .uc-grid,.feat-grid,.int-grid{grid-template-columns:1fr}
+  .how-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="recaptcha-overlay">
+  <div class="recaptcha-content">
+    <div class="recaptcha-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+    </div>
+    <h3 class="recaptcha-title">Verifying Access</h3>
+    <p class="recaptcha-subtitle">Please wait while we verify you're not a robot...</p>
+    <div class="recaptcha-loader">
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v3M11 1v3M2 7h12"/><circle cx="8" cy="10" r="1.2" fill="#fff" stroke="none"/></svg></div>
+    Savvion Bookings <span class="nav-by">by SavvIon</span>
+  </a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-link">← Savvion</a>
+    <a href="Savvion listings.html" class="nav-link">Savvion Listings →</a>
+    <a href="index.html#contact" class="btn-nav-green">Get this built →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-mesh"></div><div class="hero-grid"></div>
+  <div class="hero-left">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>A Savvion Product</div>
+    <h1 class="hero-headline">Scheduling that<br><span class="hl">Books Itself.</span></h1>
+    <p class="hero-sub">Savvion Bookings is a purpose-built scheduling engine for businesses that need clients, customers, or staff to book time — without the back-and-forth.</p>
+    <div class="hero-ctas">
+      <a href="index.html#contact" class="btn-green">Get this built for you →</a>
+      <a href="#usecases" class="btn-ghost-w">See who it's for</a>
+    </div>
+    <div class="hero-pills">
+      <span class="hero-pill">Online Booking</span>
+      <span class="hero-pill">Calendar Sync</span>
+      <span class="hero-pill">Automated Reminders</span>
+      <span class="hero-pill">Multi-staff</span>
+      <span class="hero-pill">WhatsApp Confirmations</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="booking-ui">
+      <div class="bui">
+        <div class="bui-bar">
+          <div class="bui-dot" style="background:rgba(255,80,80,0.4)"></div>
+          <div class="bui-dot" style="background:rgba(255,200,0,0.4)"></div>
+          <div class="bui-dot" style="background:rgba(50,200,100,0.4)"></div>
+          <div class="bui-url">book.yourbusiness.co.ke</div>
+        </div>
+        <div class="bui-body">
+          <div class="cal">
+            <div class="cal-head">
+              <span class="cal-month">May 2026</span>
+              <span class="cal-nav">›</span>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-day-label">Mo</div><div class="cal-day-label">Tu</div><div class="cal-day-label">We</div><div class="cal-day-label">Th</div><div class="cal-day-label">Fr</div><div class="cal-day-label">Sa</div><div class="cal-day-label">Su</div>
+              <div class="cd cd-empty"></div><div class="cd cd-empty"></div><div class="cd cd-past">1</div><div class="cd cd-past">2</div><div class="cd cd-past">3</div><div class="cd cd-past">4</div><div class="cd cd-past">5</div>
+              <div class="cd cd-past">6</div><div class="cd cd-past">7</div><div class="cd cd-past">8</div><div class="cd cd-avail cd-today">9</div><div class="cd cd-avail">10</div><div class="cd cd-avail">11</div><div class="cd cd-avail">12</div>
+              <div class="cd cd-avail">13</div><div class="cd cd-avail cd-selected">14</div><div class="cd cd-avail">15</div><div class="cd cd-avail">16</div><div class="cd cd-avail">17</div><div class="cd cd-avail">18</div><div class="cd cd-avail">19</div>
+              <div class="cd cd-avail">20</div><div class="cd cd-avail">21</div><div class="cd cd-avail">22</div><div class="cd cd-avail">23</div><div class="cd cd-avail">24</div><div class="cd">25</div><div class="cd">26</div>
+            </div>
+          </div>
+          <div class="slots">
+            <div class="slots-label">Wed, May 14</div>
+            <div class="slot">9:00 AM <span class="slot-avail">Available</span></div>
+            <div class="slot active">10:00 AM <span class="slot-avail">Selected ✓</span></div>
+            <div class="slot">11:00 AM <span class="slot-avail">Available</span></div>
+            <div class="slot">2:00 PM <span class="slot-avail">Available</span></div>
+            <div class="slot">3:30 PM <span class="slot-avail">Available</span></div>
+          </div>
+        </div>
+        <div class="bui-confirm">Confirm Booking →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="usecases" id="usecases">
+  <div class="uc-header reveal">
+    <div class="section-label">Who it's built for</div>
+    <h2 class="section-title">Any business that runs on appointments</h2>
+    <p class="section-sub">Savvion Bookings is built as a flexible scheduling layer — configured to match your exact service model and client journey.</p>
+  </div>
+  <div class="uc-grid">
+    <div class="ucc reveal">
+      <div class="ucc-num">01</div>
+      <div class="ucc-icon green"><svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+      <div class="ucc-title">Professional Services</div>
+      <p class="ucc-desc">Client appointments, consultations, and discovery calls — managed through a branded booking page that syncs with your calendar automatically.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Law firms</span><span class="ucc-ex">Accountants</span><span class="ucc-ex">Consultants</span><span class="ucc-ex">Financial advisors</span>
+      </div>
+    </div>
+    <div class="ucc reveal reveal-delay-1">
+      <div class="ucc-num">02</div>
+      <div class="ucc-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg></div>
+      <div class="ucc-title">Health & Wellness</div>
+      <p class="ucc-desc">Multi-staff scheduling with service selection, intake forms, and automated reminders — reducing no-shows and front-desk admin in one system.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Clinics</span><span class="ucc-ex">Therapists</span><span class="ucc-ex">Salons</span><span class="ucc-ex">Gyms</span><span class="ucc-ex">Dentists</span>
+      </div>
+    </div>
+    <div class="ucc reveal reveal-delay-2">
+      <div class="ucc-num">03</div>
+      <div class="ucc-icon green"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="ucc-title">Property & Real Estate</div>
+      <p class="ucc-desc">Schedule property viewings, valuation appointments, and agent consultations — directly from your listing pages without a phone call.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Viewings</span><span class="ucc-ex">Valuations</span><span class="ucc-ex">Agent meetings</span>
+      </div>
+    </div>
+    <div class="ucc reveal">
+      <div class="ucc-num">04</div>
+      <div class="ucc-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="ucc-title">Education & Training</div>
+      <p class="ucc-desc">Class bookings, 1-on-1 tutoring sessions, and cohort enrolments — with waitlist management and automated confirmation emails.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Tutors</span><span class="ucc-ex">Trainers</span><span class="ucc-ex">Coaches</span><span class="ucc-ex">Schools</span>
+      </div>
+    </div>
+    <div class="ucc reveal reveal-delay-1">
+      <div class="ucc-num">05</div>
+      <div class="ucc-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="ucc-title">Events & Experiences</div>
+      <p class="ucc-desc">Timed entry, experience slot bookings, and group reservations — with capacity limits, deposit collection, and calendar blocking.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Tours</span><span class="ucc-ex">Experiences</span><span class="ucc-ex">Workshops</span><span class="ucc-ex">Pop-ups</span>
+      </div>
+    </div>
+    <div class="ucc reveal reveal-delay-2">
+      <div class="ucc-num">06</div>
+      <div class="ucc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="ucc-title">Digital & Tech Services</div>
+      <p class="ucc-desc">Strategy calls, onboarding sessions, and technical support bookings — integrated into your website with a link or embedded widget.</p>
+      <div class="ucc-examples">
+        <span class="ucc-ex">Agencies</span><span class="ucc-ex">Freelancers</span><span class="ucc-ex">SaaS demos</span><span class="ucc-ex">Support</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="section-label reveal" style="text-align:center;display:block;margin-bottom:12px">How it works</div>
+  <h2 class="section-title reveal reveal-delay-1" style="text-align:center;margin-bottom:14px">From link to confirmed booking in seconds</h2>
+  <p class="section-sub reveal reveal-delay-2" style="text-align:center;margin:0 auto 0;max-width:500px">A smooth, low-friction booking experience for your clients — zero phone tag, zero spreadsheets.</p>
+  <div class="how-grid">
+    <div class="how-line"></div>
+    <div class="hs reveal">
+      <div class="hs-bubble">1</div>
+      <div class="hs-title">Client visits your booking page</div>
+      <p class="hs-desc">A branded, mobile-optimised booking page — embedded on your site or shared as a direct link via WhatsApp, email, or Instagram bio.</p>
+    </div>
+    <div class="hs reveal reveal-delay-1">
+      <div class="hs-bubble">2</div>
+      <div class="hs-title">Picks a service, date & time</div>
+      <p class="hs-desc">They select the service they need, browse your real-time availability, and pick a slot — no back-and-forth, no phone calls required.</p>
+    </div>
+    <div class="hs reveal reveal-delay-2">
+      <div class="hs-bubble">3</div>
+      <div class="hs-title">Instant confirmation sent</div>
+      <p class="hs-desc">Automated confirmation via email and/or WhatsApp the moment they book. Calendar invite attached. Reminder sent 24 hours before.</p>
+    </div>
+    <div class="hs reveal reveal-delay-3">
+      <div class="hs-bubble">4</div>
+      <div class="hs-title">You manage from your dashboard</div>
+      <p class="hs-desc">View all upcoming bookings, reschedule, cancel, or add notes — all from a clean admin dashboard synced to your Google Calendar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="feats">
+  <div class="feats-header reveal">
+    <div class="section-label">Built-in capabilities</div>
+    <h2 class="section-title">Everything scheduling needs</h2>
+    <p class="section-sub">Purpose-built for service businesses — not a calendar plugin bolted onto something else.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="fc reveal"><div class="fc-icon green"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg></div><div class="fc-title">Real-Time Availability</div><p class="fc-desc">Calendar blocks update live — no double bookings, no manual management. Syncs with Google Calendar and Outlook.</p></div>
+    <div class="fc reveal reveal-delay-1"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M4 4h12v3H4zM4 9h6v7H4zM12 9h4v4h-4z"/></svg></div><div class="fc-title">Multi-Staff Scheduling</div><p class="fc-desc">Assign services to specific team members. Each staff member has their own availability, buffer times, and booking limits.</p></div>
+    <div class="fc reveal reveal-delay-2"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2zm-6 7a2 2 0 110-4 2 2 0 010 4z"/></svg></div><div class="fc-title">Automated Reminders</div><p class="fc-desc">Confirmation, 24-hour reminder, and follow-up messages sent automatically via email and WhatsApp. Reduce no-shows by up to 60%.</p></div>
+    <div class="fc reveal reveal-delay-3"><div class="fc-icon green"><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="13" rx="2"/><path d="M2 7h16M6 11h3M6 14h5"/></svg></div><div class="fc-title">Intake Forms</div><p class="fc-desc">Collect client information before the appointment — custom questions, file uploads, consent forms — filled in at booking, not on the day.</p></div>
+    <div class="fc reveal"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2z"/><path d="M10 6v4l3 2"/></svg></div><div class="fc-title">Buffer & Prep Times</div><p class="fc-desc">Set preparation and cleanup time between appointments automatically — so your team is never double-booked or rushed between clients.</p></div>
+    <div class="fc reveal reveal-delay-1"><div class="fc-icon"><svg viewBox="0 0 20 20"><path d="M2 5h16M2 10h16M2 15h10"/></svg></div><div class="fc-title">Service Menu</div><p class="fc-desc">Configurable service list with name, duration, price, description, and assigned staff — clients see exactly what they're booking and at what cost.</p></div>
+    <div class="fc reveal reveal-delay-2"><div class="fc-icon green"><svg viewBox="0 0 20 20"><path d="M3 10l5 5L17 5"/></svg></div><div class="fc-title">Deposit & Payment</div><p class="fc-desc">Require a deposit at booking via M-Pesa or card — so clients are committed and you're protected against last-minute cancellations.</p></div>
+    <div class="fc reveal reveal-delay-3"><div class="fc-icon"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M3 10h14M10 3a10 10 0 010 14"/></svg></div><div class="fc-title">Embeddable Anywhere</div><p class="fc-desc">Drop a booking widget onto any page of your website, or share a direct booking link. Works on all devices, no app download required.</p></div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section class="integrations">
+  <div class="int-header reveal">
+    <div class="section-label">Integrations</div>
+    <h2 class="section-title">Connects to your existing stack</h2>
+    <p class="section-sub">Savvion Bookings plays well with the tools you already use — no ripping and replacing.</p>
+  </div>
+  <div class="int-grid">
+    <div class="int-card reveal">
+      <div class="int-icon" style="background:#F5F5F5">📅</div>
+      <div class="int-name">Google Calendar</div>
+      <p class="int-desc">Two-way sync — bookings appear in your calendar, your calendar blocks your booking availability.</p>
+      <span class="int-tag">Native sync</span>
+    </div>
+    <div class="int-card reveal reveal-delay-1">
+      <div class="int-icon" style="background:#F0FBF6">📱</div>
+      <div class="int-name">WhatsApp Business</div>
+      <p class="int-desc">Booking confirmations and reminders sent directly via WhatsApp — the channel your clients actually respond to.</p>
+      <span class="int-tag">Automated</span>
+    </div>
+    <div class="int-card reveal reveal-delay-2">
+      <div class="int-icon" style="background:#FFF5F0">💳</div>
+      <div class="int-name">M-Pesa & Stripe</div>
+      <p class="int-desc">Accept deposits and full payments at booking via M-Pesa STK push or Stripe — no separate payment link needed.</p>
+      <span class="int-tag">Payments</span>
+    </div>
+    <div class="int-card reveal reveal-delay-3">
+      <div class="int-icon" style="background:#F0F5FF">✉️</div>
+      <div class="int-name">Email & CRM</div>
+      <p class="int-desc">Booking data flows into your CRM — HubSpot, Zoho, or custom — automatically creating contacts and follow-up tasks.</p>
+      <span class="int-tag">CRM sync</span>
+    </div>
+    <div class="int-card reveal">
+      <div class="int-icon" style="background:#F5F0FF">📊</div>
+      <div class="int-name">Google Analytics</div>
+      <p class="int-desc">Track booking funnel performance, drop-off points, and conversion rates — connected to your GA4 property.</p>
+      <span class="int-tag">Analytics</span>
+    </div>
+    <div class="int-card reveal reveal-delay-1">
+      <div class="int-icon" style="background:#FFF8F0">🔔</div>
+      <div class="int-name">SMS Notifications</div>
+      <p class="int-desc">Automated SMS confirmations and reminders via AfricasTalking or Twilio — for clients who don't use WhatsApp.</p>
+      <span class="int-tag">Notifications</span>
+    </div>
+    <div class="int-card reveal reveal-delay-2">
+      <div class="int-icon" style="background:#F0FFF8">🔗</div>
+      <div class="int-name">Zapier / Make</div>
+      <p class="int-desc">Connect to 5,000+ tools via Zapier or Make — trigger actions in any platform when a booking is created, confirmed, or cancelled.</p>
+      <span class="int-tag">Automation</span>
+    </div>
+    <div class="int-card reveal reveal-delay-3">
+      <div class="int-icon" style="background:#F8F0F5">📋</div>
+      <div class="int-name">Savvion Listings</div>
+      <p class="int-desc">Pair with Savvion Listings for property viewings and vehicle test drives — book directly from the listing page.</p>
+      <span class="int-tag">Native pairing</span>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW DEMO -->
+<section class="flow">
+  <div class="reveal" style="margin-bottom:56px">
+    <div class="section-label">Interactive flow</div>
+    <h2 class="section-title">The booking experience, step by step</h2>
+    <p class="section-sub">What your clients see when they land on your booking page.</p>
+  </div>
+  <div class="flow-inner">
+    <div class="flow-steps reveal">
+      <div class="flow-step active" onclick="setStep(0,this)">
+        <div class="fs-num">1</div>
+        <div><div class="fs-title">Pick a date</div><p class="fs-desc">Client opens your booking page, sees your real-time calendar, and picks an available date.</p></div>
+      </div>
+      <div class="flow-step" onclick="setStep(1,this)">
+        <div class="fs-num">2</div>
+        <div><div class="fs-title">Choose a time slot</div><p class="fs-desc">Available slots populate for the selected date. Buffer times and prep windows are already excluded.</p></div>
+      </div>
+      <div class="flow-step" onclick="setStep(2,this)">
+        <div class="fs-num">3</div>
+        <div><div class="fs-title">Confirm & pay deposit</div><p class="fs-desc">Client reviews booking summary, completes intake form, and pays deposit if required — in under 60 seconds.</p></div>
+      </div>
+      <div class="flow-step" onclick="setStep(3,this)">
+        <div class="fs-num">4</div>
+        <div><div class="fs-title">Instant confirmation</div><p class="fs-desc">Confirmation sent immediately via WhatsApp and email. Calendar invite attached. Reminder scheduled for 24 hours before.</p></div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="flow-visual" id="flowVisual">
+        <!-- Step 0: calendar -->
+        <div class="flow-screen" id="step0">
+          <div class="fs-header">
+            <div class="fs-avatar">📅</div>
+            <div><div class="fs-title-sm">Book an Appointment</div><div class="fs-sub">Select a date to see availability</div></div>
+          </div>
+          <div class="fv-mini-cal">
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Mo</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Tu</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">We</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Th</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Fr</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Sa</span>
+            <span style="font-size:9.5px;color:var(--ink-faint);text-align:center;padding:2px">Su</span>
+            <div class="fmc fmc-past">1</div><div class="fmc fmc-past">2</div><div class="fmc fmc-past">3</div><div class="fmc fmc-past">4</div><div class="fmc fmc-past">5</div><div class="fmc fmc-past">6</div><div class="fmc fmc-past">7</div>
+            <div class="fmc fmc-past">8</div><div class="fmc fmc-today">9</div><div class="fmc">10</div><div class="fmc">11</div><div class="fmc">12</div><div class="fmc">13</div><div class="fmc fmc-sel">14</div>
+            <div class="fmc">15</div><div class="fmc">16</div><div class="fmc">17</div><div class="fmc">18</div><div class="fmc">19</div><div class="fmc fmc-past">20</div><div class="fmc fmc-past">21</div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-faint);text-align:center">Wed, 14 May selected — see available times →</p>
+        </div>
+        <!-- Step 1: time slots -->
+        <div class="flow-screen" id="step1" style="display:none">
+          <div class="fs-header">
+            <div class="fs-avatar">🕐</div>
+            <div><div class="fs-title-sm">Choose a Time</div><div class="fs-sub">Wed, 14 May · Consultation</div></div>
+          </div>
+          <div class="fv-slots">
+            <div class="fv-slot">9:00 AM</div>
+            <div class="fv-slot fvs-active">10:00 AM ✓</div>
+            <div class="fv-slot">11:00 AM</div>
+            <div class="fv-slot">2:00 PM</div>
+            <div class="fv-slot">3:00 PM</div>
+            <div class="fv-slot" style="opacity:0.35;cursor:default;font-size:11px">Booked</div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-faint);text-align:center;margin-top:4px">10:00 AM selected — confirm your details →</p>
+        </div>
+        <!-- Step 2: confirm -->
+        <div class="flow-screen" id="step2" style="display:none">
+          <div class="fs-header">
+            <div class="fs-avatar">📝</div>
+            <div><div class="fs-title-sm">Confirm Booking</div><div class="fs-sub">Wed 14 May · 10:00 AM · 60 min</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <input style="background:var(--surface);border:1.5px solid var(--border-2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);outline:none;font-family:var(--font-body)" placeholder="Your full name" value="Jane Mwangi" readonly>
+            <input style="background:var(--surface);border:1.5px solid var(--border-2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink);outline:none;font-family:var(--font-body)" placeholder="Phone number" value="+254 712 345 678" readonly>
+          </div>
+          <div style="background:var(--surface-2);border-radius:9px;padding:12px;font-size:12.5px;color:var(--ink-muted);margin-bottom:12px;line-height:1.6">
+            <strong style="color:var(--ink);font-size:13px">Booking Summary</strong><br>
+            Service: Consultation (60 min)<br>
+            Date: Wednesday, 14 May 2025<br>
+            Time: 10:00 AM — 11:00 AM<br>
+            Deposit: KSh 500 via M-Pesa
+          </div>
+          <button class="fv-confirm">Confirm & Pay Deposit →</button>
+        </div>
+        <!-- Step 3: success -->
+        <div class="flow-screen" id="step3" style="display:none">
+          <div class="fv-success">
+            <div class="fv-success-icon">✅</div>
+            <div class="fv-success-title">Booking Confirmed!</div>
+            <p class="fv-success-sub">Your appointment is booked for<br><strong>Wed, 14 May at 10:00 AM</strong></p>
+          </div>
+          <div class="fv-notif">
+            <div class="fv-notif-icon">📱</div>
+            <div>
+              <div class="fv-notif-title">WhatsApp sent to +254 712 345 678</div>
+              <p class="fv-notif-text">Confirmation + calendar invite sent. Reminder scheduled for 13 May at 10:00 AM.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing">
+  <div class="pricing-header reveal">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Flat-fee build. No monthly SaaS lock-in.</h2>
+    <p class="section-sub">You own the booking system — not a subscription to a third-party tool that can change pricing or disappear.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pc reveal">
+      <div class="pc-pill">Starter</div>
+      <div class="pc-name">Basic Scheduler</div>
+      <div class="pc-amount"><span class="pc-cur">KSh</span>45K</div>
+      <div class="pc-period">one-time build fee</div>
+      <div class="pc-divider"></div>
+      <div class="pc-feats">
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Single service type</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Google Calendar sync</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Email confirmations</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Basic admin dashboard</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Mobile-responsive booking page</span></div>
+      </div>
+      <a href="index.html#contact" class="btn-pc">Get started →</a>
+    </div>
+    <div class="pc featured reveal reveal-delay-1">
+      <div class="pc-popular">Most popular</div>
+      <div class="pc-pill">Growth</div>
+      <div class="pc-name">Full Booking Engine</div>
+      <div class="pc-amount"><span class="pc-cur">KSh</span>120K</div>
+      <div class="pc-period">one-time build fee</div>
+      <div class="pc-divider"></div>
+      <div class="pc-feats">
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Multi-service, multi-staff scheduling</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Google Calendar + Outlook sync</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>WhatsApp + email automations</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Intake forms & client notes</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>M-Pesa deposit collection</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Full admin dashboard & analytics</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Embeddable widget for your website</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>CRM integration (HubSpot / Zoho)</span></div>
+      </div>
+      <a href="index.html#contact" class="btn-pc btn-pc-green">Get started →</a>
+    </div>
+    <div class="pc reveal reveal-delay-2">
+      <div class="pc-pill">Enterprise</div>
+      <div class="pc-name">Custom Build</div>
+      <div class="pc-amount" style="font-size:28px;letter-spacing:-1px;margin-top:18px">Let's talk</div>
+      <div class="pc-period">scoped per project requirements</div>
+      <div class="pc-divider"></div>
+      <div class="pc-feats">
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Everything in Growth</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Custom booking logic & rules</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>API integrations (custom stack)</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Multi-location / franchise setup</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Savvion Listings native pairing</span></div>
+        <div class="pc-feat"><div class="pc-ck"><svg viewBox="0 0 10 10"><polyline points="2 5 4.5 7.5 8 3"/></svg></div><span>Ongoing managed support retainer</span></div>
+      </div>
+      <a href="index.html#contact" class="btn-pc">Discuss your project →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-glow"></div>
+    <div class="cta-ey">Ready to stop the back-and-forth?</div>
+    <h2 class="cta-h">Your booking engine.<br>Built by Savvion.</h2>
+    <p class="cta-s">Tell us about your service and how your clients currently book — we'll scope, design, and build Savvion Bookings around your exact workflow.</p>
+    <div class="cta-acts">
+      <a href="index.html#contact" class="btn-green">Get this built for me →</a>
+      <a href="Savvion listings.html" class="btn-ghost-w">See Savvion Listings →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">
+    <div class="fl-mark"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v3M11 1v3M2 7h12"/><circle cx="8" cy="10" r="1.2" fill="#fff" stroke="none"/></svg></div>
+    <div><div class="fl-name">Savvion Bookings</div><div class="fl-by">A product by Savvion</div></div>
+  </div>
+  <div class="flinks">
+    <a href="index.html">Savvion</a>
+    <a href="Savvion listings.html">Savvion Listings</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="mailto:hello@savvion.com">hello@savvion.com</a>
+    <a href="telephone:+254713082563">+254 713 082 563</a>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>40)},{passive:true});
+
+// Scroll reveal
+const ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');ro.unobserve(x.target)}})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(r=>ro.observe(r));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}}));
+
+// Flow demo step switcher
+function setStep(idx, el) {
+  document.querySelectorAll('.flow-step').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  ['step0','step1','step2','step3'].forEach((id,i)=>{
+    document.getElementById(id).style.display = i===idx?'flex':'none';
+  });
+}
+// Init step0 as flex
+document.getElementById('step0').style.display='flex';
+
+// Auto-advance demo every 3s
+let autoStep=0;
+setInterval(()=>{
+  autoStep=(autoStep+1)%4;
+  const steps=document.querySelectorAll('.flow-step');
+  setStep(autoStep,steps[autoStep]);
+},3200);
+
+// Slot interactive on hero
+document.querySelectorAll('.slot').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.slot').forEach(x=>x.classList.remove('active'));
+    s.classList.add('active');
+  });
+});
+
+/* =========================
+   RECAPTCHA VERIFICATION
+   ========================= */
+(function() {
+  const overlay = document.getElementById('recaptcha-overlay');
+  const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
+  
+  // Check if already verified in this session
+  if (sessionStorage.getItem('recaptchaVerified') === 'true') {
+    if (overlay) overlay.classList.add('hidden');
+    document.body.classList.add('verified');
+    return;
+  }
+  
+  // Function to verify reCaptcha token
+  function verifyRecaptcha() {
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) {
+            overlay.classList.add('hidden');
+            setTimeout(() => {
+              overlay.style.display = 'none';
+            }, 500);
+          }
+          document.body.classList.add('verified');
+        }).catch(function(error) {
+          console.error('reCaptcha error:', error);
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          if (overlay) overlay.classList.add('hidden');
+          document.body.classList.add('verified');
+        });
+      });
+    } else {
+      setTimeout(() => {
+        sessionStorage.setItem('recaptchaVerified', 'true');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.add('verified');
+      }, 2000);
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifyRecaptcha);
+  } else {
+    verifyRecaptcha();
+  }
+})();
+</script>
+</body>
+</html>

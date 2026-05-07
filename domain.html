@@ -30,6 +30,26 @@
   --ease:cubic-bezier(0.16,1,0.3,1);
   --ease-2:cubic-bezier(0.34,1.56,0.64,1);
 }
+
+/* Dark Theme Variables */
+body.dark-theme{
+  --ink:#E8E6E1;
+  --ink-2:#D0D0C8;
+  --ink-muted:#A0A098;
+  --ink-faint:#C0C0B8;
+  --surface:#12120E;
+  --surface-2:#1C1C16;
+  --surface-3:#25251E;
+  --white:#1E1E18;
+  --accent:#4DB88A;
+  --accent-light:#1A332A;
+  --accent-mid:#6AC89A;
+  --accent-dark:#6AC89A;
+  --accent-glow:rgba(22,160,102,0.15);
+  --warm:#2A2518;
+  --border:rgba(255,255,255,0.08);
+  --border-2:rgba(255,255,255,0.12);
+}
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--surface);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
@@ -49,6 +69,17 @@ nav.scrolled{background:rgba(247,246,241,0.92);backdrop-filter:blur(16px);border
 .nav-logo-mark svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
 .nav-back{font-size:13px;color:var(--ink-muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s;font-weight:400}
 .nav-back:hover{color:var(--ink)}
+
+/* Theme Toggle */
+.theme-toggle{background:rgba(0,0,0,0.08);border:1px solid var(--border);color:var(--ink);width:44px;height:44px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s;flex-shrink:0}
+.theme-toggle:hover{background:var(--surface-2);transform:rotate(15deg)}
+.dark-theme .theme-toggle:hover{background:rgba(255,255,255,0.1)}
+.theme-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;transition:transform 0.4s ease}
+.dark-theme .theme-toggle svg{transform:rotate(40deg)}
+.theme-toggle .sun-icon{display:block}
+.theme-toggle .moon-icon{display:none}
+.dark-theme .theme-toggle .sun-icon{display:none}
+.dark-theme .theme-toggle .moon-icon{display:block}
 .nav-back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* ── HERO ── */
@@ -659,6 +690,15 @@ footer{background:var(--ink);padding:40px 48px;display:flex;justify-content:spac
     <div class="nav-logo-mark"><svg viewBox="0 0 14 14"><polyline points="2 10 7 4 12 8"/></svg></div>
     <p>Savv<b>Ion</b></p>
   </a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
   <a href="index.html" class="nav-back">
     <svg viewBox="0 0 14 14"><polyline points="9 3 5 7 9 11"/></svg>
     Back to site
@@ -1010,7 +1050,7 @@ footer{background:var(--ink);padding:40px 48px;display:flex;justify-content:spac
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">ReedLeads</div>
+  <div class="footer-logo">Savv<b>Ion</b></div>
   <div class="footer-note">© 2026 Savvion. Domain managed service. We act on your behalf — ownership always yours.</div>
   <div class="footer-links">
     <a href="index.html">Main site</a>
@@ -1023,6 +1063,43 @@ footer{background:var(--ink);padding:40px 48px;display:flex;justify-content:spac
 <script src="main.js"></script>
 
 <script>
+/* =========================
+   THEME TOGGLE SYSTEM
+   ========================= */
+(function() {
+  const themeToggle = document.getElementById('themeToggle');
+  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  // Check for saved theme preference or respect OS preference
+  const currentTheme = localStorage.getItem('reedleads-theme');
+  if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+    document.body.classList.add('dark-theme');
+  }
+  
+  // Toggle theme function
+  function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('reedleads-theme', isDark ? 'dark' : 'light');
+  }
+  
+  // Add click event to theme toggle button
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  // Listen for OS theme changes (optional)
+  prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('reedleads-theme')) {
+      if (e.matches) {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+    }
+  });
+})();
+
 // ── NAV SCROLL
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
@@ -1062,6 +1139,26 @@ function updateDomainPreview() {
   // sync hero card
   document.getElementById('animDomain').innerHTML =
     `${name}<span class="tld">${ext}</span>`;
+// Pill toggles (multi-select for services, single-select for budget)
+const pills = document.querySelectorAll('.bwc-pill');
+if (pills.length) {
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const group = pill.dataset.group;
+      if (!group) return;
+
+      if (group === 'budget') {
+        // Single select for budget
+        document.querySelectorAll('.bwc-pill[data-group="budget"]')
+          .forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      } else {
+        // Multi-select for services
+        pill.classList.toggle('active');
+      }
+    });
+  });
+}
 }
 
 // ── ANIMATED DOMAIN CYCLE (hero card)
@@ -1074,6 +1171,9 @@ const domains = [
   ['meshakhlive','.co.ke'],
   ['reedleads','.com'],
   ['otsavy','.com'],
+  ['savvion','.co.ke'],
+  ['graceelevatedcakes','.co.ke']
+  
 
 ];
 let di = 0;

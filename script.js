@@ -1,4 +1,41 @@
-script>
+<script>
+/* =========================
+   THEME TOGGLE SYSTEM
+   ========================= */
+(function() {
+  const themeToggle = document.getElementById('themeToggle');
+  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  // Check for saved theme preference or respect OS preference
+  const currentTheme = localStorage.getItem('reedleads-theme');
+  if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+    document.body.classList.add('dark-theme');
+  }
+  
+  // Toggle theme function
+  function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('reedleads-theme', isDark ? 'dark' : 'light');
+  }
+  
+  // Add click event to theme toggle button
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  // Listen for OS theme changes (optional)
+  prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('reedleads-theme')) {
+      if (e.matches) {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+    }
+  });
+})();
+
 document.querySelectorAll('.dropdown-toggle').forEach(button => {
   const dropdown = button.closest('.dropdown');
   const menu = dropdown.querySelector('.dropdown-menu');
