@@ -57,6 +57,8 @@
         .contact-info p{margin-bottom:8px;font-size:14px}
         a{color:var(--accent);text-decoration:none;transition:color 0.2s ease}
         a:hover{color:var(--accent-dark)}
+        .btn-back-home{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--accent);color:#fff;font-size:14px;font-weight:500;border-radius:8px;border:1px solid rgba(0,0,0,0.05);text-decoration:none;transition:all 0.25s ease}
+        .btn-back-home:hover{background:var(--accent-dark);color:#fff;transform:translateY(-2px);box-shadow:0 8px 20px rgba(22,160,102,0.25)}
         @media(max-width:600px){
             .container{padding:0 16px}
             .header-content{padding:40px 0 32px}
@@ -289,14 +291,17 @@
 
         <div class="content-section">
             <h2>15. Contact Information</h2>
-            <div class="contact-info">
-                <h4>Savvion Legal Department</h4>
-                <p>Email: <a href="mailto:legal@savvion.com">legal@savvion.com</a></p>
-                <p>Mailing Address: Savvion, P.O. Box 00100, Nairobi, Kenya</p>
-                <p>Phone: +254 795 582 978</p>
-            </div>
-            <p>If you have questions about these Terms of Service, please contact us using the information above.</p>
+        <div class="contact-info">
+            <h4>Savvion Legal Department</h4>
+            <p>Email: <a href="mailto:legal@savvion.com">legal@savvion.com</a></p>
+            <p>Mailing Address: Savvion, P.O. Box 00100, Nairobi, Kenya</p>
+            <p>Phone: +254 795 582 978</p>
         </div>
+        <p>If you have questions about these Terms of Service, please contact us using the information above.</p>
+        <div style="margin-top: 32px; text-align: center;">
+            <a href="index.html" class="btn-back-home">← Back to Home</a>
+        </div>
+    </div>
     </main>
 
     <footer>
