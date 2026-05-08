@@ -2233,7 +2233,7 @@ footer{
 
 .footer-top{
   display:grid;
-  grid-template-columns:1.2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns:1.4fr 1fr 1fr 1fr;
   gap:48px;
   margin-bottom:64px;
 }
@@ -2326,7 +2326,7 @@ footer{
 /* TOP FOOTER GRID */
 .footer-top{
   display:grid;
-  grid-template-columns:1.2fr 1fr 1fr 1fr 1.2fr;
+  grid-template-columns:1.4fr 1fr 1fr 1fr;
   gap:48px;
   margin-bottom:64px;
 }
@@ -2440,31 +2440,10 @@ footer{
   padding-top:24px;
   margin-top:12px;
   display:flex;
-  justify-content:center;
+  justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
-  gap:8px;
-  text-align:center;
-}
-
-.footer-bottom-content{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:6px;
-  font-size:12.5px;
-  color:rgba(255,255,255,0.3);
-}
-
-.footer-bottom-content a{
-  color:rgba(255,255,255,0.3);
-  text-decoration:none;
-  transition:color 0.2s;
-}
-
-.footer-bottom-content a:hover{
-  color:rgba(255,255,255,0.6);
+  gap:18px;
 }
 
 .footer-bottom-left{
@@ -2548,29 +2527,14 @@ footer{
 /* RESPONSIVE */
 @media(max-width:960px){
   .footer-top{
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr;
     gap:32px;
-  }
-  .footer-top > div:nth-child(4),
-  .footer-top > div:nth-child(5){
-    grid-column: span 1;
-  }
-}
-
-@media(max-width:600px){
-  .footer-top{
-    grid-template-columns:1fr;
-    gap:32px;
-  }
-  
-  footer{
-    padding:56px 24px 28px;
   }
 }
 
 /* =========================
-    PRELOADER
-    ========================= */
+   PRELOADER
+   ========================= */
 #preloader{
   position:fixed;
   top:0;
@@ -2672,18 +2636,19 @@ body.dark-theme .preloader-progress-bar{
 @media(max-width:768px){
   .footer-bottom{
     flex-direction:column;
-    align-items:center;
-  }
-  .footer-bottom-content{
-    justify-content:center;
+    align-items:flex-start;
   }
 }
+
+  .footer-bottom-right{
+    gap:14px;
+  }
 
 @media(max-width:600px){
   .footer-top{
     grid-template-columns:1fr;
   }
-  
+
   footer{
     padding:56px 24px 28px;
   }
@@ -4117,65 +4082,63 @@ body.dark-theme .preloader-progress-bar{
         <a href="#services">Digital Marketing Strategy</a>
       </div>
     </div>
+    <div>
+      <div class="footer-col-title">Quick links</div>
+      <div class="footer-links">
+        <a href="#">Home</a>
+        <a href="#work">Work</a>
+        <a href="#audiences">Who we help</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a href="domain.htm">Domain Registration</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Social</div>
+
+<div class="footer-social">
+ <a href="https://www.linkedin.com" aria-label="LinkedIn" class="social-icon linkedin" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+    <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5ZM0.5 8h4V24h-4V8ZM8 8h3.8v2.2h.05c.53-1 1.85-2.2 3.8-2.2 4.07 0 4.82 2.68 4.82 6.16V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.63 0-3.03 2.05-3.03 4.17V24H8V8Z"/>
+  </svg>
+</a>
+  <a href="https://twitter.com" aria-label="X / Twitter" class="social-icon twitter" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M5 5L19 19M19 5L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </a>
+</div>
+<br>
 <div>
-       <div class="footer-col-title">Our Marketplace Products</div>
-       <div class="footer-links">
-         <a href="Savvion listings.html">Savvion Listings</a>
-         <a href="Savvion bookings.html">Savvion Bookings</a>
-       </div>
-     </div>
-     <div>
-       <div class="footer-col-title">Quick links</div>
-       <div class="footer-links">
-         <a href="#">Home</a>
-         <a href="#work">Work</a>
-         <a href="#audiences">Who we help</a>
-         <a href="#faq">FAQ</a>
-         <a href="#contact">Contact</a>
-         <a href="domain.htm">Domain Registration</a>
-       </div>
-     </div>
-<div>
-       <div class="footer-col-title">Social</div>
-       <div class="footer-social">
-         <a href="https://www.linkedin.com" aria-label="LinkedIn" class="social-icon linkedin" target="_blank" rel="noopener">
-           <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
-             <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5ZM0.5 8h4V24h-4V8ZM8 8h3.8v2.2h.05c.53-1 1.85-2.2 3.8-2.2 4.07 0 4.82 2.68 4.82 6.16V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.63 0-3.03 2.05-3.03 4.17V24H8V8Z"/>
-           </svg>
-         </a>
-         <a href="https://twitter.com" aria-label="X / Twitter" class="social-icon twitter" target="_blank" rel="noopener noreferrer">
-           <svg viewBox="0 0 24 24" fill="none">
-             <path d="M5 5L19 19M19 5L5 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-           </svg>
-         </a>
-       </div>
-     </div>
-     <div>
-       <div class="footer-col-title">Subscribe</div>
-       <div class="footer-newsletter">
-         <p class="newsletter-sub">
-           Get insights on building conversion-first systems—websites, CRM, SEO, and AI for digital growth.
-         </p>
-         <form class="newsletter-form">
-           <input type="email" placeholder="Enter your email" required />
-           <button class="btn-green">Subscribe</button>
-         </form>
-       </div>
-     </div>
+  <div class="footer-col-title">Subscribe</div>
+
+  <div class="footer-newsletter">
+    <p class="newsletter-sub">
+      Get insights on building conversion-first systems—websites, CRM, SEO, and AI for digital growth.
+    </p>
+
+    <form class="newsletter-form">
+      <input type="email" placeholder="Enter your email" required />
+      <button class="btn-green">Subscribe</button>
+    </form>
+  </div>
+</div>
+
+  <div class="footer-bottom">
+   <div class="footer-bottom-left">
+     <span>Copyright 2026 Savvion. All Rights Reserved.</span>
+     <span class="footer-divider">|</span>
+     <span> Savvion | <a href="https://wa.me/254713082563" target="_blank" class="footer-meshakh" title="Chat on WhatsApp">Meshakh</a></span>
    </div>
 
-   <div class="footer-bottom">
-     <div class="footer-bottom-content">
-       <span>Copyright 2026 Savvion. All Rights Reserved.</span>
-       <span class="footer-divider">|</span>
-       <span> Savvion | <a href="https://wa.me/254713082563" target="_blank" class="footer-meshakh" title="Chat on WhatsApp">Meshakh</a></span>
-       <span class="footer-divider">|</span>
-       <a href="privacy-policy.html">Privacy Policy</a>
-       <span class="footer-divider">|</span>
-       <a href="terms-of-service.html">Terms</a>
-     </div>
+   <div class="footer-bottom-right">
+     <a href="privacy-policy.html">Privacy Policy</a>
+     <span class="footer-divider">|</span>
+     <a href="terms-of-service.html">Terms</a>
    </div>
- </footer>
+</div>
+
+</div>
 
 <div id="recaptcha-overlay">
   <div class="recaptcha-content">
