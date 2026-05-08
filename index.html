@@ -174,8 +174,8 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 .nav-center{display:flex;align-items:center;gap:4px}
 .nav-center a{font-size:13.5px;color:var(--ink-muted);text-decoration:none;font-weight:400;padding:6px 14px;border-radius:6px;transition:color 0.2s,background 0.2s}
 .nav-center a:hover{color:var(--ink);background:var(--surface-2)}
-.btn-nav{background:var(--ink);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
-.btn-nav:hover{background:#2a2a2a;transform:translateY(-1px)}
+.btn-nav{background:var(--accent);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
+.btn-nav:hover{background:var(--accent-dark);transform:translateY(-1px)}
 
 /* Theme Toggle */
 .theme-toggle{background:rgba(0,0,0,0.08);border:1px solid var(--border);color:var(--ink);width:44px;height:44px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s;flex-shrink:0}
@@ -312,8 +312,8 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 .product-link-arrow{margin-left:auto;font-size:14px;color:var(--ink-faint);transition:all 0.15s;flex-shrink:0}
 .product-link:hover .product-link-arrow{color:var(--accent);transform:translate(2px,-2px)}
 
-.btn-nav{background:var(--ink);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
-.btn-nav:hover{background:#2a2a2a;transform:translateY(-1px)}
+.btn-nav{background:var(--accent);color:#fff;font-family:var(--font-body);font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background 0.2s,transform 0.2s;display:inline-block}
+.btn-nav:hover{background:var(--accent-dark);transform:translateY(-1px)}
 
 /* ================================
    MOBILE RESPONSIVE FIX
@@ -543,9 +543,15 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
   margin-bottom: calc(var(--grid) * 0.8);
 }
 
+.hero-cta-subtext{
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin-top: 8px;
+}
+
 /* PRIMARY BUTTON */
 .btn-primary{
-  background: var(--ink);
+  background: var(--accent);
   color: #fff;
 
   font-size: 14.5px;
@@ -567,9 +573,9 @@ nav.scrolled{background:rgba(250,250,248,0.92);backdrop-filter:blur(16px);border
 }
 
 .btn-primary:hover{
-  background: #2a2a2a;
+  background: var(--accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 24px rgba(22,160,102,0.3);
 }
 
 /* OUTLINE BUTTON */
@@ -1016,7 +1022,7 @@ footer::before{
   border-radius: 999px;
 
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(22,160,102,0.25);
 }
 
 /* =========================
@@ -1062,7 +1068,7 @@ html{
 
   white-space: nowrap;
 
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(22,160,102,0.25);
 
   opacity: 0.85;
   transition: all 0.28s ease;
@@ -1084,7 +1090,7 @@ html{
 
   opacity: 1;
 
-  box-shadow: 0 14px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 14px 30px rgba(22,160,102,0.3);
 }
 
 /* =========================
@@ -2189,7 +2195,7 @@ html{
 /* BUTTON */
 .btn-bwc{
   align-self:flex-start;
-  background:var(--ink);
+  background:var(--accent);
   color:#fff;
   font-family:var(--font-body);
   font-size:14.5px;
@@ -2205,9 +2211,9 @@ html{
 }
 
 .btn-bwc:hover{
-  background:#2a2a2a;
+  background:var(--accent-dark);
   transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.18);
+  box-shadow:0 8px 24px rgba(22,160,102,0.3);
 }
 
 /* ================================
@@ -4089,7 +4095,7 @@ body.dark-theme .preloader-progress-bar{
          <option>CRM Selection & Implementation</option>
        </select>
        <input type="text" placeholder="Tell us about your project…">
-        <button class="btn-cta" id="submitBtnCta">Request your free audit →</button>
+        <button class="btn-cta" id="submitBtnCta">Book a Call</button>
      </div>
   </div>
 </section>
