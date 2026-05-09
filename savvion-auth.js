@@ -1,12 +1,21 @@
 /**
  * savvion-auth.js
  * Authentication logic for Savvion Bookings
- * Handles: Phone/Email input → OTP → Dashboard redirect
+ * Handles: Phone/Email + delivery method (SMS/WhatsApp) → OTP → Dashboard
  *
- * To connect to a real backend, replace the three API stub functions:
- *   requestOtp(mode, value)  →  POST /api/auth/request-otp
- *   verifyOtp(mode, value, code)  →  POST /api/auth/verify-otp
- *   resendOtp(mode, value)  →  POST /api/auth/resend-otp
+ * BACKEND INTEGRATION:
+ *   Replace the fetch() blocks inside each API method with your real endpoints:
+ *     requestOtp({ mode, value, delivery })  →  POST /api/auth/request-otp
+ *     verifyOtp(mode, value, code)           →  POST /api/auth/verify-otp
+ *     resendOtp({ mode, value, delivery })   →  POST /api/auth/resend-otp
+ *
+ *   The backend should:
+ *   - Send OTP via SMS (Africa's Talking/Twilio/Vonage) or WhatsApp (Meta/Twilio)
+ *   - Store OTP temporarily (Redis, 10 min expiry)
+ *   - Verify code and issue session token (set httpOnly cookie)
+ *
+ * DEMO MODE: Currently all three methods run in simulation (setTimeout + console.log).
+ *             Any 6-digit code except "000000" will succeed.
  *
  * On success the module writes to sessionStorage and redirects to DASHBOARD_URL.
  */
@@ -54,62 +63,86 @@
 
    /* ── API — configure endpoint URLs below ───────────────────────────── */
    const API = {
-     /**
-      * Request OTP
-      * POST /api/auth/request-otp
-      * Body: { mode, value, delivery? }
-      */
-     async requestOtp({ mode, value, delivery }) {
-       try {
-         const res = await fetch("/api/auth/request-otp", {
-           method: "POST",
-           headers: { "Content-Type": "application/json" },
-           body: JSON.stringify({ mode, value, delivery }),
-         });
-         return await res.json();
-       } catch (err) {
-         console.error("requestOtp error:", err);
-         return { ok: false, message: "Network error — check connection and retry." };
-       }
-     },
+      /**
+       * Request OTP
+       * POST /api/auth/request-otp
+       * Body: { mode, value, delivery? }
+       */
+      async requestOtp({ mode, value, delivery }) {
+        /* Development / demo mode — remove this block when backend is ready */
+        console.log("[DEMO] requestOtp:", { mode, value, delivery, timestamp: new Date().toISOString() });
+        await new Promise(r => setTimeout(r, 1200));
+        // Uncomment to test error state:
+        // return { ok: false, message: "Demo error — try again" };
+        return { ok: true };
 
-     /**
-      * Verify OTP
-      * POST /api/auth/verify-otp
-      * Body: { mode, value, code }
-      */
-     async verifyOtp(mode, value, code) {
-       try {
-         const res = await fetch("/api/auth/verify-otp", {
-           method: "POST",
-           headers: { "Content-Type": "application/json" },
-           body: JSON.stringify({ mode, value, code }),
-         });
-         return await res.json();
-       } catch (err) {
-         console.error("verifyOtp error:", err);
-         return { ok: false, message: "Network error — check connection and retry." };
-       }
-     },
+        /* Production:
+        try {
+          const res = await fetch("/api/auth/request-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode, value, delivery }),
+          });
+          return await res.json();
+        } catch (err) {
+          console.error("requestOtp error:", err);
+          return { ok: false, message: "Network error — check connection and retry." };
+        }
+        */
+      },
 
-     /**
-      * Resend OTP
-      * POST /api/auth/resend-otp
-      * Body: { mode, value, delivery? }
-      */
-     async resendOtp({ mode, value, delivery }) {
-       try {
-         const res = await fetch("/api/auth/resend-otp", {
-           method: "POST",
-           headers: { "Content-Type": "application/json" },
-           body: JSON.stringify({ mode, value, delivery }),
-         });
-         return await res.json();
-       } catch (err) {
-         console.error("resendOtp error:", err);
-         return { ok: false, message: "Network error — check connection and retry." };
-       }
-     },
+      /**
+       * Verify OTP
+       * POST /api/auth/verify-otp
+       * Body: { mode, value, code }
+       */
+      async verifyOtp(mode, value, code) {
+        /* Development / demo mode */
+        console.log("[DEMO] verifyOtp:", { mode, value, code, timestamp: new Date().toISOString() });
+        await new Promise(r => setTimeout(r, 1400));
+        if (code === "000000") return { ok: false, message: "That code is incorrect. Try again." };
+        return { ok: true, token: "demo-session-token-" + Date.now() };
+
+        /* Production:
+        try {
+          const res = await fetch("/api/auth/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode, value, code }),
+          });
+          return await res.json();
+        } catch (err) {
+          console.error("verifyOtp error:", err);
+          return { ok: false, message: "Network error — check connection and retry." };
+        }
+        */
+      },
+
+      /**
+       * Resend OTP
+       * POST /api/auth/resend-otp
+       * Body: { mode, value, delivery? }
+       */
+      async resendOtp({ mode, value, delivery }) {
+        /* Development / demo mode */
+        console.log("[DEMO] resendOtp:", { mode, value, delivery, timestamp: new Date().toISOString() });
+        await new Promise(r => setTimeout(r, 900));
+        return { ok: true };
+
+        /* Production:
+        try {
+          const res = await fetch("/api/auth/resend-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode, value, delivery }),
+          });
+          return await res.json();
+        } catch (err) {
+          console.error("resendOtp error:", err);
+          return { ok: false, message: "Network error — check connection and retry." };
+        }
+        */
+      },
    };
 
    /* ── DOM refs ────────────────────────────────────────────────────────── */
