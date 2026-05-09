@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savvion — My Bookings</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F7F4;--bg-2:#EDF0EC;--white:#FFFFFF;
+  --surface:#EFF2EE;--surface-2:#E6EAE5;--surface-3:#DCE1DB;
+  --ink:#0C100D;--ink-2:#1C221E;--ink-muted:#56685C;--ink-faint:#8FA097;
+  --green:#16A066;--green-mid:#1DB87A;--green-dark:#0D7A4E;--green-light:#E5F7EF;--green-glow:rgba(22,160,102,0.14);
+  --amber:#B8720A;--amber-light:#FDF3E3;--amber-border:rgba(184,114,10,0.2);
+  --red:#B83030;--red-light:#FDEDED;--red-border:rgba(184,48,48,0.2);
+  --blue:#2260B0;--blue-light:#E8F0FB;--blue-border:rgba(34,96,176,0.2);
+  --purple:#7040C0;--purple-light:#F0EBFA;
+  --border:rgba(0,0,0,0.07);--border-2:rgba(0,0,0,0.12);
+  --shadow-sm:0 1px 6px rgba(0,0,0,0.05);
+  --shadow:0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+  --font-d:'Bricolage Grotesque',sans-serif;
+  --font-b:'DM Sans',sans-serif;
+  --font-m:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --r:14px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px}
+
+/* ═══ TOPBAR ═══ */
+.topbar{position:sticky;top:0;z-index:200;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(245,247,244,0.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.tb-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.tb-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-mark svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tb-brand{font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-0.4px}
+.tb-sub{font-size:10.5px;color:var(--ink-faint);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.sync-chip{display:flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid rgba(22,160,102,0.22);border-radius:100px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--green-dark);font-weight:500;transition:all 0.2s;white-space:nowrap}
+.sync-chip:hover{background:#d4efe3}
+.sync-chip svg{width:11px;height:11px;stroke:var(--green-dark);fill:none;stroke-width:2;stroke-linecap:round}
+.sync-chip.syncing svg{animation:spin 0.8s linear infinite}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:gpulse 2s infinite;flex-shrink:0}
+@keyframes gpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;position:relative;flex-shrink:0}
+.icon-btn:hover{background:var(--surface-2)}
+.icon-btn svg{width:15px;height:15px;stroke:var(--ink-muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn .badge{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg)}
+.avatar-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:12px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;transition:border-color 0.2s}
+.avatar-btn:hover{border-color:var(--green-light)}
+
+/* ═══ PAGE LAYOUT ═══ */
+.page{max-width:1180px;margin:0 auto;padding:24px 20px 80px;display:grid;grid-template-columns:1fr 310px;gap:20px;align-items:start}
+
+/* ═══ WELCOME HERO ═══ */
+.hero-card{grid-column:1/-1;background:var(--ink-2);border-radius:18px;padding:26px 30px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative;overflow:hidden}
+.hc-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(22,160,102,0.14) 0%,transparent 70%);right:-80px;top:-80px;pointer-events:none}
+.hc-glow2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(22,160,102,0.07) 0%,transparent 70%);left:-60px;bottom:-80px;pointer-events:none}
+.hc-left{position:relative;z-index:1}
+.hc-greet{font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:5px}
+.hc-name{font-family:var(--font-d);font-size:clamp(22px,3vw,28px);font-weight:800;letter-spacing:-0.8px;color:#fff;margin-bottom:6px}
+.hc-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,0.5);line-height:1.6}
+.hc-sub strong{color:var(--green-mid);font-weight:600}
+.hc-mid{display:flex;gap:24px;position:relative;z-index:1}
+.hc-stat{text-align:center;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08)}
+.hc-stat:last-child{border-right:none}
+.hc-stat-num{font-family:var(--font-d);font-size:26px;font-weight:800;letter-spacing:-1px;color:#fff;line-height:1}
+.hc-stat-label{font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px}
+.hc-right{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.btn-book{background:var(--green);color:#fff;font-family:var(--font-b);font-size:14px;font-weight:600;padding:12px 22px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.2s;white-space:nowrap}
+.btn-book:hover{background:var(--green-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(22,160,102,0.35)}
+.btn-book svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.btn-admin-link{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:2px}
+.btn-admin-link:hover{color:rgba(255,255,255,0.8)}
+.btn-admin-link svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
+
+/* ═══ SECTION EYEBROW ═══ */
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.eyebrow::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ═══ CARD BASE ═══ */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-family:var(--font-d);font-size:14.5px;font-weight:700;letter-spacing:-0.3px;color:var(--ink)}
+.card-action{font-size:12.5px;color:var(--green);font-weight:500;cursor:pointer;background:none;border:none;font-family:var(--font-b);transition:color 0.15s}
+.card-action:hover{color:var(--green-dark)}
+
+/* ═══ REVIEW PROMPT ═══ */
+.review-prompt{background:linear-gradient(135deg,#FDF8EE,#FFF3E0);border:1px solid rgba(184,114,10,0.18);border-radius:var(--r);padding:18px 20px;display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.rp-emoji{font-size:26px;line-height:1;flex-shrink:0;margin-top:2px}
+.rp-body{flex:1}
+.rp-title{font-family:var(--font-d);font-size:14px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:3px}
+.rp-sub{font-size:12.5px;color:var(--ink-muted);font-weight:300;margin-bottom:10px}
+.rp-stars{display:flex;gap:5px}
+.rp-star{font-size:24px;cursor:pointer;opacity:0.3;transition:all 0.15s;filter:grayscale(1);line-height:1}
+.rp-star:hover,.rp-star.lit{opacity:1;filter:none;transform:scale(1.15)}
+.rp-dismiss{width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--ink-faint);flex-shrink:0;transition:all 0.15s}
+.rp-dismiss:hover{background:rgba(0,0,0,0.1);color:var(--ink)}
+
+/* ═══ UPCOMING BOOKINGS ═══ */
+.upcoming-list{display:flex;flex-direction:column;gap:10px;padding:14px 18px}
+.bcard{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px 16px;display:grid;grid-template-columns:52px 1fr;gap:14px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.bcard:hover{border-color:var(--border-2);background:var(--surface-2);transform:translateY(-1px);box-shadow:var(--shadow)}
+.bcard.next{border-color:rgba(22,160,102,0.28);background:var(--green-light)}
+.bcard.next::before{content:'Next';position:absolute;top:0;right:0;background:var(--green);color:#fff;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:0 11px 0 8px}
+.bcard-date{background:var(--white);border:1px solid var(--border);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;box-shadow:var(--shadow-sm)}
+.bcard-day{font-family:var(--font-d);font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--ink);line-height:1}
+.bcard-mon{font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-faint)}
+.bcard-info{}
+.bcard-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:100px;margin-bottom:5px}
+.bs-confirmed{color:var(--green-dark);background:var(--green-light);border:1px solid rgba(22,160,102,0.2)}
+.bs-pending{color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border)}
+.bs-dot{width:4px;height:4px;border-radius:50%;background:currentColor}
+.bcard-service{font-family:var(--font-d);font-size:14.5px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.svc-pip{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.bcard-meta{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--ink-muted);margin-bottom:10px}
+.bm-item{display:flex;align-items:center;gap:4px}
+.bm-item svg{width:11px;height:11px;stroke:var(--ink-faint);fill:none;stroke-width:1.5;stroke-linecap:round}
+.bcard-actions{display:flex;gap:6px;flex-wrap:wrap}
+.bca{font-size:11.5px;font-weight:500;padding:5px 11px;border-radius:100px;cursor:pointer;border:1.5px solid;transition:all 0.15s;font-family:var(--font-b);white-space:nowrap}
+.bca-view{color:var(--ink-muted);background:transparent;border-color:var(--border-2)}.bca-view:hover{background:var(--surface-3);border-color:var(--border-2)}
+.bca-reschedule{color:var(--blue);background:var(--blue-light);border-color:var(--blue-border)}.bca-reschedule:hover{background:#d4e4f8}
+.bca-cancel{color:var(--red);background:var(--red-light);border-color:var(--red-border)}.bca-cancel:hover{background:#f8d8d8}
+.bca-wa{color:#1a7a40;background:#e6f9ee;border-color:rgba(22,160,102,0.22)}.bca-wa:hover{background:#ccf0dc}
+.bca-wa svg{width:11px;height:11px;fill:currentColor;vertical-align:-1px;margin-right:2px}
+
+/* ═══ BOOKING HISTORY ═══ */
+.hist-list{display:flex;flex-direction:column}
+.hist-item{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s}
+.hist-item:last-child{border-bottom:none}
+.hist-item:hover{background:var(--surface)}
+.hist-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hist-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.hist-name{font-size:13.5px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.hist-date{font-size:12px;color:var(--ink-muted);font-weight:300}
+.hist-badge{font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:100px}
+.hb-done{color:var(--ink-faint);background:var(--surface);border:1px solid var(--border-2)}
+.hb-cancelled{color:var(--red);background:var(--red-light);border:1px solid var(--red-border)}
+
+/* ═══ PROFILE CARD ═══ */
+.profile-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);overflow:hidden}
+.pc-top{background:var(--ink-2);padding:22px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden}
+.pc-top-glow{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(22,160,102,0.12) 0%,transparent 70%);right:-40px;bottom:-60px}
+.pc-avatar-wrap{position:relative;z-index:1}
+.pc-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:22px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,0.12)}
+.pc-avatar-edit{position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;background:var(--green);border:2px solid var(--ink-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s}
+.pc-avatar-edit:hover{background:var(--green-dark)}
+.pc-avatar-edit svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.pc-name{font-family:var(--font-d);font-size:16px;font-weight:700;color:#fff;letter-spacing:-0.3px;position:relative;z-index:1}
+.pc-email{font-size:12px;color:rgba(255,255,255,0.4);position:relative;z-index:1}
+.pc-since{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);padding:4px 10px;border-radius:100px;position:relative;z-index:1}
+.pc-since svg{width:10px;height:10px;stroke:var(--green-mid);fill:none;stroke-width:2}
+/* field rows */
+.pc-fields{padding:0}
+.pc-field{display:flex;align-items:center;padding:11px 18px;border-bottom:1px solid var(--border);gap:10px;transition:background 0.15s}
+.pc-field:last-child{border-bottom:none}
+.pc-field:hover{background:var(--surface)}
+.pf-icon{width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pf-icon svg{width:13px;height:13px;stroke:var(--ink-muted);fill:none;stroke-width:1.5;stroke-linecap:round}
+.pf-body{flex:1;min-width:0}
+.pf-label{font-size:10.5px;color:var(--ink-faint);margin-bottom:1px;letter-spacing:0.2px}
+.pf-value{font-size:13.5px;color:var(--ink-2);font-family:var(--font-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-value.editing{display:none}
+.pf-input{display:none;width:100%;background:var(--surface);border:1.5px solid var(--green);border-radius:7px;padding:5px 8px;font-size:13px;color:var(--ink);font-family:var(--font-m);outline:none}
+.pf-input.editing{display:block}
+.pf-edit-btn{font-size:11.5px;color:var(--green);font-weight:500;cursor:pointer;background:none;border:none;font-family:var(--font-b);flex-shrink:0;padding:4px 6px;border-radius:5px;transition:background 0.15s}
+.pf-edit-btn:hover{background:var(--green-light)}
+/* save bar */
+.pc-save-bar{display:none;padding:12px 18px;background:var(--green-light);border-top:1px solid rgba(22,160,102,0.15)}
+.pc-save-btn{width:100%;padding:10px;background:var(--green);color:#fff;font-family:var(--font-b);font-size:13.5px;font-weight:600;border:none;border-radius:9px;cursor:pointer;transition:background 0.2s}
+.pc-save-btn:hover{background:var(--green-dark)}
+/* preferences */
+.pc-prefs{padding:14px 18px;border-top:1px solid var(--border)}
+.pcp-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+.pcp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pcp-row:last-child{margin-bottom:0}
+.pcp-label{font-size:13px;color:var(--ink-2)}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--surface-3);border-radius:100px;cursor:pointer;transition:background 0.2s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+.toggle input:checked + .toggle-slider{background:var(--green)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(16px)}
+
+/* ═══ CALENDAR SYNC CARD ═══ */
+.cal-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:16px 18px}
+.cal-card-title{font-family:var(--font-d);font-size:13.5px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:3px}
+.cal-card-sub{font-size:12px;color:var(--ink-faint);font-weight:300;margin-bottom:14px}
+.cal-provider{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;transition:all 0.15s;cursor:pointer}
+.cal-provider:hover{border-color:var(--border-2)}
+.cal-provider.connected{background:var(--green-light);border-color:rgba(22,160,102,0.2)}
+.cp-left{display:flex;align-items:center;gap:9px}
+.cp-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cp-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
+.cp-name{font-size:13px;font-weight:500;color:var(--ink-2)}
+.cp-status{font-size:11px;font-weight:500;display:flex;align-items:center;gap:4px}
+.cp-status-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.cp-connect{font-size:11.5px;color:var(--blue);font-weight:500;background:var(--blue-light);border:1px solid var(--blue-border);border-radius:100px;padding:3px 10px;cursor:pointer;font-family:var(--font-b);transition:all 0.15s}
+.cp-connect:hover{background:#d4e4f8}
+.sync-btn-full{margin-top:12px;width:100%;padding:10px;background:var(--ink-2);color:#fff;font-family:var(--font-b);font-size:13px;font-weight:500;border:none;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s}
+.sync-btn-full:hover{background:#2a3028}
+.sync-btn-full svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ═══ MINI CALENDAR ═══ */
+.mini-cal{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:16px 18px}
+.mc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mc-month{font-family:var(--font-d);font-size:13.5px;font-weight:700;letter-spacing:-0.3px;color:var(--ink)}
+.mc-navs{display:flex;gap:4px}
+.mc-nav{width:24px;height:24px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s}
+.mc-nav:hover{background:var(--surface-2)}
+.mc-nav svg{width:10px;height:10px;stroke:var(--ink-muted);fill:none;stroke-width:2;stroke-linecap:round}
+.mc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.mc-lbl{font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-faint);text-align:center;padding-bottom:4px;font-family:var(--font-m)}
+.mc-d{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--ink-muted);cursor:pointer;transition:all 0.12s;position:relative}
+.mc-d:hover:not(.past){background:var(--surface);color:var(--ink)}
+.past{opacity:0.3;cursor:default}
+.mc-today{color:var(--green);font-weight:700}
+.mc-sel{background:var(--green)!important;color:#fff!important;font-weight:700}
+.mc-has::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--amber)}
+.mc-sel::after{background:#fff!important}
+
+/* ═══ SERVICES INTEREST ═══ */
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:16px 18px}
+.svc-list-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left 0.15s}
+.svc-list-item:last-child{border-bottom:none}
+.svc-list-item:hover{padding-left:4px}
+.sli-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sli-name{font-size:13.5px;color:var(--ink-2);font-weight:400;flex:1}
+.sli-count{font-family:var(--font-m);font-size:11.5px;color:var(--ink-faint)}
+.sli-bar{width:56px;height:4px;background:var(--surface-2);border-radius:100px;overflow:hidden}
+.sli-fill{height:100%;border-radius:100px;transition:width 0.6s var(--ease)}
+.sli-book{font-size:11px;font-weight:500;color:var(--green-dark);background:var(--green-light);border:1px solid rgba(22,160,102,0.2);border-radius:100px;padding:3px 9px;cursor:pointer;font-family:var(--font-b);transition:all 0.15s}
+.sli-book:hover{background:#d0ece0}
+
+/* ═══ MODALS ═══ */
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.45);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border:1px solid var(--border-2);border-radius:18px;width:480px;max-width:93vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(18px) scale(0.97);transition:transform 0.3s var(--ease)}
+.overlay.open .modal{transform:translateY(0) scale(1)}
+.mhdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);z-index:10}
+.mhdr-title{font-family:var(--font-d);font-size:17px;font-weight:700;letter-spacing:-0.4px;color:var(--ink)}
+.mhdr-close{width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--ink-muted);transition:all 0.15s;flex-shrink:0}
+.mhdr-close:hover{background:var(--surface-2)}
+.mbody{padding:22px 24px}
+.ml{font-size:12px;font-weight:500;color:var(--ink-muted);margin-bottom:6px}
+.mi{width:100%;background:var(--surface);border:1.5px solid var(--border-2);border-radius:9px;padding:11px 13px;font-family:var(--font-b);font-size:13.5px;color:var(--ink);outline:none;transition:all 0.2s;margin-bottom:14px;appearance:none}
+.mi:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 3px var(--green-glow)}
+.mi::placeholder{color:var(--ink-faint);font-weight:300}
+.mi option{background:#fff}
+.mi:last-of-type{margin-bottom:0}
+/* cal grid in modal */
+.mcg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.mcg-l{font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-faint);text-align:center;font-family:var(--font-m);padding-bottom:3px}
+.mcg-d{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--ink-muted);cursor:pointer;transition:all 0.12s}
+.mcg-d:hover:not(.mcg-past){background:var(--surface);color:var(--ink)}
+.mcg-past{opacity:0.25;cursor:default}
+.mcg-today{color:var(--green);font-weight:700}
+.mcg-sel{background:var(--green)!important;color:#fff!important;font-weight:700}
+/* time slots */
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px}
+.tslot{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center;font-size:12px;font-family:var(--font-m);color:var(--ink-muted);cursor:pointer;transition:all 0.15s}
+.tslot:hover{border-color:var(--green-light);color:var(--ink)}
+.tslot.sel{background:var(--green-light);border-color:rgba(22,160,102,0.4);color:var(--green-dark);font-weight:500}
+/* modal footer */
+.mftr{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--white)}
+.mbtn{padding:10px 22px;border-radius:9px;font-family:var(--font-b);font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s}
+.mbtn-ghost{background:var(--surface);color:var(--ink-muted);border:1px solid var(--border-2)}.mbtn-ghost:hover{background:var(--surface-2)}
+.mbtn-green{background:var(--green);color:#fff}.mbtn-green:hover{background:var(--green-dark)}
+.mbtn-red{background:var(--red-light);color:var(--red);border:1px solid var(--red-border)}.mbtn-red:hover{background:#f5cccc}
+/* cancel warning */
+.cancel-box{background:var(--red-light);border:1px solid var(--red-border);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;margin-bottom:18px}
+.cancel-box svg{width:16px;height:16px;stroke:var(--red);fill:none;stroke-width:1.5;stroke-linecap:round;flex-shrink:0;margin-top:2px}
+.cancel-box-text{font-size:13.5px;color:var(--red);line-height:1.6}
+/* detail modal */
+.detail-svc-block{background:var(--surface);border-radius:11px;padding:16px;margin-bottom:16px}
+.detail-svc-name{font-family:var(--font-d);font-size:16px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.dr-label{font-size:12px;color:var(--ink-faint)}
+.dr-val{font-size:13px;color:var(--ink-2);font-family:var(--font-m)}
+.detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.da-btn{padding:10px;border-radius:9px;font-family:var(--font-b);font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid;text-align:center;transition:all 0.15s}
+.da-res{color:var(--blue);background:var(--blue-light);border-color:var(--blue-border)}.da-res:hover{background:#d4e4f8}
+.da-can{color:var(--red);background:var(--red-light);border-color:var(--red-border)}.da-can:hover{background:#f5cccc}
+/* add to cal */
+.add-cal-block{background:var(--surface);border-radius:10px;padding:14px}
+.acb-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+.acb-btns{display:flex;gap:7px;flex-wrap:wrap}
+.acb-btn{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--white);border:1px solid var(--border-2);border-radius:7px;padding:7px 12px;cursor:pointer;transition:all 0.15s;font-family:var(--font-b)}
+.acb-btn:hover{border-color:var(--green);color:var(--green-dark)}
+.acb-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
+
+/* ═══ NOTIFICATION DRAWER ═══ */
+.notif-drawer{position:fixed;top:0;right:-100%;width:340px;height:100vh;background:var(--white);border-left:1px solid var(--border-2);z-index:400;display:flex;flex-direction:column;transition:right 0.35s var(--ease);box-shadow:var(--shadow-lg)}
+.notif-drawer.open{right:0}
+.nd-hdr{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.nd-title{font-family:var(--font-d);font-size:15px;font-weight:700;letter-spacing:-0.3px;color:var(--ink)}
+.nd-badge{font-family:var(--font-m);font-size:10.5px;color:var(--green-dark);background:var(--green-light);padding:2px 7px;border-radius:100px;margin-left:6px}
+.nd-close{width:28px;height:28px;border-radius:7px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ink-muted);transition:all 0.15s}
+.nd-close:hover{background:var(--surface-2)}
+.nd-list{flex:1;overflow-y:auto;padding:14px}
+.nd-item{display:flex;gap:11px;padding:13px 12px;border-radius:10px;margin-bottom:7px;border:1px solid transparent;cursor:pointer;transition:all 0.15s}
+.nd-item:hover{background:var(--surface)}
+.nd-item.unread{background:var(--green-light);border-color:rgba(22,160,102,0.12)}
+.nd-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nd-icon svg{width:15px;height:15px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nd-green{background:var(--green-light)}.nd-green svg{stroke:var(--green)}
+.nd-amber{background:var(--amber-light)}.nd-amber svg{stroke:var(--amber)}
+.nd-blue{background:var(--blue-light)}.nd-blue svg{stroke:var(--blue)}
+.nd-red{background:var(--red-light)}.nd-red svg{stroke:var(--red)}
+.nd-text{font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:3px}
+.nd-text strong{color:var(--ink);font-weight:600}
+.nd-time{font-size:11px;color:var(--ink-faint);font-family:var(--font-m)}
+.nd-unread-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px}
+.nd-ftr{padding:14px 20px;border-top:1px solid var(--border)}
+.nd-clear{width:100%;padding:10px;background:var(--surface);border:1px solid var(--border-2);border-radius:8px;font-family:var(--font-b);font-size:13px;color:var(--ink-muted);cursor:pointer;transition:all 0.15s}
+.nd-clear:hover{background:var(--surface-2);color:var(--ink)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:84px;right:20px;z-index:600;background:var(--ink-2);border-radius:11px;padding:12px 18px;font-size:13.5px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg);transform:translateY(70px);opacity:0;transition:all 0.35s var(--ease);max-width:320px;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.ti{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ti svg{width:11px;height:11px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ti-g{background:var(--green-light)}.ti-g svg{stroke:var(--green)}
+.ti-r{background:var(--red-light)}.ti-r svg{stroke:var(--red)}
+.ti-b{background:var(--blue-light)}.ti-b svg{stroke:var(--blue)}
+
+/* ═══ MOBILE BOTTOM NAV ═══ */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(255,255,255,0.96);backdrop-filter:blur(18px);border-top:1px solid var(--border);padding:8px 4px calc(8px + env(safe-area-inset-bottom));justify-content:space-around;align-items:flex-end}
+.mn-btn{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 14px;border-radius:10px;transition:all 0.15s;text-decoration:none;border:none;background:none;font-family:var(--font-b)}
+.mn-btn svg{width:20px;height:20px;stroke:var(--ink-faint);fill:none;stroke-width:1.5;stroke-linecap:round;transition:stroke 0.15s}
+.mn-btn span{font-size:10px;color:var(--ink-faint);font-weight:500;transition:color 0.15s}
+.mn-btn.active svg{stroke:var(--green)}
+.mn-btn.active span{color:var(--green)}
+.mn-fab{width:48px;height:48px;border-radius:50%;background:var(--green);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:6px;box-shadow:0 4px 16px rgba(22,160,102,0.4);transition:all 0.2s;flex-shrink:0}
+.mn-fab:hover{background:var(--green-dark);transform:scale(1.05)}
+.mn-fab svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+.mn-badge{position:relative}
+.mn-badge::after{content:'3';position:absolute;top:-2px;right:-4px;width:14px;height:14px;border-radius:50%;background:var(--amber);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--font-m);line-height:14px;text-align:center}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:900px){
+  .page{grid-template-columns:1fr;gap:14px;padding:16px 14px 80px}
+  .hc-mid{display:none}
+  .hero-card{flex-direction:column;align-items:flex-start;gap:16px}
+  .hc-right{align-items:flex-start}
+  .right-col{order:-1}
+  .mob-nav{display:flex}
+  .toast{bottom:84px}
+}
+@media(max-width:540px){
+  .topbar{padding:0 14px}
+  .sync-chip span{display:none}
+  .bcard-actions{gap:4px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
+  <a href="savvion-bookings.html" class="tb-logo">
+    <div class="tb-mark"><svg viewBox="0 0 14 14"><rect x="2" y="3" width="10" height="9" rx="2"/><path d="M4 1v3M10 1v3M2 6h10"/><circle cx="7" cy="9" r="1" fill="#fff" stroke="none"/></svg></div>
+    <div>
+      <div class="tb-brand">Savvion Bookings</div>
+      <div class="tb-sub">Client Portal</div>
+    </div>
+  </a>
+  <div class="tb-right">
+    <div class="sync-chip" id="syncChip" onclick="triggerSync()">
+      <div class="sdot" id="syncDot"></div>
+      <svg viewBox="0 0 12 12" id="syncIcon"><path d="M10 3v3H7M2 9V6H5"/><path d="M2 6a4 4 0 016.9-1.5M10 6a4 4 0 01-6.9 1.5"/></svg>
+      <span id="syncLabel">Synced · Google Cal</span>
+    </div>
+    <div class="icon-btn" onclick="toggleNotifs()" title="Notifications">
+      <svg viewBox="0 0 16 16"><path d="M8 2a5 5 0 015 5v2l1.5 2.5H1.5L3 9V7a5 5 0 015-5z"/><path d="M6.5 13.5a1.5 1.5 0 003 0"/></svg>
+      <div class="badge" id="notifBadge"></div>
+    </div>
+    <div class="avatar-btn" id="topAvatar" onclick="openEditProfile()">JM</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE ═══ -->
+<div class="page">
+
+  <!-- ── HERO ── -->
+  <div class="hero-card">
+    <div class="hc-glow"></div><div class="hc-glow2"></div>
+    <div class="hc-left">
+      <div class="hc-greet">Good morning</div>
+      <div class="hc-name" id="heroName">Jane Mwangi</div>
+      <div class="hc-sub">You have <strong id="heroUpcomingCount">3 upcoming appointments</strong> this week. Next: <strong id="heroNext">tomorrow at 10:00 AM</strong></div>
+    </div>
+    <div class="hc-mid">
+      <div class="hc-stat"><div class="hc-stat-num" id="heroTotal">12</div><div class="hc-stat-label">Total booked</div></div>
+      <div class="hc-stat"><div class="hc-stat-num" id="heroUpcoming">3</div><div class="hc-stat-label">Upcoming</div></div>
+      <div class="hc-stat"><div class="hc-stat-num" id="heroCompleted">8</div><div class="hc-stat-label">Completed</div></div>
+    </div>
+    <div class="hc-right">
+      <button class="btn-book" onclick="openNewBooking()">
+        <svg viewBox="0 0 14 14"><path d="M2 2h10v10H2zM5 2v10M2 5h10"/></svg>
+        Book Appointment
+      </button>
+      <a href="savvion-dashboard.html" class="btn-admin-link" target="_blank">
+        <svg viewBox="0 0 12 12"><path d="M2 10h8M6 2v6M10 6l-4-4-4 4"/></svg>
+        Admin dashboard ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- ── LEFT COLUMN ── -->
+  <div>
+
+    <!-- Review Prompt -->
+    <div class="review-prompt" id="reviewPrompt">
+      <div class="rp-emoji">⭐</div>
+      <div class="rp-body">
+        <div class="rp-title">How was your Consultation on Monday?</div>
+        <div class="rp-sub">With Amara Okafor · Rate your experience to help us improve</div>
+        <div class="rp-stars" id="rpStars">
+          <span class="rp-star" onclick="rate(1)">★</span>
+          <span class="rp-star" onclick="rate(2)">★</span>
+          <span class="rp-star" onclick="rate(3)">★</span>
+          <span class="rp-star" onclick="rate(4)">★</span>
+          <span class="rp-star" onclick="rate(5)">★</span>
+        </div>
+      </div>
+      <button class="rp-dismiss" onclick="dismissReview()">✕</button>
+    </div>
+
+    <!-- Upcoming Bookings -->
+    <div class="eyebrow">Upcoming appointments</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-hdr">
+        <div class="card-title">Scheduled</div>
+        <button class="card-action" onclick="showToast('Showing all bookings','blue')">View all →</button>
+      </div>
+      <div class="upcoming-list" id="upcomingList"></div>
+    </div>
+
+    <!-- Booking History -->
+    <div class="eyebrow">Booking history</div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Recent Activity</div>
+        <button class="card-action" onclick="showToast('Loading full history…','blue')">See all →</button>
+      </div>
+      <div class="hist-list" id="histList"></div>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT COLUMN ── -->
+  <div class="right-col" style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Profile Card -->
+    <div class="eyebrow">My Profile</div>
+    <div class="profile-card">
+      <div class="pc-top">
+        <div class="pc-top-glow"></div>
+        <div class="pc-avatar-wrap">
+          <div class="pc-avatar" id="pcAvatar">JM</div>
+          <div class="pc-avatar-edit" onclick="openEditProfile()"><svg viewBox="0 0 10 10"><path d="M1 8L7 2l1.5 1.5L2.5 9.5 1 9z"/></svg></div>
+        </div>
+        <div class="pc-name" id="pcName">Jane Mwangi</div>
+        <div class="pc-email" id="pcEmail">jane.mwangi@email.com</div>
+        <div class="pc-since"><svg viewBox="0 0 10 10"><path d="M5 1L2 3v3c0 2.5 1.5 3.5 3 4.5 1.5-1 3-2 3-4.5V3L5 1z"/></svg>Member since Jan 2025</div>
+      </div>
+      <div class="pc-fields">
+        <div class="pc-field">
+          <div class="pf-icon"><svg viewBox="0 0 14 14"><circle cx="7" cy="5" r="3"/><path d="M2 13c0-3 2-5 5-5s5 2 5 5"/></svg></div>
+          <div class="pf-body">
+            <div class="pf-label">Full Name</div>
+            <div class="pf-value" id="fv-name">Jane Mwangi</div>
+            <input class="pf-input" id="fi-name" value="Jane Mwangi">
+          </div>
+          <button class="pf-edit-btn" onclick="toggleField('name')">Edit</button>
+        </div>
+        <div class="pc-field">
+          <div class="pf-icon"><svg viewBox="0 0 14 14"><path d="M2 4h10v6H2z"/><path d="M2 4l5 4 5-4"/></svg></div>
+          <div class="pf-body">
+            <div class="pf-label">Email</div>
+            <div class="pf-value" id="fv-email">jane.mwangi@email.com</div>
+            <input class="pf-input" id="fi-email" value="jane.mwangi@email.com" type="email">
+          </div>
+          <button class="pf-edit-btn" onclick="toggleField('email')">Edit</button>
+        </div>
+        <div class="pc-field">
+          <div class="pf-icon"><svg viewBox="0 0 14 14"><path d="M3 2h2l1 3-1.5 1.5a8 8 0 003 3L9 8l3 1v2a1 1 0 01-1 1A10 10 0 012 3a1 1 0 011-1z"/></svg></div>
+          <div class="pf-body">
+            <div class="pf-label">Phone / WhatsApp</div>
+            <div class="pf-value" id="fv-phone">+254 712 345 678</div>
+            <input class="pf-input" id="fi-phone" value="+254 712 345 678">
+          </div>
+          <button class="pf-edit-btn" onclick="toggleField('phone')">Edit</button>
+        </div>
+        <div class="pc-field">
+          <div class="pf-icon"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5"/><path d="M7 3v4l3 2"/></svg></div>
+          <div class="pf-body">
+            <div class="pf-label">Preferred time</div>
+            <div class="pf-value" id="fv-pref">Mornings (8am – 12pm)</div>
+            <input class="pf-input" id="fi-pref" value="Mornings (8am – 12pm)">
+          </div>
+          <button class="pf-edit-btn" onclick="toggleField('pref')">Edit</button>
+        </div>
+        <div class="pc-field">
+          <div class="pf-icon"><svg viewBox="0 0 14 14"><path d="M7 2C4.2 2 2 4.2 2 7s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z"/><path d="M2 7h10M7 2a7 7 0 000 10"/></svg></div>
+          <div class="pf-body">
+            <div class="pf-label">Location</div>
+            <div class="pf-value" id="fv-loc">Nairobi, Kenya</div>
+            <input class="pf-input" id="fi-loc" value="Nairobi, Kenya">
+          </div>
+          <button class="pf-edit-btn" onclick="toggleField('loc')">Edit</button>
+        </div>
+      </div>
+      <div class="pc-save-bar" id="pcSaveBar">
+        <button class="pc-save-btn" onclick="saveProfile()">Save changes</button>
+      </div>
+      <div class="pc-prefs">
+        <div class="pcp-title">Notifications</div>
+        <div class="pcp-row">
+          <span class="pcp-label">Email reminders</span>
+          <label class="toggle"><input type="checkbox" checked id="tog-email"><div class="toggle-slider"></div></label>
+        </div>
+        <div class="pcp-row">
+          <span class="pcp-label">WhatsApp confirmations</span>
+          <label class="toggle"><input type="checkbox" checked id="tog-wa"><div class="toggle-slider"></div></label>
+        </div>
+        <div class="pcp-row">
+          <span class="pcp-label">24hr appointment reminder</span>
+          <label class="toggle"><input type="checkbox" checked id="tog-24h"><div class="toggle-slider"></div></label>
+        </div>
+        <div class="pcp-row">
+          <span class="pcp-label">Marketing & offers</span>
+          <label class="toggle"><input type="checkbox" id="tog-mkt"><div class="toggle-slider"></div></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Sync -->
+    <div class="eyebrow" style="margin-top:4px">Calendar sync</div>
+    <div class="cal-card">
+      <div class="cal-card-title">Connected Calendars</div>
+      <div class="cal-card-sub">Bookings appear automatically in your calendar</div>
+      <div class="cal-provider connected" onclick="showToast('Google Calendar settings…','blue')">
+        <div class="cp-left">
+          <div class="cp-icon" style="background:var(--green-light)"><svg viewBox="0 0 14 14" style="stroke:var(--green)"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/></svg></div>
+          <div>
+            <div class="cp-name">Google Calendar</div>
+          </div>
+        </div>
+        <div class="cp-status" style="color:var(--green-dark)"><div class="cp-status-dot"></div>Connected</div>
+      </div>
+      <div class="cal-provider" onclick="showToast('Redirecting to Calendly…','blue')">
+        <div class="cp-left">
+          <div class="cp-icon" style="background:var(--blue-light)"><svg viewBox="0 0 14 14" style="stroke:var(--blue)"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/></svg></div>
+          <div>
+            <div class="cp-name">Calendly</div>
+          </div>
+        </div>
+        <button class="cp-connect" onclick="event.stopPropagation();showToast('Opening Calendly…','blue')">Connect →</button>
+      </div>
+      <div class="cal-provider" onclick="showToast('Opening Outlook…','blue')">
+        <div class="cp-left">
+          <div class="cp-icon" style="background:var(--purple-light)"><svg viewBox="0 0 14 14" style="stroke:var(--purple)"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/></svg></div>
+          <div><div class="cp-name">Outlook / Office 365</div></div>
+        </div>
+        <button class="cp-connect" onclick="event.stopPropagation();showToast('Opening Outlook…','blue')">Connect →</button>
+      </div>
+      <button class="sync-btn-full" onclick="triggerSync()">
+        <svg viewBox="0 0 14 14"><path d="M12 4v4H8M2 10V6H6"/><path d="M2 6a5 5 0 018.5-2M12 8a5 5 0 01-8.5 2"/></svg>
+        Sync now
+      </button>
+    </div>
+
+    <!-- Mini Calendar -->
+    <div class="eyebrow" style="margin-top:4px">My calendar</div>
+    <div class="mini-cal">
+      <div class="mc-hdr">
+        <div class="mc-month" id="mcMonth">May 2025</div>
+        <div class="mc-navs">
+          <div class="mc-nav" onclick="changeMonth(-1)"><svg viewBox="0 0 10 10"><polyline points="7 2 3 5 7 8"/></svg></div>
+          <div class="mc-nav" onclick="changeMonth(1)"><svg viewBox="0 0 10 10"><polyline points="3 2 7 5 3 8"/></svg></div>
+        </div>
+      </div>
+      <div class="mc-grid" id="mcGrid"></div>
+    </div>
+
+    <!-- Services Interest -->
+    <div class="eyebrow" style="margin-top:4px">Services I've booked</div>
+    <div class="svc-card">
+      <div id="svcList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Detail Modal -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mhdr-title">Appointment Details</div>
+      <button class="mhdr-close" onclick="closeOverlay('detailOverlay')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="detail-svc-block">
+        <div class="detail-svc-name">
+          <span id="dSvcPip" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--green)"></span>
+          <span id="dSvcName">—</span>
+        </div>
+        <div class="detail-row"><span class="dr-label">Date</span><span class="dr-val" id="dDate">—</span></div>
+        <div class="detail-row"><span class="dr-label">Time</span><span class="dr-val" id="dTime">—</span></div>
+        <div class="detail-row"><span class="dr-label">Duration</span><span class="dr-val" id="dDur">—</span></div>
+        <div class="detail-row"><span class="dr-label">Status</span><span class="dr-val" id="dStatus">—</span></div>
+        <div class="detail-row"><span class="dr-label">Ref</span><span class="dr-val" id="dRef">—</span></div>
+        <div class="detail-row"><span class="dr-label">Staff</span><span class="dr-val" id="dStaff">—</span></div>
+        <div class="detail-row"><span class="dr-label">Location</span><span class="dr-val" id="dLoc">—</span></div>
+      </div>
+      <div class="detail-actions" id="detailActionsArea">
+        <button class="da-btn da-res" onclick="closeOverlay('detailOverlay');openReschedule()">Reschedule</button>
+        <button class="da-btn da-can" onclick="closeOverlay('detailOverlay');openCancel()">Cancel</button>
+      </div>
+      <!-- WhatsApp share -->
+      <button onclick="shareWA()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:#25D366;color:#fff;border:none;border-radius:9px;font-family:var(--font-b);font-size:13.5px;font-weight:600;cursor:pointer;transition:background 0.2s;margin-bottom:14px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12 12 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.552 4.116 1.518 5.847L.057 23.882l6.198-1.625A11.91 11.91 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.806 9.806 0 01-5.001-1.372l-.359-.213-3.68.966 1.011-3.577-.233-.374A9.785 9.785 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+        Share via WhatsApp
+      </button>
+      <div class="add-cal-block">
+        <div class="acb-title">Add to calendar</div>
+        <div class="acb-btns">
+          <button class="acb-btn" onclick="addGCal()"><svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/></svg>Google Cal</button>
+          <button class="acb-btn" onclick="showToast('Opening Calendly…','blue')"><svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/></svg>Calendly</button>
+          <button class="acb-btn" onclick="downloadICS()"><svg viewBox="0 0 14 14"><path d="M7 2v8M4 7l3 3 3-3M2 12h10"/></svg>Download .ics</button>
+        </div>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-ghost" onclick="closeOverlay('detailOverlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reschedule Modal -->
+<div class="overlay" id="reschedOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mhdr-title">Reschedule Appointment</div>
+      <button class="mhdr-close" onclick="closeOverlay('reschedOverlay')">✕</button>
+    </div>
+    <div class="mbody">
+      <p style="font-size:13.5px;color:var(--ink-muted);font-weight:300;line-height:1.7;margin-bottom:18px">Choose a new date and time for your <strong id="rSvcName" style="color:var(--ink)">appointment</strong>. We'll notify you via WhatsApp and email once confirmed.</p>
+      <div class="ml">Select a new date</div>
+      <div class="mcg" id="rCalGrid"></div>
+      <div class="ml">Available time slots</div>
+      <div class="tgrid" id="rTimeGrid"></div>
+      <div class="ml">Any note for the team? (optional)</div>
+      <textarea class="mi" id="rNote" rows="2" placeholder="e.g. Please allow an extra 10 minutes…" style="resize:none;margin-bottom:0"></textarea>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-ghost" onclick="closeOverlay('reschedOverlay')">Cancel</button>
+      <button class="mbtn mbtn-green" onclick="confirmReschedule()">Confirm Reschedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="overlay" id="cancelOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mhdr-title">Cancel Appointment</div>
+      <button class="mhdr-close" onclick="closeOverlay('cancelOverlay')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="cancel-box">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 10.5v.5"/></svg>
+        <div class="cancel-box-text">You're about to cancel <strong id="cSvcName">your appointment</strong>. This cannot be undone. The business will be notified immediately.</div>
+      </div>
+      <div class="ml">Reason for cancelling</div>
+      <select class="mi" id="cReason">
+        <option value="">Select a reason (optional)</option>
+        <option>Change of schedule</option>
+        <option>Personal emergency</option>
+        <option>Service no longer needed</option>
+        <option>Found an alternative</option>
+        <option>Other</option>
+      </select>
+      <div class="ml">Additional notes</div>
+      <textarea class="mi" rows="2" id="cNote" placeholder="Anything else we should know…" style="resize:none;margin-bottom:0"></textarea>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-ghost" onclick="closeOverlay('cancelOverlay')">Keep appointment</button>
+      <button class="mbtn mbtn-red" onclick="confirmCancel()">Yes, cancel it</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Booking Modal -->
+<div class="overlay" id="newOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mhdr-title">Book an Appointment</div>
+      <button class="mhdr-close" onclick="closeOverlay('newOverlay')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="ml">Choose a service *</div>
+      <select class="mi" id="nbSvc">
+        <option value="" disabled selected>Select a service</option>
+        <option>Consultation (60 min)</option>
+        <option>Strategy Session (90 min)</option>
+        <option>Property Viewing (45 min)</option>
+        <option>UX Audit Kickoff (60 min)</option>
+        <option>Brand Strategy (120 min)</option>
+        <option>Follow-up Call (30 min)</option>
+      </select>
+      <div class="ml">Pick a date *</div>
+      <div class="mcg" id="nbCalGrid"></div>
+      <div class="ml">Available times *</div>
+      <div class="tgrid" id="nbTimeGrid"></div>
+      <div class="ml">Notes (optional)</div>
+      <textarea class="mi" rows="2" id="nbNote" placeholder="Anything we should know before your appointment…" style="resize:none;margin-bottom:0"></textarea>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-ghost" onclick="closeOverlay('newOverlay')">Cancel</button>
+      <button class="mbtn mbtn-green" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="overlay" id="editProfileOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mhdr-title">Edit Profile</div>
+      <button class="mhdr-close" onclick="closeOverlay('editProfileOverlay')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="ml">Full Name</div>
+      <input class="mi" id="ep-name" value="Jane Mwangi">
+      <div class="ml">Email</div>
+      <input class="mi" id="ep-email" value="jane.mwangi@email.com" type="email">
+      <div class="ml">Phone / WhatsApp</div>
+      <input class="mi" id="ep-phone" value="+254 712 345 678">
+      <div class="ml">Location</div>
+      <input class="mi" id="ep-loc" value="Nairobi, Kenya">
+      <div class="ml">Preferred appointment time</div>
+      <select class="mi" id="ep-pref" style="margin-bottom:0">
+        <option>Mornings (8am – 12pm)</option>
+        <option>Afternoons (12pm – 4pm)</option>
+        <option>Evenings (4pm – 7pm)</option>
+        <option>No preference</option>
+      </select>
+    </div>
+    <div class="mftr">
+      <button class="mbtn mbtn-ghost" onclick="closeOverlay('editProfileOverlay')">Cancel</button>
+      <button class="mbtn mbtn-green" onclick="saveProfileModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NOTIFICATION DRAWER ═══ -->
+<div class="notif-drawer" id="notifDrawer">
+  <div class="nd-hdr">
+    <div class="nd-title">Notifications<span class="nd-badge" id="ndBadge">5</span></div>
+    <button class="nd-close" onclick="closeNotifs()">✕</button>
+  </div>
+  <div class="nd-list" id="ndList"></div>
+  <div class="nd-ftr">
+    <button class="nd-clear" onclick="clearNotifs()">Mark all as read</button>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast">
+  <div class="ti ti-g" id="toastIcon"><svg viewBox="0 0 12 12" id="toastSvg"><polyline points="2 6 5 9 10 3"/></svg></div>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- ═══ MOBILE BOTTOM NAV ═══ -->
+<nav class="mob-nav">
+  <button class="mn-btn active" id="mn-home" onclick="setMN('home')">
+    <svg viewBox="0 0 20 20"><path d="M3 9l7-7 7 7v9H13v-5H7v5H3z"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="mn-btn mn-badge" id="mn-bk" onclick="setMN('bk');document.getElementById('upcomingList').scrollIntoView({behavior:'smooth'})">
+    <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2"/><path d="M7 2v4M13 2v4M3 9h14"/></svg>
+    <span>Bookings</span>
+  </button>
+  <button class="mn-fab" onclick="openNewBooking();setMN('new')">
+    <svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>
+  </button>
+  <button class="mn-btn" id="mn-prof" onclick="openEditProfile();setMN('prof')">
+    <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-4 3-6 7-6s7 2 7 6"/></svg>
+    <span>Profile</span>
+  </button>
+  <button class="mn-btn" id="mn-notif" onclick="toggleNotifs();setMN('notif')">
+    <svg viewBox="0 0 20 20"><path d="M10 2a6 6 0 016 6v3l2 3H2l2-3V8a6 6 0 016-6z"/><path d="M8 17a2 2 0 004 0"/></svg>
+    <span>Alerts</span>
+  </button>
+</nav>
+
+<script>
+/* ═══════════════════════
+   DATA
+═══════════════════════ */
+const SVCS = [
+  {name:'Consultation',     dur:'60 min', color:'#16A066', staff:'Amara Okafor'},
+  {name:'Strategy Session', dur:'90 min', color:'#2260B0', staff:'Brian Otieno'},
+  {name:'Property Viewing', dur:'45 min', color:'#B8720A', staff:'Grace Wanjiku'},
+  {name:'UX Audit Kickoff', dur:'60 min', color:'#7040C0', staff:'Brian Otieno'},
+  {name:'Brand Strategy',   dur:'120 min',color:'#B83030', staff:'Amara Okafor'},
+  {name:'Follow-up Call',   dur:'30 min', color:'#1AB8A8', staff:'Amara Okafor'},
+];
+
+const TIMES = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM'];
+const AVATARS = ['linear-gradient(135deg,#16A066,#0A5E3A)','linear-gradient(135deg,#2260B0,#123880)','linear-gradient(135deg,#B8720A,#7A4A06)','linear-gradient(135deg,#7040C0,#401880)','linear-gradient(135deg,#B83030,#781818)','linear-gradient(135deg,#1AB8A8,#0A7870)'];
+
+const now   = new Date();
+const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+const fmt   = d => d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const dft   = n => new Date(today.getTime() + n*86400000);
+const uid   = () => 'SVB-' + Math.random().toString(36).slice(2,7).toUpperCase();
+const svc   = n => SVCS.find(s=>s.name===n)||SVCS[0];
+
+let profile = {name:'Jane Mwangi',email:'jane.mwangi@email.com',phone:'+254 712 345 678',loc:'Nairobi, Kenya',pref:'Mornings (8am – 12pm)'};
+
+let bookings = [
+  {id:1, svc:'Consultation',     dur:'60 min',  date:dft(1),  time:'10:00 AM',status:'confirmed',ref:uid(),color:'#16A066',staff:'Amara Okafor',loc:'Google Meet / Nairobi Office'},
+  {id:2, svc:'Strategy Session', dur:'90 min',  date:dft(3),  time:'2:00 PM', status:'confirmed',ref:uid(),color:'#2260B0',staff:'Brian Otieno', loc:'Zoom link (sent on confirmation)'},
+  {id:3, svc:'Property Viewing', dur:'45 min',  date:dft(5),  time:'9:30 AM', status:'pending',  ref:uid(),color:'#B8720A',staff:'Grace Wanjiku', loc:'Karen, Nairobi — address on confirm'},
+  {id:4, svc:'Consultation',     dur:'60 min',  date:dft(-3), time:'10:00 AM',status:'completed',ref:uid(),color:'#16A066',staff:'Amara Okafor', loc:'Nairobi Office'},
+  {id:5, svc:'UX Audit Kickoff', dur:'60 min',  date:dft(-7), time:'9:00 AM', status:'completed',ref:uid(),color:'#7040C0',staff:'Brian Otieno', loc:'Zoom'},
+  {id:6, svc:'Follow-up Call',   dur:'30 min',  date:dft(-10),time:'3:00 PM', status:'completed',ref:uid(),color:'#1AB8A8',staff:'Amara Okafor', loc:'Phone call'},
+  {id:7, svc:'Brand Strategy',   dur:'120 min', date:dft(-14),time:'2:00 PM', status:'completed',ref:uid(),color:'#B83030',staff:'Amara Okafor', loc:'Nairobi Office'},
+  {id:8, svc:'Strategy Session', dur:'90 min',  date:dft(-18),time:'11:00 AM',status:'cancelled',ref:uid(),color:'#2260B0',staff:'Brian Otieno', loc:'Zoom'},
+  {id:9, svc:'Consultation',     dur:'60 min',  date:dft(-22),time:'9:00 AM', status:'completed',ref:uid(),color:'#16A066',staff:'Amara Okafor', loc:'Nairobi Office'},
+];
+
+let selectedId = null;
+let rDay=null, rTime=null, nbDay=null, nbTime=null;
+let calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+const NOTIFS = [
+  {type:'green',icon:'<polyline points="2 7 5.5 10.5 12 3"/>',            text:'<strong>Booking confirmed</strong> — Consultation tomorrow at 10:00 AM with Amara Okafor',  time:'Just now',  unread:true},
+  {type:'amber',icon:'<circle cx="6" cy="6" r="4"/><line x1="6" y1="4" x2="6" y2="6"/>',text:'<strong>Reminder:</strong> Strategy Session on Wed at 2:00 PM — in 3 days',          time:'1 hr ago',  unread:true},
+  {type:'green',icon:'<polyline points="2 7 5.5 10.5 12 3"/>',            text:'<strong>Calendar synced</strong> — 3 upcoming appointments added to Google Calendar',           time:'3 hr ago',  unread:true},
+  {type:'blue', icon:'<rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/>',text:'<strong>New time slot available</strong> — Saturday 9:00 AM is now open for Consultation',time:'Yesterday',unread:true},
+  {type:'amber',icon:'<circle cx="6" cy="6" r="4"/><line x1="6" y1="4" x2="6" y2="6"/>',text:'<strong>Property Viewing confirmed</strong> — Mon 9:30 AM at Karen address',               time:'2 days ago', unread:true},
+  {type:'green',icon:'<polyline points="2 7 5.5 10.5 12 3"/>',            text:'<strong>Follow-up Call completed</strong> — session notes sent to your email',                   time:'10 days ago',unread:false},
+  {type:'red',  icon:'<circle cx="6" cy="6" r="4"/><path d="M4 4l4 4M8 4l-4 4"/>',text:'<strong>Reminder:</strong> Your strategy session receipt is ready to download',           time:'2 wks ago',  unread:false},
+];
+
+/* ═══════════════════════
+   INIT
+═══════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderUpcoming();
+  renderHistory();
+  renderMiniCal();
+  renderSvcs();
+  updateHero();
+  renderNotifs();
+});
+
+/* ═══════════════════════
+   HERO
+═══════════════════════ */
+function updateHero() {
+  const up = bookings.filter(b=>b.status!=='completed'&&b.status!=='cancelled'&&b.date>=today).sort((a,b)=>a.date-b.date);
+  const done = bookings.filter(b=>b.status==='completed');
+  document.getElementById('heroName').textContent = profile.name;
+  document.getElementById('heroTotal').textContent = bookings.length;
+  document.getElementById('heroUpcoming').textContent = up.length;
+  document.getElementById('heroCompleted').textContent = done.length;
+  document.getElementById('heroUpcomingCount').textContent = `${up.length} upcoming appointment${up.length!==1?'s':''}`;
+  document.getElementById('topAvatar').textContent = profile.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+  document.getElementById('pcAvatar').textContent  = profile.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+  if (up.length) {
+    const n = up[0];
+    const isToday    = n.date.toDateString()===today.toDateString();
+    const isTomorrow = n.date.toDateString()===dft(1).toDateString();
+    const label = isToday?'today':isTomorrow?'tomorrow':fmt(n.date);
+    document.getElementById('heroNext').textContent = `${label} at ${n.time}`;
+  } else {
+    document.getElementById('heroNext').textContent = 'none scheduled';
+  }
+}
+
+/* ═══════════════════════
+   UPCOMING BOOKINGS
+═══════════════════════ */
+function renderUpcoming() {
+  const up = bookings.filter(b=>b.status!=='completed'&&b.status!=='cancelled'&&b.date>=today).sort((a,b)=>a.date-b.date);
+  const el = document.getElementById('upcomingList');
+  if (!up.length) {
+    el.innerHTML = `<div style="padding:28px;text-align:center;color:var(--ink-faint);font-size:14px">No upcoming appointments. <button onclick="openNewBooking()" style="color:var(--green);background:none;border:none;font-size:14px;font-weight:500;font-family:var(--font-b);cursor:pointer">Book one →</button></div>`;
+    return;
+  }
+  el.innerHTML = up.map((b,i) => {
+    const d   = b.date;
+    const sc  = b.status==='confirmed'?'bs-confirmed':'bs-pending';
+    return `<div class="bcard${i===0?' next':''}" onclick="openDetail(${b.id})">
+      <div class="bcard-date">
+        <div class="bcard-day">${d.getDate()}</div>
+        <div class="bcard-mon">${d.toLocaleDateString('en',{month:'short'}).toUpperCase()}</div>
+      </div>
+      <div class="bcard-info">
+        <span class="bcard-status ${sc}"><span class="bs-dot"></span>${b.status}</span>
+        <div class="bcard-service">
+          <span class="svc-pip" style="background:${b.color}"></span>${b.svc}
+        </div>
+        <div class="bcard-meta">
+          <div class="bm-item"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4"/><path d="M6 4v2l1.5 1"/></svg>${b.time}</div>
+          <div class="bm-item"><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5"/><path d="M4 2v2M8 2v2M2 6h8"/></svg>${b.dur}</div>
+          <div class="bm-item"><svg viewBox="0 0 12 12"><circle cx="5" cy="4" r="2"/><path d="M2 10c0-2 1.2-3 3-3s3 1 3 3"/><path d="M9 4v4M11 6H7"/></svg>${b.staff.split(' ')[0]}</div>
+        </div>
+        <div class="bcard-actions" onclick="event.stopPropagation()">
+          <button class="bca bca-view" onclick="openDetail(${b.id})">Details</button>
+          <button class="bca bca-reschedule" onclick="selectedId=${b.id};openReschedule()">Reschedule</button>
+          <button class="bca bca-cancel" onclick="selectedId=${b.id};openCancel()">Cancel</button>
+          <button class="bca bca-wa" onclick="shareWAById(${b.id})">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12 12 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.552 4.116 1.518 5.847L.057 23.882l6.198-1.625A11.91 11.91 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.806 9.806 0 01-5.001-1.372l-.359-.213-3.68.966 1.011-3.577-.233-.374A9.785 9.785 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════
+   HISTORY
+═══════════════════════ */
+function renderHistory() {
+  const hist = bookings.filter(b=>b.status==='completed'||b.status==='cancelled'||b.date<today).sort((a,b)=>b.date-a.date).slice(0,6);
+  const el   = document.getElementById('histList');
+  if (!hist.length) { el.innerHTML = `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13.5px">No booking history yet.</div>`; return; }
+  el.innerHTML = hist.map(b => `
+    <div class="hist-item" onclick="openDetail(${b.id})">
+      <div class="hist-icon" style="background:${b.color}20">
+        <svg viewBox="0 0 14 14" style="stroke:${b.color}"><rect x="2" y="2" width="10" height="10" rx="2"/><path d="M5 2v2M9 2v2M2 6h10"/><circle cx="7" cy="9" r="1" fill="${b.color}" stroke="none"/></svg>
+      </div>
+      <div>
+        <div class="hist-name">${b.svc}</div>
+        <div class="hist-date">${fmt(b.date)} · ${b.time} · ${b.staff.split(' ')[0]}</div>
+      </div>
+      <span class="hist-badge ${b.status==='cancelled'?'hb-cancelled':'hb-done'}">${b.status}</span>
+    </div>`).join('');
+}
+
+/* ═══════════════════════
+   SERVICES INTEREST
+═══════════════════════ */
+function renderSvcs() {
+  const counts={};
+  bookings.forEach(b=>{counts[b.svc]=(counts[b.svc]||0)+1;});
+  const total=Object.values(counts).reduce((a,b)=>a+b,0)||1;
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('svcList').innerHTML = sorted.map(([name,count])=>{
+    const s=svc(name); const pct=Math.round(count/total*100);
+    return `<div class="svc-list-item" onclick="openNewBookingWith('${name}')">
+      <div class="sli-dot" style="background:${s.color}"></div>
+      <div class="sli-name">${name}</div>
+      <div class="sli-count">${count}×</div>
+      <div class="sli-bar"><div class="sli-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      <button class="sli-book" onclick="event.stopPropagation();openNewBookingWith('${name}')">Book →</button>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════
+   MINI CALENDAR
+═══════════════════════ */
+function renderMiniCal() {
+  const y=calMonth.getFullYear(), m=calMonth.getMonth();
+  document.getElementById('mcMonth').textContent=calMonth.toLocaleDateString('en',{month:'long',year:'numeric'});
+  const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  let html=['Mo','Tu','We','Th','Fr','Sa','Su'].map(l=>`<div class="mc-lbl">${l}</div>`).join('');
+  for(let i=0;i<first;i++) html+=`<div class="mc-d past"></div>`;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d);
+    const isPast=dt<today&&dt.toDateString()!==today.toDateString();
+    const isToday=dt.toDateString()===today.toDateString();
+    const hasBkg=bookings.some(b=>b.date.toDateString()===dt.toDateString()&&b.status!=='cancelled');
+    html+=`<div class="mc-d${isPast?' past':''}${isToday?' mc-today':''}${hasBkg?' mc-has':''}" onclick="highlightCal(this)">${d}</div>`;
+  }
+  document.getElementById('mcGrid').innerHTML=html;
+}
+function changeMonth(d){calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+d,1);renderMiniCal();}
+function highlightCal(el){document.querySelectorAll('.mc-d').forEach(d=>d.classList.remove('mc-sel'));el.classList.add('mc-sel');}
+
+/* ═══════════════════════
+   DETAIL MODAL
+═══════════════════════ */
+function openDetail(id) {
+  selectedId=id;
+  const b=bookings.find(x=>x.id===id); if(!b) return;
+  document.getElementById('dSvcPip').style.background=b.color;
+  document.getElementById('dSvcName').textContent=b.svc;
+  document.getElementById('dDate').textContent=fmt(b.date);
+  document.getElementById('dTime').textContent=b.time;
+  document.getElementById('dDur').textContent=b.dur;
+  document.getElementById('dStatus').textContent=b.status;
+  document.getElementById('dRef').textContent=b.ref;
+  document.getElementById('dStaff').textContent=b.staff;
+  document.getElementById('dLoc').textContent=b.loc;
+  const isFuture=b.date>=today&&b.status!=='cancelled'&&b.status!=='completed';
+  document.getElementById('detailActionsArea').style.display=isFuture?'grid':'none';
+  openOverlay('detailOverlay');
+}
+
+/* ═══════════════════════
+   RESCHEDULE
+═══════════════════════ */
+function openReschedule() {
+  const b=bookings.find(x=>x.id===selectedId);
+  if(b) document.getElementById('rSvcName').textContent=b.svc;
+  rDay=null; rTime=null;
+  buildCalGrid('rCalGrid','r'); buildTimeGrid('rTimeGrid','r');
+  openOverlay('reschedOverlay');
+}
+function confirmReschedule() {
+  if(!rDay||!rTime){showToast('Pick a date and time first','blue');return;}
+  const b=bookings.find(x=>x.id===selectedId);
+  if(b){b.date=rDay;b.time=rTime;b.status='confirmed';}
+  closeOverlay('reschedOverlay');
+  renderUpcoming();renderHistory();renderMiniCal();updateHero();
+  showToast(`Rescheduled to ${fmt(rDay)} at ${rTime}`,'green');
+}
+
+/* ═══════════════════════
+   CANCEL
+═══════════════════════ */
+function openCancel() {
+  const b=bookings.find(x=>x.id===selectedId);
+  document.getElementById('cSvcName').textContent=(b?b.svc+' on '+fmt(b.date):'your appointment');
+  openOverlay('cancelOverlay');
+}
+function confirmCancel() {
+  const b=bookings.find(x=>x.id===selectedId);
+  if(b) b.status='cancelled';
+  closeOverlay('cancelOverlay');
+  document.getElementById('cReason').value='';
+  document.getElementById('cNote').value='';
+  renderUpcoming();renderHistory();renderMiniCal();renderSvcs();updateHero();
+  showToast('Appointment cancelled. Business notified.','red');
+}
+
+/* ═══════════════════════
+   NEW BOOKING
+═══════════════════════ */
+function openNewBooking() {
+  nbDay=null; nbTime=null;
+  buildCalGrid('nbCalGrid','nb'); buildTimeGrid('nbTimeGrid','nb');
+  openOverlay('newOverlay');
+}
+function openNewBookingWith(svcName) {
+  openNewBooking();
+  setTimeout(()=>{
+    const sel=document.getElementById('nbSvc');
+    for(let i=0;i<sel.options.length;i++){if(sel.options[i].text.startsWith(svcName)){sel.selectedIndex=i;break;}}
+  },50);
+}
+function submitBooking() {
+  const svcVal=document.getElementById('nbSvc').value;
+  if(!svcVal){showToast('Please select a service','blue');return;}
+  if(!nbDay){showToast('Please pick a date','blue');return;}
+  if(!nbTime){showToast('Please pick a time','blue');return;}
+  const svcName=svcVal.split(' (')[0];
+  const s=svc(svcName);
+  const newB={id:Date.now(),svc:s.name,dur:s.dur,date:nbDay,time:nbTime,status:'confirmed',ref:uid(),color:s.color,staff:s.staff,loc:'To be confirmed'};
+  bookings.unshift(newB);
+  closeOverlay('newOverlay');
+  document.getElementById('nbSvc').selectedIndex=0;
+  document.getElementById('nbNote').value='';
+  renderUpcoming();renderHistory();renderMiniCal();renderSvcs();updateHero();
+  showToast(`Booked — ${s.name} on ${fmt(nbDay)} at ${nbTime}`,'green');
+}
+
+/* ═══════════════════════
+   CALENDAR & TIME GRID BUILDERS
+═══════════════════════ */
+function buildCalGrid(containerId, prefix) {
+  const y=now.getFullYear(), m=now.getMonth();
+  const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  let html=['Mo','Tu','We','Th','Fr','Sa','Su'].map(l=>`<div class="mcg-l">${l}</div>`).join('');
+  for(let i=0;i<first;i++) html+=`<div class="mcg-d mcg-past"></div>`;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d);
+    const isPast=dt<today; const isToday=dt.toDateString()===today.toDateString();
+    html+=`<div class="mcg-d${isPast?' mcg-past':''}${isToday?' mcg-today':''}" onclick="selectDay(this,'${containerId}','${prefix}',${y},${m},${d})">${d}</div>`;
+  }
+  document.getElementById(containerId).innerHTML=html;
+}
+function selectDay(el,cont,prefix,y,m,d){
+  document.querySelectorAll(`#${cont} .mcg-d`).forEach(x=>x.classList.remove('mcg-sel'));
+  el.classList.add('mcg-sel');
+  if(prefix==='r') rDay=new Date(y,m,d);
+  if(prefix==='nb') nbDay=new Date(y,m,d);
+}
+function buildTimeGrid(cont, prefix) {
+  document.getElementById(cont).innerHTML=TIMES.map(t=>`<div class="tslot" onclick="selectTime(this,'${cont}','${prefix}','${t}')">${t}</div>`).join('');
+}
+function selectTime(el,cont,prefix,t){
+  document.querySelectorAll(`#${cont} .tslot`).forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  if(prefix==='r') rTime=t;
+  if(prefix==='nb') nbTime=t;
+}
+
+/* ═══════════════════════
+   PROFILE
+═══════════════════════ */
+function openEditProfile(){openOverlay('editProfileOverlay');}
+function saveProfileModal(){
+  profile.name  = document.getElementById('ep-name').value.trim()  ||profile.name;
+  profile.email = document.getElementById('ep-email').value.trim() ||profile.email;
+  profile.phone = document.getElementById('ep-phone').value.trim() ||profile.phone;
+  profile.loc   = document.getElementById('ep-loc').value.trim()   ||profile.loc;
+  profile.pref  = document.getElementById('ep-pref').value        ||profile.pref;
+  syncProfile(); closeOverlay('editProfileOverlay'); showToast('Profile updated','green');
+}
+function syncProfile(){
+  document.getElementById('pcName').textContent=profile.name;
+  document.getElementById('pcEmail').textContent=profile.email;
+  document.getElementById('heroName').textContent=profile.name;
+  document.getElementById('topAvatar').textContent=profile.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+  document.getElementById('pcAvatar').textContent =profile.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+  ['name','email','phone','pref','loc'].forEach(k=>{
+    const v=document.getElementById('fv-'+k);
+    if(v) v.textContent=profile[k];
+  });
+}
+function toggleField(k){
+  const v=document.getElementById('fv-'+k);
+  const i=document.getElementById('fi-'+k);
+  const editing=i.style.display==='block';
+  if(editing){
+    profile[k]=i.value.trim()||profile[k];
+    v.textContent=profile[k]; v.style.display='block'; i.style.display='none';
+    syncProfile();
+    const bar=document.getElementById('pcSaveBar');
+    const anyOpen=['name','email','phone','pref','loc'].some(k=>document.getElementById('fi-'+k).style.display==='block');
+    if(!anyOpen) bar.style.display='none';
+    showToast('Profile saved','green');
+  } else {
+    v.style.display='none'; i.style.display='block'; i.focus();
+    document.getElementById('pcSaveBar').style.display='block';
+  }
+}
+function saveProfile(){
+  ['name','email','phone','pref','loc'].forEach(k=>{
+    const i=document.getElementById('fi-'+k);
+    if(i.style.display==='block'){profile[k]=i.value.trim()||profile[k];}
+    const v=document.getElementById('fv-'+k);
+    v.textContent=profile[k]; v.style.display='block'; i.style.display='none';
+  });
+  document.getElementById('pcSaveBar').style.display='none';
+  syncProfile(); showToast('Profile saved','green');
+}
+
+/* ═══════════════════════
+   WHATSAPP SHARE
+═══════════════════════ */
+function shareWA(){shareWAById(selectedId);}
+function shareWAById(id){
+  const b=bookings.find(x=>x.id===id); if(!b) return;
+  const msg=`Hi, I have a ${b.svc} booked with Savvion on ${fmt(b.date)} at ${b.time}.\nRef: ${b.ref}\nStaff: ${b.staff}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ═══════════════════════
+   CALENDAR EXPORT
+═══════════════════════ */
+function addGCal(){
+  const b=bookings.find(x=>x.id===selectedId); if(!b) return;
+  const d=b.date; const ds=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Savvion: '+b.svc)}&dates=${ds}T090000/${ds}T100000&details=${encodeURIComponent('Ref: '+b.ref+'\nStaff: '+b.staff)}`, '_blank');
+}
+function downloadICS(){
+  const b=bookings.find(x=>x.id===selectedId); if(!b) return;
+  const d=b.date; const ds=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const ics=`BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${b.svc} — Savvion\nDTSTART:${ds}T090000Z\nDTEND:${ds}T100000Z\nDESCRIPTION:Ref: ${b.ref}\\nStaff: ${b.staff}\\nLocation: ${b.loc}\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
+  const a=document.createElement('a'); a.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics); a.download='savvion.ics'; a.click();
+  showToast('Calendar file downloaded','green');
+}
+
+/* ═══════════════════════
+   REVIEW PROMPT
+═══════════════════════ */
+function rate(n){
+  document.querySelectorAll('.rp-star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+  setTimeout(()=>{dismissReview();showToast(`Thanks for the ${n}★ rating!`,'green');},700);
+}
+function dismissReview(){document.getElementById('reviewPrompt').style.display='none';}
+
+/* ═══════════════════════
+   NOTIFICATIONS
+═══════════════════════ */
+function renderNotifs(){
+  document.getElementById('ndList').innerHTML=NOTIFS.map(n=>`
+    <div class="nd-item${n.unread?' unread':''}" onclick="this.classList.remove('unread')">
+      <div class="nd-icon nd-${n.type}">
+        <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${n.icon}</svg>
+      </div>
+      <div style="flex:1">
+        <div class="nd-text">${n.text}</div>
+        <div class="nd-time">${n.time}</div>
+      </div>
+      ${n.unread?'<div class="nd-unread-dot"></div>':''}
+    </div>`).join('');
+  const unread=NOTIFS.filter(n=>n.unread).length;
+  document.getElementById('ndBadge').textContent=unread;
+  document.getElementById('ndBadge').style.display=unread?'inline':'none';
+  document.getElementById('notifBadge').style.display=unread?'block':'none';
+}
+function toggleNotifs(){document.getElementById('notifDrawer').classList.toggle('open');renderNotifs();}
+function closeNotifs(){document.getElementById('notifDrawer').classList.remove('open');}
+function clearNotifs(){NOTIFS.forEach(n=>n.unread=false);renderNotifs();showToast('All notifications read','green');}
+
+/* ═══════════════════════
+   CALENDAR SYNC
+═══════════════════════ */
+function triggerSync(){
+  const chip=document.getElementById('syncChip');
+  const icon=document.getElementById('syncIcon');
+  const label=document.getElementById('syncLabel');
+  const dot=document.getElementById('syncDot');
+  chip.classList.add('syncing'); label.textContent='Syncing…'; dot.style.background='var(--amber)';
+  setTimeout(()=>{chip.classList.remove('syncing');label.textContent='Synced · Google Cal';dot.style.background='var(--green)';showToast('Calendar synced successfully','green');},2000);
+}
+
+/* ═══════════════════════
+   OVERLAYS
+═══════════════════════ */
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+
+/* ═══════════════════════
+   TOAST
+═══════════════════════ */
+let _t;
+function showToast(msg,type='green'){
+  const t=document.getElementById('toast');
+  const icon=document.getElementById('toastIcon');
+  const svg=document.getElementById('toastSvg');
+  document.getElementById('toastMsg').textContent=msg;
+  icon.className='ti ti-'+type[0];
+  svg.innerHTML={g:'<polyline points="2 6 5 9 10 3"/>',r:'<line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>',b:'<circle cx="6" cy="6" r="4"/><line x1="6" y1="4" x2="6" y2="6"/>'}[type[0]]||'<polyline points="2 6 5 9 10 3"/>';
+  t.classList.add('show'); clearTimeout(_t); _t=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ═══════════════════════
+   MOBILE NAV
+═══════════════════════ */
+function setMN(id){document.querySelectorAll('.mn-btn').forEach(b=>b.classList.remove('active'));const el=document.getElementById('mn-'+id);if(el)el.classList.add('active');}
+</script>
+</body>
+</html>

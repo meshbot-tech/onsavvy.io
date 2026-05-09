@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Dashboard — Savvion Bookings</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0A0C0A;--ink-2:#141A14;--ink-muted:#545C54;--ink-faint:#94A094;
+  --surface:#F6F8F6;--surface-2:#ECF0EC;--surface-3:#E0E6E0;--white:#FFFFFF;
+  --green:#16A066;--green-light:#E6F7EE;--green-mid:#1DB87A;--green-dark:#0D7A4E;
+  --border:rgba(0,0,0,0.07);--border-2:rgba(0,0,0,0.12);
+  --font-display:'Bricolage Grotesque',sans-serif;
+  --font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--surface);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+body.verified{overflow:auto}
+body:not(.verified){overflow:hidden}
+
+#recaptcha-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;background:var(--surface);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease;
+}
+#recaptcha-overlay.hidden{opacity:0;pointer-events:none}
+.recaptcha-content{text-align:center;max-width:400px;padding:40px}
+.recaptcha-icon{width:64px;height:64px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;background:var(--green-light);border-radius:50%}
+.recaptcha-icon svg{width:32px;height:32px;stroke:var(--green);fill:none;stroke-width:2}
+.recaptcha-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.recaptcha-subtitle{font-size:15px;color:var(--ink-muted);margin-bottom:24px;line-height:1.6}
+.recaptcha-loader{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+.recaptcha-loader-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:recaptchaPulse 1.4s ease-in-out infinite both}
+.recaptcha-loader-dot:nth-child(1){animation-delay:-0.32s}
+.recaptcha-loader-dot:nth-child(2){animation-delay:-0.16s}
+@keyframes recaptchaPulse{0%,80%,100%{transform:scale(0);opacity:0.5}40%{transform:scale(1);opacity:1}}
+
+/* Dashboard Layout */
+.dashboard-layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:var(--ink);color:var(--white);padding:24px;display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+.sidebar-header{margin-bottom:32px}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.sidebar-logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center}
+.sidebar-logo-mark svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.sidebar-logo span{font-family:var(--font-display);font-size:18px;font-weight:700}
+.sidebar-nav{display:flex;flex-direction:column;gap:6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;color:rgba(255,255,255,0.7);text-decoration:none;border-radius:8px;transition:all 0.2s;font-size:14px}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+.nav-item.active{background:rgba(22,160,102,0.15);color:var(--green-mid)}
+.nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1)}
+.user-info{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+.user-details{flex:1}
+.user-name{font-size:13px;font-weight:600}
+.user-email{font-size:11px;color:rgba(255,255,255,0.5)}
+.btn-logout{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border:none;cursor:pointer;font-size:13px;transition:all 0.2s}
+.btn-logout:hover{background:rgba(255,255,255,0.1);color:#fff}
+.btn-logout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* Main Content */
+.main-content{padding:40px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.header h1{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.header-actions{display:flex;align-items:center;gap:12px}
+.btn-primary{background:var(--green);color:#fff;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-primary:hover{background:var(--green-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--surface-2);color:var(--ink);padding:10px 20px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-secondary:hover{background:var(--surface-3)}
+
+/* Dashboard Cards */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:32px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px}
+.stat-card h3{font-size:13px;color:var(--ink-muted);font-weight:500;margin-bottom:12px}
+.stat-value{font-family:var(--font-display);font-size:32px;font-weight:700;color:var(--ink);letter-spacing:-1px}
+.stat-change{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green-dark);margin-top:8px}
+.stat-card.bookings .stat-value{color:var(--green)}
+.stat-card.pending .stat-value{color:#f59e0b}
+.stat-card.completed .stat-value{color:#10b981}
+
+/* Upcoming Appointments */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:var(--font-display);font-size:20px;font-weight:700}
+.view-all{font-size:13px;color:var(--green);text-decoration:none}
+.view-all:hover{text-decoration:underline}
+
+.appointments-list{display:flex;flex-direction:column;gap:12px}
+.appointment-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;transition:border-color 0.2s}
+.appointment-card:hover{border-color:var(--green)}
+.appointment-info{flex:1}
+.appointment-service{font-weight:600;color:var(--ink);margin-bottom:4px}
+.appointment-meta{font-size:13px;color:var(--ink-muted)}
+.appointment-status{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.status-confirmed{background:var(--green-light);color:var(--green-dark)}
+.status-pending{background:#fef3c7;color:#d97706}
+.status-cancelled{background:#fee2e2;color:#dc2626}
+
+/* Quick Actions */
+.quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.action-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--ink)}
+.action-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+.action-icon{width:48px;height:48px;border-radius:12px;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.action-icon svg{width:24px;height:24px;stroke:var(--green-dark);fill:none;stroke-width:1.5}
+.action-title{font-weight:600;margin-bottom:6px}
+.action-desc{font-size:13px;color:var(--ink-muted)}
+
+/* Bookings Shortcut */
+.bookings-shortcut{margin-top:24px}
+.btn-book-now{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;font-size:16px;font-weight:600;text-decoration:none;transition:transform 0.2s}
+.btn-book-now:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(22,160,102,0.35)}
+.btn-book-now svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+
+@media(max-width:960px){
+  .dashboard-layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main-content{padding:24px}
+}
+@media(max-width:600px){
+  .header{flex-direction:column;align-items:flex-start;gap:16px}
+  .dashboard-grid{grid-template-columns:1fr}
+  .quick-actions{grid-template-columns:1fr}
+}
+</style>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer></script>
+</head>
+<body>
+<div id="recaptcha-overlay">
+  <div class="recaptcha-content">
+    <div class="recaptcha-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+    </div>
+    <h3 class="recaptcha-title">Verifying Access</h3>
+    <p class="recaptcha-subtitle">Please wait while we verify you're not a robot...</p>
+    <div class="recaptcha-loader">
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+      <div class="recaptcha-loader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-mark">
+          <svg viewBox="0 0 16 16">
+            <rect x="2" y="3" width="12" height="11" rx="2"/>
+            <path d="M5 1v3M11 1v3M2 7h12"/>
+            <circle cx="8" cy="10" r="1" fill="#fff" stroke="none"/>
+          </svg>
+        </div>
+        <span>Savvion Bookings</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Dashboard
+        </a>
+        <a href="Savvion bookings.html" class="nav-item">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Book Appointment
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          My Bookings
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Availability
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Settings
+        </a>
+      </nav>
+    </div>
+    
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userInitials">JD</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">John Doe</div>
+          <div class="user-email" id="userEmail">john@company.com</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+  
+  <main class="main-content">
+    <div class="header">
+      <h1>Dashboard</h1>
+      <div class="header-actions">
+         <a href="Savvion bookings.html" class="btn-secondary">Back to Site</a>
+        <a href="Savvion bookings.html" class="btn-primary">Book Now →</a>
+      </div>
+    </div>
+    
+    <div class="dashboard-grid">
+      <div class="stat-card bookings">
+        <h3>Total Bookings</h3>
+        <div class="stat-value">24</div>
+        <div class="stat-change">↑ 12% from last month</div>
+      </div>
+      <div class="stat-card pending">
+        <h3>Pending</h3>
+        <div class="stat-value">3</div>
+        <div class="stat-change">Requires attention</div>
+      </div>
+      <div class="stat-card completed">
+        <h3>Completed</h3>
+        <div class="stat-value">21</div>
+        <div class="stat-change">All confirmed</div>
+      </div>
+    </div>
+    
+    <div class="section-header">
+      <h2 class="section-title">Upcoming Appointments</h2>
+      <a href="#" class="view-all">View all →</a>
+    </div>
+    
+    <div class="appointments-list">
+      <div class="appointment-card">
+        <div class="appointment-info">
+          <div class="appointment-service">Consultation Call</div>
+          <div class="appointment-meta">Today, 10:00 AM • 60 min</div>
+        </div>
+        <span class="appointment-status status-confirmed">Confirmed</span>
+      </div>
+      <div class="appointment-card">
+        <div class="appointment-info">
+          <div class="appointment-service">Project Review</div>
+          <div class="appointment-meta">Tomorrow, 2:30 PM • 45 min</div>
+        </div>
+        <span class="appointment-status status-confirmed">Confirmed</span>
+      </div>
+      <div class="appointment-card">
+        <div class="appointment-info">
+          <div class="appointment-service">Strategy Session</div>
+          <div class="appointment-meta">Fri, May 16, 11:00 AM • 90 min</div>
+        </div>
+        <span class="appointment-status status-pending">Pending</span>
+      </div>
+    </div>
+    
+    <h2 class="section-title" style="margin:32px 0 20px">Quick Actions</h2>
+    <div class="quick-actions">
+      <a href="Savvion bookings.html" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+        </div>
+        <div class="action-title">Book New Appointment</div>
+        <div class="action-desc">Schedule a meeting or consultation</div>
+      </a>
+      <a href="#" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+            <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+          </svg>
+        </div>
+        <div class="action-title">View All Bookings</div>
+        <div class="action-desc">Manage existing appointments</div>
+      </a>
+      <a href="#" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div class="action-title">Set Availability</div>
+        <div class="action-desc">Update your schedule</div>
+      </a>
+      <a href="#" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="action-title">Account Settings</div>
+        <div class="action-desc">Update your profile</div>
+      </a>
+    </div>
+    
+    <div class="bookings-shortcut">
+      <a href="Savvion bookings.html" class="btn-book-now">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+          <circle cx="12" cy="15" r="1.5"/>
+        </svg>
+        Go to Booking Page
+      </a>
+    </div>
+  </main>
+</div>
+
+<script>
+// Recaptcha verification
+(function() {
+  const overlay = document.getElementById('recaptcha-overlay');
+  const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
+  
+  if (sessionStorage.getItem('recaptchaVerified') === 'true') {
+    overlay.classList.add('hidden');
+    document.body.classList.add('verified');
+    return;
+  }
+  
+  function verifyRecaptcha() {
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          overlay.classList.add('hidden');
+          document.body.classList.add('verified');
+        }).catch(function(error) {
+          console.error('reCaptcha error:', error);
+          sessionStorage.setItem('recaptchaVerified', 'true');
+          overlay.classList.add('hidden');
+          document.body.classList.add('verified');
+        });
+      });
+    } else {
+      setTimeout(() => {
+        sessionStorage.setItem('recaptchaVerified', 'true');
+        overlay.classList.add('hidden');
+        document.body.classList.add('verified');
+      }, 2000);
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', verifyRecaptcha);
+  } else {
+    verifyRecaptcha();
+  }
+})();
+
+// Check login status
+(function() {
+   const isLoggedIn = sessionStorage.getItem('clientLoggedIn');
+   if (!isLoggedIn) {
+     window.location.href = 'savvion auth.html';
+     return;
+   }
+  
+  // Set user info
+  const email = sessionStorage.getItem('clientEmail') || 'client@company.com';
+  const name = email.split('@')[0];
+  const initials = name.substring(0, 2).toUpperCase();
+  
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userEmail').textContent = email;
+  document.getElementById('userInitials').textContent = initials;
+})();
+
+// Logout handler
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  sessionStorage.removeItem('clientLoggedIn');
+  sessionStorage.removeItem('clientEmail');
+   window.location.href = 'savvion auth.html';
+});
+</script>
+</body>
+</html>
