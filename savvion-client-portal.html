@@ -360,6 +360,14 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--ink);-webkit-fon
 </style>
 </head>
 <body>
+<script>
+  // Auth guard — redirect to login if not authenticated
+  (function() {
+    if (sessionStorage.getItem('clientLoggedIn') !== 'true') {
+      window.location.href = 'savvion auth.html';
+    }
+  })();
+</script>
 
 <!-- ═══ TOPBAR ═══ -->
 <div class="topbar">
@@ -827,7 +835,17 @@ const dft   = n => new Date(today.getTime() + n*86400000);
 const uid   = () => 'SVB-' + Math.random().toString(36).slice(2,7).toUpperCase();
 const svc   = n => SVCS.find(s=>s.name===n)||SVCS[0];
 
-let profile = {name:'Jane Mwangi',email:'jane.mwangi@email.com',phone:'+254 712 345 678',loc:'Nairobi, Kenya',pref:'Mornings (8am – 12pm)'};
+let profile = {
+  name: (sessionStorage.getItem('clientName') || 'Jane Mwangi').trim(),
+  email: (sessionStorage.getItem('clientEmail') || 'jane.mwangi@email.com').trim(),
+  phone: '+254 712 345 678',
+  loc: 'Nairobi, Kenya',
+  pref: 'Mornings (8am – 12pm)'
+};
+// Override with session values if present
+if (sessionStorage.getItem('clientName')) profile.name = sessionStorage.getItem('clientName');
+if (sessionStorage.getItem('clientEmail')) profile.email = sessionStorage.getItem('clientEmail');
+// Derive name initials for avatar if not explicitly stored
 
 let bookings = [
   {id:1, svc:'Consultation',     dur:'60 min',  date:dft(1),  time:'10:00 AM',status:'confirmed',ref:uid(),color:'#16A066',staff:'Amara Okafor',loc:'Google Meet / Nairobi Office'},
@@ -864,6 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMiniCal();
   renderSvcs();
   updateHero();
+  syncProfile(); // ensure profile card reflects session data
   renderNotifs();
 });
 
@@ -1116,13 +1135,26 @@ function selectTime(el,cont,prefix,t){
 /* ═══════════════════════
    PROFILE
 ═══════════════════════ */
-function openEditProfile(){openOverlay('editProfileOverlay');}
+function openEditProfile(){
+  // Populate modal inputs from current profile
+  document.getElementById('ep-name').value = profile.name;
+  document.getElementById('ep-email').value = profile.email;
+  document.getElementById('ep-phone').value = profile.phone;
+  document.getElementById('ep-loc').value = profile.loc;
+  document.getElementById('ep-pref').value = profile.pref;
+  openOverlay('editProfileOverlay');
+}
 function saveProfileModal(){
   profile.name  = document.getElementById('ep-name').value.trim()  ||profile.name;
   profile.email = document.getElementById('ep-email').value.trim() ||profile.email;
   profile.phone = document.getElementById('ep-phone').value.trim() ||profile.phone;
   profile.loc   = document.getElementById('ep-loc').value.trim()   ||profile.loc;
   profile.pref  = document.getElementById('ep-pref').value        ||profile.pref;
+
+  // Persist updated name/email to sessionStorage for other pages (dashboard, etc.)
+  sessionStorage.setItem('clientName', profile.name);
+  sessionStorage.setItem('clientEmail', profile.email);
+
   syncProfile(); closeOverlay('editProfileOverlay'); showToast('Profile updated','green');
 }
 function syncProfile(){

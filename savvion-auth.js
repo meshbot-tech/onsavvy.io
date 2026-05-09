@@ -52,117 +52,114 @@
     return hidden + "@" + domain;
   }
 
-  /* ── API stubs — replace with real fetch() calls ────────────────────── */
-  const API = {
-    /**
-     * Request OTP
-     * @param {"phone"|"email"} mode
-     * @param {string} value - normalized phone (+254…) or email
-     * @returns {Promise<{ok: boolean, message?: string}>}
-     */
-    async requestOtp(mode, value) {
-      /* real implementation:
-      const res = await fetch("/api/auth/request-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, value }),
-      });
-      return res.json();
+   /* ── API — configure endpoint URLs below ───────────────────────────── */
+   const API = {
+     /**
+      * Request OTP
+      * POST /api/auth/request-otp
+      * Body: { mode, value, delivery? }
       */
-      await delay(1300);
-      return { ok: true };
-    },
+     async requestOtp({ mode, value, delivery }) {
+       try {
+         const res = await fetch("/api/auth/request-otp", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ mode, value, delivery }),
+         });
+         return await res.json();
+       } catch (err) {
+         console.error("requestOtp error:", err);
+         return { ok: false, message: "Network error — check connection and retry." };
+       }
+     },
 
-    /**
-     * Verify OTP
-     * @param {"phone"|"email"} mode
-     * @param {string} value
-     * @param {string} code - 6-digit string
-     * @returns {Promise<{ok: boolean, token?: string, message?: string}>}
-     */
-    async verifyOtp(mode, value, code) {
-      /* real implementation:
-      const res = await fetch("/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, value, code }),
-      });
-      return res.json();
+     /**
+      * Verify OTP
+      * POST /api/auth/verify-otp
+      * Body: { mode, value, code }
       */
-      await delay(1400);
-      if (code === "000000") return { ok: false, message: "That code is incorrect. Try again." };
-      return { ok: true, token: "demo-session-token" };
-    },
+     async verifyOtp(mode, value, code) {
+       try {
+         const res = await fetch("/api/auth/verify-otp", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ mode, value, code }),
+         });
+         return await res.json();
+       } catch (err) {
+         console.error("verifyOtp error:", err);
+         return { ok: false, message: "Network error — check connection and retry." };
+       }
+     },
 
-    /**
-     * Resend OTP
-     * @param {"phone"|"email"} mode
-     * @param {string} value
-     * @returns {Promise<{ok: boolean}>}
-     */
-    async resendOtp(mode, value) {
-      /* real implementation:
-      const res = await fetch("/api/auth/resend-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, value }),
-      });
-      return res.json();
+     /**
+      * Resend OTP
+      * POST /api/auth/resend-otp
+      * Body: { mode, value, delivery? }
       */
-      await delay(900);
-      return { ok: true };
-    },
-  };
+     async resendOtp({ mode, value, delivery }) {
+       try {
+         const res = await fetch("/api/auth/resend-otp", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ mode, value, delivery }),
+         });
+         return await res.json();
+       } catch (err) {
+         console.error("resendOtp error:", err);
+         return { ok: false, message: "Network error — check connection and retry." };
+       }
+     },
+   };
 
-  function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /* ── DOM refs ────────────────────────────────────────────────────────── */
+   /* ── DOM refs ────────────────────────────────────────────────────────── */
   const $  = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-  const dom = {
-    // Steps
-    steps: $$(".step"),
-    dots:  $$(".brand-dot"),
+   const dom = {
+     // Steps
+     steps: $$(".step"),
+     dots:  $$(".brand-dot"),
 
-    // Step 1
-    tabPhone:    $("#tab-phone"),
-    tabEmail:    $("#tab-email"),
-    panelPhone:  $("#panel-phone"),
-    panelEmail:  $("#panel-email"),
-    inputPhone:  $("#input-phone"),
-    inputEmail:  $("#input-email"),
-    errorPhone:  $("#error-phone"),
-    errorEmail:  $("#error-email"),
-    btnSend:     $("#btn-send"),
+     // Step 1
+     tabPhone:    $("#tab-phone"),
+     tabEmail:    $("#tab-email"),
+     panelPhone:  $("#panel-phone"),
+     panelEmail:  $("#panel-email"),
+     inputPhone:  $("#input-phone"),
+     inputEmail:  $("#input-email"),
+     errorPhone:  $("#error-phone"),
+     errorEmail:  $("#error-email"),
+     btnSend:     $("#btn-send"),
+     deliveryOptions: $$(".delivery-option"),
+     phoneHint:    $("#phone-hint"),
 
-    // Step 2
-    otpDest:     $("#otp-destination"),
-    otpBoxes:    $$("#otp-group .otp-box"),
-    otpError:    $("#otp-error"),
-    otpErrorMsg: $("#otp-error-msg"),
-    resendTimer: $("#resend-timer"),
-    resendCount: $("#resend-count"),
-    btnResend:   $("#btn-resend"),
-    btnVerify:   $("#btn-verify"),
-    btnBack:     $("#btn-back"),
+     // Step 2
+     otpDest:     $("#otp-destination"),
+     otpBoxes:    $$("#otp-group .otp-box"),
+     otpError:    $("#otp-error"),
+     otpErrorMsg: $("#otp-error-msg"),
+     resendTimer: $("#resend-timer"),
+     resendCount: $("#resend-count"),
+     btnResend:   $("#btn-resend"),
+     btnVerify:   $("#btn-verify"),
+     btnBack:     $("#btn-back"),
 
-    // Step 3
-    redirectCount: $("#redirect-count"),
-    successId:     $("#success-id"),
-    successMethod: $("#success-method"),
-    btnDashboard:  $("#btn-dashboard"),
-  };
+     // Step 3
+     redirectCount: $("#redirect-count"),
+     successId:     $("#success-id"),
+     successMethod: $("#success-method"),
+     btnDashboard:  $("#btn-dashboard"),
+   };
 
-  /* ── State ───────────────────────────────────────────────────────────── */
-  const state = {
-    mode:  "phone",   // "phone" | "email"
-    value: "",        // normalized phone or email
-    resendInterval: null,
-    redirectInterval: null,
-  };
+   /* ── State ───────────────────────────────────────────────────────────── */
+   const state = {
+     mode:  "phone",   // "phone" | "email"
+     value: "",        // normalized phone or email
+     deliveryMethod: "sms", // "sms" | "whatsapp" (phone only)
+     resendInterval: null,
+     redirectInterval: null,
+   };
 
   /* ══════════════════════════════════════════════════════════════════════
      STEP MANAGEMENT
@@ -176,26 +173,62 @@
      STEP 1 — Identifier
   ══════════════════════════════════════════════════════════════════════ */
 
-  /** Switch between phone/email tabs */
-  function setMode(mode) {
-    state.mode = mode;
+   /** Switch between phone/email tabs */
+   function setMode(mode) {
+     state.mode = mode;
 
-    dom.tabPhone.classList.toggle("is-active", mode === "phone");
-    dom.tabEmail.classList.toggle("is-active", mode === "email");
-    dom.tabPhone.setAttribute("aria-selected", mode === "phone");
-    dom.tabEmail.setAttribute("aria-selected", mode === "email");
+     dom.tabPhone.classList.toggle("is-active", mode === "phone");
+     dom.tabEmail.classList.toggle("is-active", mode === "email");
+     dom.tabPhone.setAttribute("aria-selected", mode === "phone");
+     dom.tabEmail.setAttribute("aria-selected", mode === "email");
 
-    dom.panelPhone.classList.toggle("is-active", mode === "phone");
-    dom.panelEmail.classList.toggle("is-active", mode === "email");
+     dom.panelPhone.classList.toggle("is-active", mode === "phone");
+     dom.panelEmail.classList.toggle("is-active", mode === "email");
 
-    clearErrors();
-    updateSendButton();
+      clearErrors();
+      updateSendButton();
 
-    // Focus the active input
-    setTimeout(() => {
-      (mode === "phone" ? dom.inputPhone : dom.inputEmail).focus();
-    }, 60);
-  }
+      // Update hint text based on mode and delivery method
+      updateHintText();
+
+      // When entering phone mode, ensure delivery options reflect current state
+      if (mode === "phone") {
+        setDeliveryMethod(state.deliveryMethod);
+      }
+
+      // Focus the active input
+      setTimeout(() => {
+        (mode === "phone" ? dom.inputPhone : dom.inputEmail).focus();
+      }, 60);
+   }
+
+   /** Switch delivery method (SMS / WhatsApp) — phone mode only */
+   function setDeliveryMethod(method) {
+     if (state.mode !== "phone") return;
+     state.deliveryMethod = method;
+
+     dom.deliveryOptions.forEach((opt) => {
+       const isActive = opt.dataset.method === method;
+       opt.classList.toggle("is-active", isActive);
+       const radio = opt.querySelector("input[type=radio]");
+       if (radio) radio.checked = isActive;
+     });
+
+     updateHintText();
+   }
+
+   function updateHintText() {
+     if (state.mode === "phone") {
+       const method = state.deliveryMethod;
+       if (method === "sms") {
+         dom.phoneHint.textContent = "We'll send a 6-digit code via SMS. Standard rates may apply.";
+       } else {
+         dom.phoneHint.textContent = "We'll send a 6-digit code via WhatsApp. Free and instant.";
+       }
+     } else {
+       dom.phoneHint.textContent = "We'll email a 6-digit code. Check spam if it doesn't arrive within 60 seconds.";
+     }
+   }
 
   function clearErrors() {
     dom.errorPhone.classList.remove("is-visible");
@@ -231,20 +264,23 @@
     }
   }
 
-  async function handleSendCode() {
-    if (!isInputValid()) { showIdentifierError(); return; }
-    clearErrors();
+   async function handleSendCode() {
+     if (!isInputValid()) { showIdentifierError(); return; }
+     clearErrors();
 
-    const raw = getInputValue();
-    state.value = state.mode === "phone" ? normalizePhone(raw) : raw.toLowerCase();
+     const raw = getInputValue();
+     state.value = state.mode === "phone" ? normalizePhone(raw) : raw.toLowerCase();
 
-    // Loading state
-    dom.btnSend.disabled = true;
-    dom.btnSend.innerHTML = '<span class="spinner"></span> Sending…';
+     // Loading state
+     dom.btnSend.disabled = true;
+     dom.btnSend.innerHTML = '<span class="spinner"></span> Sending…';
 
-    try {
-      const result = await API.requestOtp(state.mode, state.value);
-      if (!result.ok) throw new Error(result.message || "Failed to send code.");
+     try {
+       const params = state.mode === "phone"
+         ? { mode: state.mode, value: state.value, delivery: state.deliveryMethod }
+         : { mode: state.mode, value: state.value };
+       const result = await API.requestOtp(params);
+       if (!result.ok) throw new Error(result.message || "Failed to send code.");
 
       // Transition to step 2
       dom.otpDest.textContent = maskIdentifier(state.value, state.mode);
@@ -425,23 +461,26 @@
     dom.resendCount.textContent = mm + ":" + ss;
   }
 
-  async function handleResend() {
-    dom.btnResend.disabled = true;
-    dom.btnResend.innerHTML = '<span class="spinner" style="border-top-color:var(--green);border-color:rgba(45,168,105,.3)"></span> Sending…';
+   async function handleResend() {
+     dom.btnResend.disabled = true;
+     dom.btnResend.innerHTML = '<span class="spinner" style="border-top-color:var(--green);border-color:rgba(45,168,105,.3)"></span> Sending…';
 
-    try {
-      const result = await API.resendOtp(state.mode, state.value);
-      if (!result.ok) throw new Error("Failed to resend.");
-      resetOtpBoxes();
-      startResendTimer();
-      dom.otpBoxes[0].focus();
-    } catch {
-      dom.btnResend.disabled = false;
-    } finally {
-      dom.btnResend.classList.add("is-visible");
-      dom.btnResend.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Resend code';
-    }
-  }
+     try {
+       const params = state.mode === "phone"
+         ? { mode: state.mode, value: state.value, delivery: state.deliveryMethod }
+         : { mode: state.mode, value: state.value };
+       const result = await API.resendOtp(params);
+       if (!result.ok) throw new Error("Failed to resend.");
+       resetOtpBoxes();
+       startResendTimer();
+       dom.otpBoxes[0].focus();
+     } catch {
+       dom.btnResend.disabled = false;
+     } finally {
+       dom.btnResend.classList.add("is-visible");
+       dom.btnResend.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Resend code';
+     }
+   }
 
   /* ── Back ────────────────────────────────────────────────────────────── */
   function handleBack() {
@@ -488,43 +527,55 @@
   /* ══════════════════════════════════════════════════════════════════════
      EVENT WIRING
   ══════════════════════════════════════════════════════════════════════ */
-  function init() {
-    // Mode tabs
-    dom.tabPhone.addEventListener("click", () => setMode("phone"));
-    dom.tabEmail.addEventListener("click", () => setMode("email"));
+   function init() {
+     // Mode tabs
+     dom.tabPhone.addEventListener("click", () => setMode("phone"));
+     dom.tabEmail.addEventListener("click", () => setMode("email"));
 
-    // Live validation for send-button enable/disable
-    dom.inputPhone.addEventListener("input", () => { clearErrors(); updateSendButton(); });
-    dom.inputEmail.addEventListener("input", () => { clearErrors(); updateSendButton(); });
+     // Delivery method options (phone mode only)
+     dom.deliveryOptions.forEach((opt) => {
+       opt.addEventListener("click", () => {
+         const method = opt.dataset.method;
+         setDeliveryMethod(method);
+       });
+     });
 
-    // Enter-key shortcut on identifier inputs
-    dom.inputPhone.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSendCode(); });
-    dom.inputEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSendCode(); });
+     // Live validation for send-button enable/disable
+     dom.inputPhone.addEventListener("input", () => { clearErrors(); updateSendButton(); });
+     dom.inputEmail.addEventListener("input", () => { clearErrors(); updateSendButton(); });
 
-    // Send code
-    dom.btnSend.addEventListener("click", handleSendCode);
+     // Enter-key shortcut on identifier inputs
+     dom.inputPhone.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSendCode(); });
+     dom.inputEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSendCode(); });
 
-    // OTP boxes
-    initOtpBoxes();
+     // Send code
+     dom.btnSend.addEventListener("click", handleSendCode);
 
-    // Verify
-    dom.btnVerify.addEventListener("click", handleVerify);
+     // OTP boxes
+     initOtpBoxes();
 
-    // Resend
-    dom.btnResend.addEventListener("click", handleResend);
+     // Verify
+     dom.btnVerify.addEventListener("click", handleVerify);
 
-    // Back
-    dom.btnBack.addEventListener("click", handleBack);
+     // Resend
+     dom.btnResend.addEventListener("click", handleResend);
 
-    // Dashboard button (manual click bypasses countdown)
-    dom.btnDashboard.addEventListener("click", () => {
-      clearInterval(state.redirectInterval);
-      navigateToDashboard();
-    });
+     // Back
+     dom.btnBack.addEventListener("click", handleBack);
 
-    // Autofocus phone input on load
-    dom.inputPhone.focus();
-  }
+     // Dashboard button (manual click bypasses countdown)
+     dom.btnDashboard.addEventListener("click", () => {
+       clearInterval(state.redirectInterval);
+       navigateToDashboard();
+     });
+
+     // Initial hint text & delivery selection
+     updateHintText();
+     setDeliveryMethod(state.deliveryMethod); // ensure classes & radios are in sync
+
+     // Autofocus phone input on load
+     dom.inputPhone.focus();
+   }
 
   /* ── Boot ───────────────────────────────────────────────────────────── */
   if (document.readyState === "loading") {
