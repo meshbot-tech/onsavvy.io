@@ -293,19 +293,86 @@ if (pills.length) {
 }
 
 /* =========================
-   FORM SUBMIT STATE
-========================= */
-const submitBtn = document.getElementById('submitBtn');
+   LEAD CAPTURE FORM
+   ========================= */
+(function() {
+  const submitBtn = document.getElementById('submitBtn');
 
-if (submitBtn) {
-  submitBtn.addEventListener('click', e => {
+  if (!submitBtn) return;
+
+  submitBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    submitBtn.textContent = "✓ Received — we'll be in touch shortly";
-    submitBtn.style.background = '#0D7A4E';
-    submitBtn.style.pointerEvents = 'none';
+    // Collect form values
+    const name       = document.getElementById('leadName')?.value.trim();
+    const email      = document.getElementById('leadEmail')?.value.trim();
+    const phone      = document.getElementById('leadPhone')?.value.trim();
+    const description= document.getElementById('leadDescription')?.value.trim();
+
+    // Get selected services (pills with .active)
+    const services = Array.from(document.querySelectorAll('.bwc-pill[data-group="services"].active'))
+                          .map(p => p.textContent.trim());
+
+    // Get selected budget
+    const budgetEl = document.querySelector('.bwc-pill[data-group="budget"].active');
+    const budget = budgetEl ? budgetEl.textContent.trim() : '';
+
+    // Basic validation
+    if (!name || !email) {
+      submitBtn.textContent = "Please fill in required fields";
+      submitBtn.style.background = '#B83030';
+      setTimeout(() => {
+        submitBtn.textContent = "Submit →";
+        submitBtn.style.background = '';
+      }, 2000);
+      return;
+    }
+
+    // Build lead object
+    const lead = {
+      id: Date.now(),
+      name,
+      email,
+      phone,
+      services,
+      budget,
+      description,
+      timestamp: Date.now(),
+      status: 'new'
+    };
+
+    // Save to localStorage
+    try {
+      const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
+      leads.unshift(lead); // newest first
+      localStorage.setItem('savvion_leads', JSON.stringify(leads));
+
+      // Also broadcast to other tabs/windows via storage event (automatically fired)
+      // No need for custom event; other tabs listening to storage will get update.
+
+      // Success feedback
+      submitBtn.textContent = "✓ Received — we'll be in touch shortly";
+      submitBtn.style.background = '#0D7A4E';
+      submitBtn.style.pointerEvents = 'none';
+
+      // Reset form
+      document.getElementById('leadName').value = '';
+      document.getElementById('leadEmail').value = '';
+      document.getElementById('leadPhone').value = '';
+      document.getElementById('leadDescription').value = '';
+      document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
+
+    } catch (err) {
+      console.error('Failed to save lead:', err);
+      submitBtn.textContent = "Error — try again";
+      submitBtn.style.background = '#B8720A';
+      setTimeout(() => {
+        submitBtn.textContent = "Submit →";
+        submitBtn.style.background = '';
+      }, 2000);
+    }
   });
-}
+})();
 
 /* =========================
    WORK CARD STAGGER

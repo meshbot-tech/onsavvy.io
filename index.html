@@ -4021,20 +4021,26 @@ body.dark-theme .preloader-progress-bar{
     <!-- RIGHT: form -->
     <div class="bwc-form reveal reveal-delay-1">
 
-       <!-- Name + Email -->
-       <div class="bwc-field-row">
-         <div class="bwc-field">
-           <div class="bwc-label">Full Name*</div>
-           <input class="bwc-input" type="text" placeholder="Your name here">
-         </div>
-         <div class="bwc-field">
-           <div class="bwc-label">Email*</div>
-           <input class="bwc-input" type="email" placeholder="your.email@example.com">
-         </div>
-       </div>
-       
-       <!-- CSRF Token -->
-       <input type="hidden" name="csrf_token" value="[CSRF_TOKEN_PLACEHOLDER]">
+        <!-- Name + Email -->
+        <div class="bwc-field-row">
+          <div class="bwc-field">
+            <div class="bwc-label">Full Name*</div>
+            <input class="bwc-input" type="text" placeholder="Your name here" id="leadName">
+          </div>
+          <div class="bwc-field">
+            <div class="bwc-label">Email*</div>
+            <input class="bwc-input" type="email" placeholder="your.email@example.com" id="leadEmail">
+          </div>
+        </div>
+
+        <!-- Phone field (optional) -->
+        <div class="bwc-field" style="margin-top:12px">
+          <div class="bwc-label">Phone / WhatsApp (optional)</div>
+          <input class="bwc-input" type="tel" placeholder="+254 712 345 678" id="leadPhone">
+        </div>
+        
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="[CSRF_TOKEN_PLACEHOLDER]">
 
       <!-- Interested in pills -->
       <div>
@@ -4072,7 +4078,7 @@ body.dark-theme .preloader-progress-bar{
       <!-- Project description -->
       <div class="bwc-field">
         <div class="bwc-label">Tell us more about your project*</div>
-        <textarea class="bwc-textarea" rows="3" placeholder="Briefly describe what you're building or trying to improve…"></textarea>
+        <textarea class="bwc-textarea" rows="3" placeholder="Briefly describe what you're building or trying to improve…" id="leadDescription"></textarea>
       </div>
 
       <button class="btn-bwc" id="submitBtn">Submit →</button>
@@ -4360,15 +4366,93 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-// Form submit
-document.querySelectorAll('#submitBtn, #submitBtnCta').forEach(btn => {
-  btn.addEventListener('click', e => {
+// Lead capture for main BWC form (Build With Confidence)
+const leadSubmitBtn = document.getElementById('submitBtn');
+if (leadSubmitBtn) {
+  leadSubmitBtn.addEventListener('click', async function(e) {
     e.preventDefault();
-    btn.textContent = '✓ Request received — we\'ll be in touch shortly';
-    btn.style.background = '#0D7A4E';
-    btn.style.pointerEvents = 'none';
+
+    const name = document.getElementById('leadName')?.value.trim();
+    const email = document.getElementById('leadEmail')?.value.trim();
+    const phone = document.getElementById('leadPhone')?.value.trim();
+    const description = document.getElementById('leadDescription')?.value.trim();
+
+    // Get selected services (multi-select)
+    const services = Array.from(document.querySelectorAll('.bwc-pill[data-group="services"].active'))
+                          .map(p => p.textContent.trim());
+
+    // Get selected budget (single-select)
+    const budgetEl = document.querySelector('.bwc-pill[data-group="budget"].active');
+    const budget = budgetEl ? budgetEl.textContent.trim() : '';
+
+    // Basic required validation
+    if (!name || !email) {
+      leadSubmitBtn.textContent = "Please fill in required fields";
+      leadSubmitBtn.style.background = '#B83030';
+      setTimeout(() => {
+        leadSubmitBtn.textContent = "Submit →";
+        leadSubmitBtn.style.background = '';
+      }, 2000);
+      return;
+    }
+
+    const lead = {
+      id: Date.now(),
+      name,
+      email,
+      phone,
+      services,
+      budget,
+      description,
+      timestamp: Date.now(),
+      status: 'new'
+    };
+
+    try {
+      const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
+      leads.unshift(lead);
+      localStorage.setItem('savvion_leads', JSON.stringify(leads));
+
+      leadSubmitBtn.textContent = "✓ Received — we'll be in touch shortly";
+      leadSubmitBtn.style.background = '#0D7A4E';
+      leadSubmitBtn.style.pointerEvents = 'none';
+
+      // Reset form after 1 second
+      setTimeout(() => {
+        document.getElementById('leadName').value = '';
+        document.getElementById('leadEmail').value = '';
+        document.getElementById('leadPhone').value = '';
+        document.getElementById('leadDescription').value = '';
+        document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
+
+        // Reset button after 3 seconds
+        leadSubmitBtn.textContent = "Submit →";
+        leadSubmitBtn.style.background = '';
+        leadSubmitBtn.style.pointerEvents = '';
+      }, 3000);
+
+    } catch (err) {
+      console.error('Failed to save lead:', err);
+      leadSubmitBtn.textContent = "Error — try again";
+      leadSubmitBtn.style.background = '#B8720A';
+      setTimeout(() => {
+        leadSubmitBtn.textContent = "Submit →";
+        leadSubmitBtn.style.background = '';
+      }, 2000);
+    }
   });
-});
+}
+
+// CTA form simple acknowledgment
+const ctaSubmitBtn = document.getElementById('submitBtnCta');
+if (ctaSubmitBtn) {
+  ctaSubmitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    this.textContent = '✓ Request received — we\'ll be in touch shortly';
+    this.style.background = '#0D7A4E';
+    this.style.pointerEvents = 'none';
+  });
+}
 
 // Stagger work card reveal delays
 document.querySelectorAll('.work-card').forEach((c, i) => { c.style.transitionDelay = (i * 0.08) + 's'; });

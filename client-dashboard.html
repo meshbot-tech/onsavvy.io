@@ -293,6 +293,10 @@ body:not(.verified){overflow:hidden}
       </a>
     </div>
     
+    <!-- Recent Leads Section -->
+    <h2 class="section-title" style="margin:32px 0 20px">Recent Leads</h2>
+    <div class="leads-list" id="leadsList"></div>
+    
     <div class="bookings-shortcut">
       <a href="Savvion bookings.html" class="btn-book-now">
         <svg viewBox="0 0 24 24">
@@ -371,6 +375,65 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
   sessionStorage.removeItem('clientLoggedIn');
   sessionStorage.removeItem('clientEmail');
    window.location.href = 'savvion auth.html';
+});
+
+// =========================
+// LEADS MANAGEMENT
+// =========================
+function renderLeads() {
+  const container = document.getElementById('leadsList');
+  if (!container) return;
+
+  const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
+  if (leads.length === 0) {
+    container.innerHTML = '<div style="color:var(--ink-muted); font-size:14px;">No leads yet. Submissions from the landing page will appear here.</div>';
+    return;
+  }
+
+  // Sort by newest first, limit to 20
+  leads.sort((a,b) => b.timestamp - a.timestamp);
+  const recent = leads.slice(0, 20);
+
+  container.innerHTML = recent.map(lead => {
+    const date = new Date(lead.timestamp).toLocaleDateString(undefined, {
+      day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'
+    });
+    const services = lead.services && lead.services.length
+      ? lead.services.map(s => `<span class="lead-tag" style="display:inline-block;font-size:11px;background:var(--green-light);color:var(--green-dark);padding:2px 8px;border-radius:10px;margin-right:4px;margin-bottom:4px;">${s}</span>`).join('')
+      : '';
+    const budget = lead.budget ? `<span class="lead-budget" style="display:inline-block;font-size:11px;background:var(--surface-2);color:var(--ink-muted);padding:2px 8px;border-radius:10px;margin-left:4px;">${lead.budget}</span>` : '';
+    const phoneBtn = lead.phone ? `<a href="tel:${lead.phone}" class="btn-secondary" style="padding:4px 10px;font-size:12px;margin-right:4px;">Call</a>` : '';
+    const emailBtn = `<a href="mailto:${lead.email}" class="btn-secondary" style="padding:4px 10px;font-size:12px;">Email</a>`;
+    const description = lead.description ? `<div style="font-size:13px;color:var(--ink-muted);line-height:1.4;margin-top:8px;">${lead.description}</div>` : '';
+
+    return `
+      <div class="card" style="padding:16px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div style="flex:1; min-width:200px;">
+            <div style="font-weight:600; color:var(--ink); margin-bottom:4px;">${lead.name}</div>
+            <div style="font-size:13px; color:var(--ink-muted); margin-bottom:8px;">${lead.email} ${lead.phone ? '• '+lead.phone : ''}</div>
+            <div style="margin-bottom:8px;">${services} ${budget}</div>
+            ${description}
+            <div style="font-size:11px; color:var(--ink-faint); margin-top:6px;">Submitted ${date}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+            ${emailBtn}
+            ${phoneBtn}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Initial render
+renderLeads();
+
+// Refresh when localStorage changes (e.g., new lead in another tab)
+window.addEventListener('storage', (e) => {
+  if (e.key === 'savvion_leads') {
+    renderLeads();
+  }
 });
 </script>
 </body>
