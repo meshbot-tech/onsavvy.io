@@ -23,8 +23,9 @@ const DB = {
   users: []
 };
 
-// Auth token store (simple in-memory)
-const authTokens = new Map(); // token -> userId
+// Auth token store (token -> { userId, expiresAt })
+const authTokens = new Map();
+const TOKEN_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Load sample data
 function loadSampleData() {
@@ -57,26 +58,106 @@ const jsonResponse = (res, data) => res.json({ success: true, ...data });
 const errorResponse = (res, message, status = 400) => res.status(status).json({ success: false, error: message });
 
 // ──── AUTH ─────────────────────────────────────────────────────────────────────────────
+// Simple in-memory session store (use Redis in production)
+// authTokens map: token -> { userId, expiresAt }
+// TOKEN_TTL set to 24h
+
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
   // Simple auth - check against users table
   const user = DB.users.find(u => u.email === email);
   if (!user) return errorResponse(res, 'Invalid credentials', 401);
-  // In production, verify hashed password
+  // In production, verify hashed password with bcrypt
   const token = 'tok_' + generateId();
-  authTokens.set(token, user.id);
-  jsonResponse(res, { token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  authTokens.set(token, { userId: user.id, expiresAt: Date.now() + TOKEN_TTL });
+  jsonResponse(res, {
+    token,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role }
+  });
+});
+
+app.post('/api/auth/google', async (req, res) => {
+  const { token: googleIdToken } = req.body;
+  if (!googleIdToken) return errorResponse(res, 'Google ID token required', 400);
+
+  try {
+    // Verify Google ID token
+    const axios = require('axios');
+    const response = await axios.get(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${googleIdToken}`
+    );
+
+    const googleInfo = response.data;
+
+    // Validate token
+    if (googleInfo.error_description) {
+      throw new Error(googleInfo.error_description);
+    }
+
+    const googleEmail = googleInfo.email;
+    const googleName = googleInfo.name || googleInfo.email.split('@')[0];
+    const googlePicture = googleInfo.picture;
+
+    // Check if user exists, create if not
+    let user = DB.users.find(u => u.email === googleEmail);
+    if (!user) {
+      user = {
+        id: generateId(),
+        name: googleName,
+        email: googleEmail,
+        role: 'admin',
+        permissions: ['leads:read', 'leads:write', 'clients:read', 'bookings:read', 'finance:read', 'notifications:read'],
+        lastLogin: getCurrentDateTime()
+      };
+      DB.users.push(user);
+      console.log('✅ New Google user created:', googleEmail);
+    } else {
+      // Update last login
+      user.lastLogin = getCurrentDateTime();
+    }
+
+    // Create session token
+    const sessionToken = 'tok_' + generateId();
+    authTokens.set(sessionToken, { userId: user.id, expiresAt: Date.now() + TOKEN_TTL });
+
+    jsonResponse(res, {
+      token: sessionToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: googlePicture
+      }
+    });
+
+  } catch (err) {
+    console.error('Google auth error:', err.message);
+    return errorResponse(res, 'Failed to verify Google token: ' + err.message, 401);
+  }
 });
 
 app.get('/api/auth/me', (req, res) => {
   const auth = req.headers.authorization;
   if (!auth) return errorResponse(res, 'No token', 401);
   const token = auth.replace('Bearer ', '');
-  const userId = authTokens.get(token);
-  if (!userId) return errorResponse(res, 'Invalid token', 401);
-  const user = DB.users.find(u => u.id === userId);
+  const session = authTokens.get(token);
+  if (!session) return errorResponse(res, 'Invalid token', 401);
+  // Check expiry
+  if (session.expiresAt < Date.now()) {
+    authTokens.delete(token);
+    return errorResponse(res, 'Token expired', 401);
+  }
+  const user = DB.users.find(u => u.id === session.userId);
   if (!user) return errorResponse(res, 'User not found', 401);
-  jsonResponse(res, { user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  jsonResponse(res, {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  });
 });
 
 app.post('/api/auth/logout', (req, res) => {
@@ -88,14 +169,18 @@ app.post('/api/auth/logout', (req, res) => {
   jsonResponse(res, { success: true });
 });
 
-// Helper to check auth
+// Helper to check auth middleware
 const checkAuth = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) return errorResponse(res, 'Unauthorized', 401);
   const token = auth.replace('Bearer ', '');
-  const userId = authTokens.get(token);
-  if (!userId) return errorResponse(res, 'Invalid token', 401);
-  req.userId = userId;
+  const session = authTokens.get(token);
+  if (!session) return errorResponse(res, 'Invalid token', 401);
+  if (session.expiresAt < Date.now()) {
+    authTokens.delete(token);
+    return errorResponse(res, 'Token expired', 401);
+  }
+  req.userId = session.userId;
   next();
 };
 
@@ -493,6 +578,12 @@ app.get('/', (req, res) => {
   const indexPath = path.join(__dirname, 'index.html');
   if (fs.existsSync(indexPath)) res.sendFile(indexPath);
   else res.json({ message: 'Savvion API Server Running', endpoints: '/api' });
+});
+
+app.get('/savvion-admin-login.html', (req, res) => {
+  const filePath = path.join(__dirname, 'savvion-admin-login.html');
+  if (fs.existsSync(filePath)) res.sendFile(filePath);
+  else res.status(404).send('Admin login not found');
 });
 
 app.get('/savvion-admin.html', (req, res) => {

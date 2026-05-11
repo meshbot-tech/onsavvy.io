@@ -73,6 +73,267 @@ const DB = {
   whatsappTemplates: [], emailTemplates: [], triggers: []
 };
 
+// ──── Mock Data Generators ─────────────────────────────────────────────────────────────
+function generateMockData() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  
+  // Mock current user
+  DB.currentUser = {
+    name: "Emmanuel M.",
+    initials: "EM",
+    role: "Super Admin"
+  };
+  
+  // Mock leads
+  DB.leads = [
+    {
+      id: "1",
+      clientName: "Tabitha M.",
+      clientAvatar: "TM",
+      clientColor: "#2da869",
+      service: "Website Design",
+      value: 150000,
+      source: "Website",
+      srcClass: "src-website",
+      stage: "qualified",
+      created: now.toISOString(),
+      notes: "Interested in e-commerce solution"
+    },
+    {
+      id: "2",
+      clientName: "Samuel O.",
+      clientAvatar: "SO",
+      clientColor: "#3b82f6",
+      service: "SEO Optimization",
+      value: 75000,
+      source: "Referral",
+      srcClass: "src-referral",
+      stage: "contacted",
+      created: now.toISOString(),
+      notes: "Need monthly SEO package"
+    },
+    {
+      id: "3",
+      clientName: "Martin Okello",
+      clientAvatar: "MO",
+      clientColor: "#8b5cf6",
+      service: "Social Media Marketing",
+      value: 100000,
+      source: "Social Media",
+      srcClass: "src-social",
+      stage: "new",
+      created: now.toISOString(),
+      notes: "Startup looking for brand awareness"
+    },
+    {
+      id: "4",
+      clientName: "Linet C.",
+      clientAvatar: "LC",
+      clientColor: "#14b8a6",
+      service: "Content Writing",
+      value: 50000,
+      source: "Form",
+      srcClass: "src-form",
+      stage: "proposal",
+      created: now.toISOString(),
+      notes: "Blog content package"
+    },
+    {
+      id: "5",
+      clientName: "James K.",
+      clientAvatar: "JK",
+      clientColor: "#f59e0b",
+      service: "Logo Design",
+      value: 30000,
+      source: "Direct",
+      srcClass: "src-direct",
+      stage: "won",
+      created: now.toISOString(),
+      notes: "Project completed successfully"
+    }
+  ];
+  
+  // Mock bookings
+  DB.bookings = [
+    {
+      id: "101",
+      clientName: "Tabitha M.",
+      clientAvatar: "TM",
+      clientColor: "#2da869",
+      service: "Website Design",
+      date: "2026-05-15",
+      time: "10:00 AM",
+      amount: 150000,
+      status: "pending"
+    },
+    {
+      id: "102",
+      clientName: "Samuel O.",
+      clientAvatar: "SO",
+      clientColor: "#3b82f6",
+      service: "SEO Optimization",
+      date: "2026-05-16",
+      time: "2:00 PM",
+      amount: 75000,
+      status: "confirmed"
+    },
+    {
+      id: "103",
+      clientName: "Martin Okello",
+      clientAvatar: "MO",
+      clientColor: "#8b5cf6",
+      service: "Social Media Marketing",
+      date: "2026-05-17",
+      time: "11:00 AM",
+      amount: 100000,
+      status: "pending"
+    },
+    {
+      id: "104",
+      clientName: "Linet C.",
+      clientAvatar: "LC",
+      clientColor: "#14b8a6",
+      service: "Content Writing",
+      date: "2026-05-18",
+      time: "3:00 PM",
+      amount: 50000,
+      status: "completed"
+    }
+  ];
+  
+  // Mock clients
+  DB.clients = [
+    {
+      id: "201",
+      name: "Tabitha M.",
+      avatar: "TM",
+      color: "#2da869",
+      type: "Business",
+      bookings: 2,
+      totalSpent: 300000,
+      lastActive: "2026-05-10"
+    },
+    {
+      id: "202",
+      name: "Samuel O.",
+      avatar: "SO",
+      color: "#3b82f6",
+      type: "Enterprise",
+      bookings: 5,
+      totalSpent: 750000,
+      lastActive: "2026-05-09"
+    },
+    {
+      id: "203",
+      name: "Martin Okello",
+      avatar: "MO",
+      color: "#8b5cf6",
+      type: "Startup",
+      bookings: 1,
+      totalSpent: 100000,
+      lastActive: "2026-05-11"
+    }
+  ];
+  
+  // Mock activities
+  DB.activities = [
+    { icon:"ti-check", color:"var(--green)", text:"Booking <strong>confirmed</strong> for Tabitha M.", time:"2 minutes ago" },
+    { icon:"ti-brand-whatsapp", color:"var(--wa-dark)", text:"WhatsApp sent to <strong>Samuel O.</strong>", time:"12 minutes ago" },
+    { icon:"ti-user-plus", color:"var(--blue)", text:"New lead <strong>Martin Okello</strong> added", time:"32 minutes ago" },
+    { icon:"ti-chart-line", color:"var(--purple)", text:"Monthly report generated", time:"1 hour ago" },
+    { icon:"ti-calendar-event", color:"var(--amber)", text:"Reminder: Booking with <strong>Linet C.</strong> in 1h", time:"2 hours ago" }
+  ];
+  
+  // Mock notifications
+  DB.notifications = [
+    { id:"n1", read:false, icon:"ti-check", color:"var(--green)", text:"Booking confirmed for Tabitha M.", time:"5 min ago" },
+    { id:"n2", read:true, icon:"ti-brand-whatsapp", color:"var(--wa-dark)", text:"WhatsApp message sent to Samuel O.", time:"15 min ago" },
+    { id:"n3", read:false, icon:"ti-user-plus", color:"var(--blue)", text:"New lead added: Martin Okello", time:"30 min ago" }
+  ];
+  
+  // Mock integrations
+  DB.integrations = [
+    { name: "WhatsApp Business API", icon: "ti-brand-whatsapp", status: "connected", desc: "Send automated WhatsApp messages" },
+    { name: "SMTP Email", icon: "ti-mail", status: "connected", desc: "Transactional & marketing emails" },
+    { name: "Google Calendar", icon: "ti-calendar", status: "disconnected", desc: "Sync bookings to calendar" },
+    { name: "Stripe Payments", icon: "ti-credit-card", status: "connected", desc: "Receive online payments" }
+  ];
+  
+  // Mock notification settings
+  DB.notificationSettings = [
+    { setting: "New Booking", enabled: true },
+    { setting: "Cancellation", enabled: true },
+    { setting: "Payment Received", enabled: true },
+    { setting: "Weekly Digest", enabled: false },
+    { setting: "System Alerts", enabled: true }
+  ];
+  
+  // Mock revenue history (last 6 months)
+  const totalRev = 1200000; // 1.2M KES
+  DB.revenueHistory = generateRevenueHistory(totalRev);
+  
+  // Mock bookings by month
+  const totalBookings = 45;
+  DB.bookingsByMonth = generateBookingsByMonth(totalBookings);
+  
+  // Mock top clients
+  DB.topClients = DB.clients.slice(0, 3);
+  
+  // Mock WhatsApp templates
+  DB.whatsappTemplates = [
+    {
+      id: "wt1",
+      name: "Booking Confirmation",
+      icon: "ti-check",
+      color: "var(--green)",
+      trigger: "Booking confirmed",
+      body: "Hi {{name}}, your booking for {{service}} on {{date}} at {{time}} has been confirmed! Please make payment of KES {{amount}} to complete the booking. Thank you for choosing Savvion!",
+      sentCount: 24
+    },
+    {
+      id: "wt2",
+      name: "Appointment Reminder",
+      icon: "ti-alarm-clock",
+      color: "var(--amber)",
+      trigger: "24 hours before appointment",
+      body: "Hi {{name}}, this is a reminder about your {{service}} appointment tomorrow at {{time}}. Please reply CONFIRM to confirm or RESCHEDULE to change time. Savvion Agency",
+      sentCount: 18
+    }
+  ];
+  
+  // Mock email templates
+  DB.emailTemplates = [
+    {
+      id: "et1",
+      name: "Welcome Email",
+      icon: "ti-mail-open",
+      color: "var(--blue)",
+      trigger: "New client signup",
+      body: "Dear {{name}},\n\nWelcome to Savvion Agency! We're excited to work with you on your {{service}} project. Your account manager will be in touch within 24 hours to discuss requirements and timelines.\n\nBest regards,\nThe Savvion Team",
+      sentCount: 12
+    },
+    {
+      id: "et2",
+      name: "Invoice Notification",
+      icon: "ti-receipt",
+      color: "var(--green)",
+      trigger: "Invoice generated",
+      body: "Dear {{name}},\n\nPlease find attached your invoice for {{service}} rendered on {{date}}. Amount due: KES {{amount}}. Payment is due within 15 days.\n\nThank you for your business!\n\nSavvion Agency Accounting",
+      sentCount: 8
+    }
+  ];
+  
+  // Mock triggers
+  DB.triggers = [
+    { id:'1', name:"Booking Confirmed", icon:"ti-check", iconColor:"var(--green)", enabled:true },
+    { id:'2', name:"Payment Received", icon:"ti-currency-shilling", iconColor:"var(--amber)", enabled:true },
+    { id:'3', name:"24h Before Appointment", icon:"ti-clock", iconColor:"var(--blue)", enabled:false },
+    { id:'4', name:"Lead Won", icon:"ti-trophy", iconColor:"var(--green)", enabled:true },
+    { id:'5', name:"Lead Lost", icon:"ti-thumb-down", iconColor:"var(--red)", enabled:false }
+  ];
+}
+
 async function loadFromAPI() {
   if (!requireAuth()) return;
   const headers = getAuthHeaders();
@@ -146,10 +407,17 @@ async function loadFromAPI() {
       { icon:"ti-calendar-event", color:"var(--amber)", text:"Reminder: Booking with <strong>Linet C.</strong> in 1h", time:"2 hours ago" },
     ];
 
+    // Success - data loaded from API
+    showToast('Data loaded successfully from API', 'green');
   } catch (err) {
     console.error('Data load failed:', err);
-    if (err.message.includes('401')) window.location.href = 'savvion auth.html';
-    else showToast('Failed to load data', 'red');
+    if (err.message.includes('401')) {
+      window.location.href = 'savvion-admin-login.html';
+    } else {
+      // Fallback to mock data when API is unavailable
+      showToast('API unavailable - using demo data', 'blue');
+      generateMockData();
+    }
   } finally {
     document.body.classList.remove('loading');
   }
@@ -1007,6 +1275,23 @@ function setupSearch() {
 
 // ──── Bootstrap ───────────────────────────────────────────────────────────────────────
 async function init() {
+  // Warn if running from file:// protocol
+  if (window.location.protocol === 'file:') {
+    console.error('❌ Admin panel must be served via HTTP. Please run: node savvion-api-server.js and open http://localhost:3000/Savvion%20admin.html');
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;text-align:center;padding:24px">
+        <div>
+          <h2>🚫 Admin panel unavailable</h2>
+          <p>This page must be served through the API server.</p>
+          <code style="display:block;background:#f0f0f0;padding:12px;border-radius:8px;margin-top:12px;text-align:left">
+            $ node savvion-api-server.js<br>
+            Then open: http://localhost:3000/Savvion%20admin.html
+          </code>
+        </div>
+      </div>`;
+    return;
+  }
+
   try {
     await loadFromAPI();
     setupNavigation();
