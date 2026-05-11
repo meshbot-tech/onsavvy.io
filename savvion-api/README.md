@@ -188,7 +188,7 @@ async function loadData() {
   } catch (err) {
     console.error('Failed to load data:', err);
     // Redirect to login if 401
-    if (err.status === 401) window.location.href = 'savvion auth.html';
+     if (err.status === 401) window.location.href = 'savvion-auth.html';
   }
 }
 

@@ -20,7 +20,7 @@
 **Status:** API server ready, but admin panel not yet calling it
 
 ### 3. Authentication & Access Control
-**Current:** `savvion auth.html` exists but unclear if it protects admin panel
+**Current:** `savvion-auth.html` exists but unclear if it protects admin panel
 **Needed:** Session validation before showing `/savvion-admin.html`
 **Status:** Auth page exists, needs integration with API
 
@@ -76,7 +76,7 @@
 
 ### Phase 3: Authentication
 - Protect `/savvion-admin.html` route (check session/token)
-- Use existing `savvion auth.html` as login page
+- Use existing `savvion-auth.html` as login page
 - On successful login, set session cookie or localStorage token
 - Add auth check at top of `savvion-admin.js`; redirect to auth if not logged in
 - Optionally: role-based access (admin only)
@@ -96,7 +96,7 @@
 
 ## Questions for You
 
-1. **Auth method:** Should admins use email+password (store in DB), or simple shared PIN? Your `savvion auth.html` currently shows email & password fields.
+1. **Auth method:** Should admins use email+password (store in DB), or simple shared PIN? Your `savvion-auth.html` currently shows email & password fields.
 
 2. **API hosting:** Deploy the Node.js API separately (e.g., Railway) or use Vercel serverless functions? Vercel would mean rewriting as serverless.
 

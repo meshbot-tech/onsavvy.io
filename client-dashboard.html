@@ -356,7 +356,7 @@ body:not(.verified){overflow:hidden}
 (function() {
    const isLoggedIn = sessionStorage.getItem('clientLoggedIn');
    if (!isLoggedIn) {
-     window.location.href = 'savvion auth.html';
+     window.location.href = 'savvion-auth.html';
      return;
    }
   
@@ -374,7 +374,7 @@ body:not(.verified){overflow:hidden}
 document.getElementById('logoutBtn').addEventListener('click', function() {
   sessionStorage.removeItem('clientLoggedIn');
   sessionStorage.removeItem('clientEmail');
-   window.location.href = 'savvion auth.html';
+   window.location.href = 'savvion-auth.html';
 });
 
 // =========================
