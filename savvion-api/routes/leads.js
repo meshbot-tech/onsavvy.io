@@ -135,9 +135,9 @@ router.get('/:id', async (req, res, next) => {
 
 /**
  * POST /api/leads
- * Create new lead
+ * Create new lead - PUBLIC ENDPOINT for website forms
  */
-router.post('/', adminOnly, async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { clientName, clientEmail, clientPhone, serviceId, source, value, stage, notes } = req.body;
 
