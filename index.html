@@ -4409,9 +4409,32 @@ if (leadSubmitBtn) {
     };
 
     try {
+      // Save to localStorage (offline fallback)
       const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
       leads.unshift(lead);
       localStorage.setItem('savvion_leads', JSON.stringify(leads));
+
+      // Also send to API
+      const API_BASE = location.origin; // assumes API on same origin; override if needed
+      const payload = {
+        name,
+        email,
+        phone,
+        source: 'website',
+        service: services.join(', ') || 'General Inquiry',
+        value: 0,
+        notes: `Budget: ${budget}\nServices: ${services.join(', ')}\n${description}`
+      };
+
+      try {
+        await fetch(`${API_BASE}/api/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (apiErr) {
+        console.warn('API submit failed (localStorage only):', apiErr);
+      }
 
       leadSubmitBtn.textContent = "✓ Received — we'll be in touch shortly";
       leadSubmitBtn.style.background = '#0D7A4E';

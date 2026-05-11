@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Savvion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    :root {
+      --green: #2da869; --green-dark: #22895a; --green-light: #edf7f2;
+      --black: #0d0d0d; --gray-50: #f8f8f6; --gray-100: #f0f0ed;
+      --gray-200: #e2e2de; --gray-400: #9a9a95; --gray-600: #565650;
+      --white: #ffffff; --danger: #dc2626; --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --r-sm:8px; --r-md:10px; --r-lg:16px; --r-xl:20px;
+    }
+    body {
+      font-family: var(--font);
+      background: radial-gradient(ellipse at 65% 0%, #e4f5ed 0%, #f4f4f2 60%);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px; -webkit-font-smoothing: antialiased;
+    }
+    .auth-card {
+      display: flex; width: 100%; max-width: 400px; min-height: 480px;
+      background: var(--white); border-radius: var(--r-xl);
+      border: 1px solid var(--gray-200); box-shadow: 0 4px 48px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+    .auth-form {
+      flex: 1; padding: 44px 36px; display: flex; flex-direction: column;
+    }
+    .brand-logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
+    }
+    .brand-logo-icon {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px;
+    }
+    .brand-logo-text { color: var(--black); font-weight: 700; font-size: 15px; letter-spacing: -.02em; }
+    .auth-title { font-size: 26px; font-weight: 800; letter-spacing: -.03em; color: var(--black); margin-bottom: 8px; }
+    .auth-subtitle { font-size: 13px; color: var(--gray-600); margin-bottom: 32px; }
+    .form-field { margin-bottom: 20px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .form-field input {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--gray-200);
+      border-radius: var(--r-md); font-family: inherit; font-size: 14px;
+      transition: all .2s;
+    }
+    .form-field input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
+    .form-field input.is-error { border-color: var(--danger); }
+    .error-msg { font-size: 12px; color: var(--danger); margin-top: 6px; display: none; }
+    .error-msg.is-visible { display: block; }
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: var(--r-md);
+      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary { background: var(--black); color: var(--white); }
+    .btn-primary:hover { background: var(--gray-600); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .back-link {
+      text-align: center; margin-top: 24px; font-size: 13px; color: var(--gray-600);
+    }
+    .back-link a { color: var(--green); text-decoration: none; font-weight: 600; }
+    .back-link a:hover { text-decoration: underline; }
+    .demo-hint {
+      margin-top: 16px; padding: 12px; background: var(--green-light);
+      border-radius: var(--r-md); font-size: 12px; color: var(--green-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="auth-form">
+      <div class="brand-logo">
+        <div class="brand-logo-icon"><i class="ti ti-lock"></i></div>
+        <div class="brand-logo-text">Savvion Admin</div>
+      </div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to access the admin panel</p>
+
+      <form id="login-form" novalidate>
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="admin@savvion.co.ke" autocomplete="email" required>
+          <div class="error-msg" id="email-error">Please enter a valid email</div>
+        </div>
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+          <div class="error-msg" id="password-error">Password is required</div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-login">
+          Sign in <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <div class="demo-hint">
+        <strong>Demo credentials:</strong><br>
+        Email: admin@savvion.co.ke<br>
+        Password: any (demo mode)
+      </div>
+
+      <div class="back-link">
+        <a href="index.html">← Back to website</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const $ = (sel) => document.querySelector(sel);
+      const API_BASE = window.location.origin;
+
+      async function login(email, password) {
+        const btn = $('#btn-login');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Login failed');
+          }
+
+          // Store token
+          sessionStorage.setItem('token', data.token);
+          sessionStorage.setItem('user', JSON.stringify(data.user));
+
+          // Redirect to admin panel
+          window.location.href = 'savvion-admin.html';
+
+        } catch (err) {
+          alert('Login failed: ' + err.message);
+          btn.disabled = false;
+          btn.innerHTML = 'Sign in <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+        }
+      }
+
+      document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = $('#email').value.trim();
+        const password = $('#password').value;
+
+        if (!email || !password) {
+          if (!email) $('#email-error').classList.add('is-visible');
+          if (!password) $('#password-error').classList.add('is-visible');
+          return;
+        }
+
+        $('#email-error').classList.remove('is-visible');
+        $('#password-error').classList.remove('is-visible');
+        login(email, password);
+      });
+
+      // Clear errors on input
+      $('#email').addEventListener('input', () => $('#email-error').classList.remove('is-visible'));
+      $('#password').addEventListener('input', () => $('#password-error').classList.remove('is-visible'));
+    })();
+  </script>
+</body>
+</html>

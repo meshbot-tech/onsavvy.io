@@ -4,11 +4,12 @@
 // ═══════════════════════════════════════════════════════════════════════════════════════
 
 // ──── API Configuration ───────────────────────────────────────────────────────────────
+// Use localStorage override or default to same origin (no port override)
 const API_BASE = (() => {
   const saved = localStorage.getItem('savvion_api_base');
   if (saved) return saved;
-  const origin = window.location.origin;
-  return `${origin}:3000`;
+  // Use same origin, no hardcoded port
+  return window.location.origin;
 })();
 
 function getAuthHeaders() {
@@ -26,15 +27,20 @@ async function apiFetch(endpoint, options = {}) {
     },
     ...options
   };
-  const res = await fetch(url, config);
-  const data = await res.json();
-  if (!res.ok || !data.success) throw new Error(data.error || 'API request failed');
-  return data;
+  try {
+    const res = await fetch(url, config);
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'API request failed');
+    return data;
+  } catch (err) {
+    console.error('API error:', err);
+    throw err;
+  }
 }
 
 function requireAuth() {
   const token = sessionStorage.getItem('token');
-  if (!token) { window.location.href = 'savvion auth.html'; return false; }
+  if (!token) { window.location.href = 'savvion-admin-login.html'; return false; }
   return true;
 }
 
@@ -997,6 +1003,28 @@ function setupSearch() {
     // Basic console log - could be enhanced with search overlay
     console.log("Searching:", query);
   });
+}
+
+// ──── Bootstrap ───────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    await loadFromAPI();
+    setupNavigation();
+    setupSidebar();
+    setupModalsAndDrawers();
+    setupSearch();
+    setupTimeline();
+    // Default view
+    switchView('overview');
+  } catch (err) {
+    console.error('Init failed:', err);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
 
 // ──── Expose globals ──────────────────────────────────────────────────────────────────
