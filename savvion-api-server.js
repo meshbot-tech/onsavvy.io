@@ -169,6 +169,248 @@ app.post('/api/auth/logout', (req, res) => {
   jsonResponse(res, { success: true });
 });
 
+// ──── OTP AUTHENTICATION ───────────────────────────────────────────────────────────────────────────
+// In-memory OTP store (use Redis in production)
+// otpStore map: key -> { code, expiresAt, attempts }
+// Key format: ${mode}:${value} (e.g., "email:admin@test.com" or "phone:+254700000000")
+const otpStore = new Map();
+const OTP_TTL = 10 * 60 * 1000; // 10 minutes
+const MAX_ATTEMPTS = 3;
+
+// Generate a 6-digit OTP code
+function generateOtpCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Normalize phone number for consistent storage
+function normalizePhoneForStorage(raw) {
+  const d = raw.replace(/\D/g, "");
+  if (d.startsWith("254")) return "+" + d;
+  if (d.startsWith("0"))   return "+254" + d.slice(1);
+  return raw;
+}
+
+app.post('/api/auth/request-otp', (req, res) => {
+  const { mode, value, delivery } = req.body;
+  
+  // Validate input
+  if (!mode || !value) {
+    return errorResponse(res, 'Mode and value are required', 400);
+  }
+  
+  let normalizedValue;
+  if (mode === "phone") {
+    if (!ValidatePhone(value)) {
+      return errorResponse(res, 'Invalid phone number', 400);
+    }
+    normalizedValue = normalizePhoneForStorage(value);
+  } else if (mode === "email") {
+    if (!ValidateEmail(value)) {
+      return errorResponse(res, 'Invalid email address', 400);
+    }
+    normalizedValue = value.toLowerCase().trim();
+  } else {
+    return errorResponse(res, 'Invalid mode. Must be "email" or "phone"', 400);
+  }
+  
+  // Generate and store OTP
+  const otpCode = generateOtpCode();
+  const key = `${mode}:${normalizedValue}`;
+  
+  otpStore.set(key, {
+    code: otpCode,
+    expiresAt: Date.now() + OTP_TTL,
+    attempts: 0,
+    delivery: mode === "phone" ? delivery : undefined
+  });
+  
+  // In demo mode, always succeed and log the code
+  // In production, you would integrate with SMS/WhatsApp/Email providers here
+  console.log(`[DEMO OTP] ${mode.toUpperCase()} code for ${normalizedValue}: ${otpCode} (${delivery || 'email'})`);
+  
+  // Simulate network delay
+  setTimeout(() => {
+    jsonResponse(res, { 
+      success: true, 
+      message: `OTP sent via ${mode === "phone" ? delivery : 'email'}` 
+    });
+  }, 1200);
+});
+
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { mode, value, code } = req.body;
+  
+  // Validate input
+  if (!mode || !value || !code) {
+    return errorResponse(res, 'Mode, value, and code are required', 400);
+  }
+  
+  if (code.length !== 6 || !/^\d+$/.test(code)) {
+    return errorResponse(res, 'Invalid OTP code format', 400);
+  }
+  
+  let normalizedValue;
+  if (mode === "phone") {
+    normalizedValue = normalizePhoneForStorage(value);
+  } else if (mode === "email") {
+    normalizedValue = value.toLowerCase().trim();
+  } else {
+    return errorResponse(res, 'Invalid mode. Must be "email" or "phone"', 400);
+  }
+  
+  const key = `${mode}:${normalizedValue}`;
+  const otpRecord = otpStore.get(key);
+  
+  // Check if OTP exists
+  if (!otpRecord) {
+    return errorResponse(res, 'OTP not found or expired. Please request a new code.', 400);
+  }
+  
+  // Check if expired
+  if (Date.now() > otpRecord.expiresAt) {
+    otpStore.delete(key);
+    return errorResponse(res, 'OTP has expired. Please request a new code.', 400);
+  }
+  
+  // Check attempts
+  if (otpRecord.attempts >= MAX_ATTEMPTS) {
+    otpStore.delete(key);
+    return errorResponse(res, 'Too many attempts. Please request a new code.', 400);
+  }
+  
+  // Increment attempts
+  otpRecord.attempts += 1;
+  
+  // Verify code
+  if (code === "000000") {
+    // Special demo code that always fails
+    if (otpRecord.attempts >= MAX_ATTEMPTS) {
+      otpStore.delete(key);
+    }
+    return errorResponse(res, 'That code is incorrect. Try again.', 400);
+  }
+  
+  if (code !== otpRecord.code) {
+    const remainingAttempts = MAX_ATTEMPTS - otpRecord.attempts;
+    if (remainingAttempts <= 0) {
+      otpStore.delete(key);
+      return errorResponse(res, 'Too many attempts. Please request a new code.', 400);
+    }
+    return errorResponse(res, 
+      `That code is incorrect. ${remainingAttempts} attempt${remainingAttempts > 1 ? 's' : ''} remaining.`, 
+      400
+    );
+  }
+  
+  // OTP verified successfully - create session
+  otpStore.delete(key); // Remove used OTP
+  
+  // Find or create user
+  let user = DB.users.find(u => 
+    (mode === "email" && u.email === normalizedValue) ||
+    (mode === "phone" && u.phone === normalizedValue)
+  );
+  
+  if (!user) {
+    // Create new user for demo purposes
+    user = {
+      id: generateId(),
+      name: mode === "email" 
+        ? normalizedValue.split('@')[0] 
+        : `User ${normalizedValue.slice(-4)}`,
+      email: mode === "email" ? normalizedValue : `${normalizedValue.replace(/^\+254/, "0")}@savvion.ke`,
+      phone: mode === "phone" ? normalizedValue : undefined,
+      role: 'Super Admin',
+      lastLogin: getCurrentDateTime()
+    };
+    DB.users.push(user);
+    console.log(`[DEMO] New user created: ${user.email}`);
+  } else {
+    // Update last login
+    user.lastLogin = getCurrentDateTime();
+  }
+  
+  // Create session token
+  const sessionToken = 'tok_' + generateId();
+  authTokens.set(sessionToken, { userId: user.id, expiresAt: Date.now() + TOKEN_TTL });
+  
+  jsonResponse(res, {
+    success: true,
+    token: sessionToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role
+    }
+  });
+});
+
+app.post('/api/auth/resend-otp', (req, res) => {
+  const { mode, value, delivery } = req.body;
+  
+  // Validate input
+  if (!mode || !value) {
+    return errorResponse(res, 'Mode and value are required', 400);
+  }
+  
+  let normalizedValue;
+  if (mode === "phone") {
+    if (!ValidatePhone(value)) {
+      return errorResponse(res, 'Invalid phone number', 400);
+    }
+    normalizedValue = normalizePhoneForStorage(value);
+  } else if (mode === "email") {
+    if (!ValidateEmail(value)) {
+      return errorResponse(res, 'Invalid email address', 400);
+    }
+    normalizedValue = value.toLowerCase().trim();
+  } else {
+    return errorResponse(res, 'Invalid mode. Must be "email" or "phone"', 400);
+  }
+  
+  const key = `${mode}:${normalizedValue}`;
+  const otpRecord = otpStore.get(key);
+  
+  // Check if OTP exists and is not expired
+  if (!otpRecord || Date.now() > otpRecord.expiresAt) {
+    return errorResponse(res, 'No active OTP found. Please request a new code.', 400);
+  }
+  
+  // Generate new OTP
+  const otpCode = generateOtpCode();
+  otpRecord.code = otpCode;
+  otpRecord.expiresAt = Date.now() + OTP_TTL;
+  otpRecord.attempts = 0;
+  if (mode === "phone") {
+    otpRecord.delivery = delivery;
+  }
+  
+  // Log for demo
+  console.log(`[DEMO OTP RESEND] ${mode.toUpperCase()} code for ${normalizedValue}: ${otpCode} (${mode === "phone" ? delivery : 'email'})`);
+  
+  // Simulate network delay
+  setTimeout(() => {
+    jsonResponse(res, { 
+      success: true, 
+      message: `OTP resent via ${mode === "phone" ? delivery : 'email'}` 
+    });
+  }, 900);
+});
+
+// Helper validation functions
+function ValidateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
+function ValidatePhone(phone) {
+  const v = phone.replace(/\s/g, "");
+  return /^(07|01)\d{8}$/.test(v)
+      || /^\+2547\d{8}$/.test(v)
+      || /^\+2541\d{8}$/.test(v);
+}
+
 // Helper to check auth middleware
 const checkAuth = (req, res, next) => {
   const auth = req.headers.authorization;
