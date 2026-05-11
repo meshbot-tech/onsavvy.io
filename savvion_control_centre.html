@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#16A066">
+<meta name="description" content="Savvion Control Centre — Admin Dashboard for managing bookings, leads, and clients">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>Savvion Control Centre — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.38.0/tabler-icons.min.css">
+<style>
+:root{
+  --font-sans:'DM Sans',sans-serif;
+  --font-d:'Bricolage Grotesque',sans-serif;
+  --font-m:'DM Mono',monospace;
+  --color-background-primary:#FFFFFF;
+  --color-background-secondary:#F5F7F4;
+  --color-background-tertiary:#EDF0EC;
+  --color-background-success:#E5F7EF;
+  --color-background-warning:#FDF3E3;
+  --color-background-danger:#FDEDED;
+  --color-background-info:#E8F0FB;
+  --color-text-primary:#0C100D;
+  --color-text-secondary:#1C221E;
+  --color-text-tertiary:#56685C;
+  --color-text-success:#16A066;
+  --color-text-warning:#B8720A;
+  --color-text-danger:#B83030;
+  --color-text-info:#2260B0;
+  --color-border-primary:#16A066;
+  --color-border-secondary:rgba(0,0,0,0.12);
+  --color-border-tertiary:rgba(0,0,0,0.07);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --shadow-sm:0 1px 6px rgba(0,0,0,0.05);
+  --shadow:0 2px 16px rgba(0,0,0,0.07);
+  /* Client portal aliases */
+  --bg:var(--color-background-secondary);
+  --bg-2:var(--color-background-tertiary);
+  --white:var(--color-background-primary);
+  --surface:#EFF2EE;
+  --surface-2:#E6EAE5;
+  --surface-3:#DCE1DB;
+  --ink:var(--color-text-primary);
+  --ink-2:var(--color-text-secondary);
+  --ink-muted:var(--color-text-tertiary);
+  --ink-faint:#8FA097;
+  --green:var(--color-text-success);
+  --green-mid:#1DB87A;
+  --green-dark:#0D7A4E;
+  --green-light:var(--color-background-success);
+  --green-glow:rgba(22,160,102,0.14);
+  --amber:var(--color-text-warning);
+  --amber-light:var(--color-background-warning);
+  --amber-border:rgba(184,114,10,0.2);
+  --red:var(--color-text-danger);
+  --red-light:var(--color-background-danger);
+  --red-border:rgba(184,48,48,0.2);
+  --blue:var(--color-text-info);
+  --blue-light:var(--color-background-info);
+  --blue-border:rgba(34,96,176,0.2);
+  --purple:#7040C0;
+  --purple-light:#F0EBFA;
+  --border:var(--color-border-tertiary);
+  --border-2:var(--color-border-secondary);
+  --r:14px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+#cc{font-family:var(--font-sans);font-size:13px;color:var(--ink)}
+#cc-tab{padding:7px 13px;border:0.5px solid transparent;border-radius:var(--border-radius-md);background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:var(--ink-2);display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+#cc-tab:hover{background:var(--bg);color:var(--ink)}
+#cc-tab.active{background:var(--white);border-color:var(--border-2);color:var(--ink)}
+#cc-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:14px 16px}
+#cc-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 7px;border-radius:99px}
+#cc-badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.b-confirmed{background:var(--green-light);color:var(--green)}.b-confirmed::before{background:var(--green)}
+.b-pending{background:var(--amber-light);color:var(--amber)}.b-pending::before{background:var(--amber)}
+.b-cancelled{background:var(--red-light);color:var(--red)}.b-cancelled::before{background:var(--red)}
+.b-completed{background:var(--blue-light);color:var(--blue)}.b-completed::before{background:var(--blue)}
+.b-new{background:var(--blue-light);color:var(--blue)}.b-new::before{background:var(--blue)}
+.b-contacted{background:#f0eeff;color:#5c42b5}.b-contacted::before{background:#5c42b5}
+.b-qualified{background:var(--green-light);color:var(--green)}.b-qualified::before{background:var(--green)}
+.b-proposal{background:var(--amber-light);color:var(--amber)}.b-proposal::before{background:var(--amber)}
+.b-won{background:var(--green-light);color:var(--green)}.b-won::before{background:var(--green)}
+.b-lost{background:var(--red-light);color:var(--red)}.b-lost::before{background:var(--red)}
+#cc-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-2);background:var(--white);color:var(--ink);transition:all .14s}
+#cc-btn:hover{background:var(--bg)}
+#cc-btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+#cc-btn.primary:hover{opacity:.88}
+#cc-btn.wa{background:#25d366;border-color:#25d366;color:#fff}
+#cc-btn.wa:hover{opacity:.88}
+#cc-btn.sm{padding:5px 10px;font-size:11px}
+#cc-tbl{width:100%;border-collapse:collapse}
+#cc-tbl th{font-size:10px;font-weight:500;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.07em;padding:8px 10px;text-align:left;border-bottom:0.5px solid var(--border)}
+#cc-tbl td{padding:10px 10px;font-size:12px;color:var(--ink-2);border-bottom:0.5px solid var(--border)}
+#cc-tbl tbody tr{cursor:pointer;transition:background .1s}
+#cc-tbl tbody tr:hover{background:var(--bg)}
+#cc-tbl tbody tr:last-child td{border-bottom:none}
+.td-main{font-size:13px;font-weight:500;color:var(--ink)}
+.td-sub{font-size:11px;color:var(--ink-muted);margin-top:1px}
+.toggle{position:relative;width:34px;height:19px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tgl-sl{position:absolute;inset:0;background:var(--border-2);border-radius:99px;cursor:pointer;transition:background .2s}
+.tgl-sl::before{content:'';position:absolute;width:15px;height:15px;background:#fff;border-radius:50%;left:2px;top:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.tgl-sl{background:var(--green)}
+.toggle input:checked+.tgl-sl::before{transform:translateX(15px)}
+.kc{background:var(--white);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:11px 12px;cursor:pointer;transition:all .14s;margin-bottom:8px}
+.kc:hover{border-color:var(--green);transform:translateY(-1px)}
+input[type=text],input[type=email],select,textarea{width:100%;padding:8px 10px;border:0.5px solid var(--border-2);border-radius:var(--border-radius-md);background:var(--white);color:var(--ink);font-family:var(--font-sans);font-size:13px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{resize:vertical;min-height:80px}
+.compose-box{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:14px;animation:ccFadeIn .2s ease}
+@keyframes ccFadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.msg-preview{background:var(--white);border:0.5px solid var(--border);border-radius:var(--border-radius-md);padding:12px;font-size:12px;line-height:1.6;color:var(--ink-2);white-space:pre-wrap;margin-top:8px}
+.wa-preview{background:#e3f7d9}
+.detail-panel{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:14px;animation:ccFadeIn .2s ease}
+.stat-pill{display:flex;flex-direction:column;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--border-radius-md);min-width:70px}
+.sp-val{font-size:18px;font-weight:500;color:var(--ink)}
+.sp-lbl{font-size:10px;color:var(--ink-muted);margin-top:2px}
+.prog-bar{height:7px;background:var(--bg);border-radius:99px;overflow:hidden;flex:1}
+.prog-fill{height:100%;border-radius:99px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:rgba(245,247,244,0.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--green),#0d7a4e);display:flex;align-items:center;justify-content:center}
+.header-text{font-family:var(--font-d);font-weight:700;font-size:18px;letter-spacing:-0.3px;color:var(--ink)}
+.header-sub{font-size:11px;color:var(--ink-muted)}
+.main{max-width:1280px;margin:0 auto;padding:24px;width:100%;flex:1}
+@media(max-width:768px){.main{padding:16px}.header{padding:12px 16px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">
+    <div class="header-icon"><i class="ti ti-dashboard"></i></div>
+    <div>
+      <div class="header-text">Savvion Control Centre</div>
+      <div class="header-sub">Admin Dashboard • Real-time management</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a href="savvion-client-portal.html" class="cc-btn sm" target="_blank" style="text-decoration:none"><i class="ti ti-external-link"></i> Client Portal</a>
+  </div>
+</div>
+<div class="main">
+<div id="cc">
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:0.5px solid var(--border);margin-bottom:12px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:30px;height:30px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="ti ti-calendar-check" style="font-size:16px;color:var(--green)" aria-hidden="true"></i></div>
+    <div>
+      <div style="font-size:14px;font-weight:500;color:var(--ink)">Control Centre</div>
+      <div style="font-size:11px;color:var(--ink-muted)" id="cc-date"></div>
+    </div>
+  </div>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <button class="cc-btn wa sm" onclick="openCompose('whatsapp',null)"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+    <button class="cc-btn sm" onclick="openCompose('email',null)"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
+    <button class="cc-btn sm" onclick="toggleNotifs()" style="position:relative" aria-label="Notifications">
+      <i class="ti ti-bell" aria-hidden="true"></i>
+      <span style="position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:var(--green);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500">5</span>
+    </button>
+  </div>
+</div>
+
+<div style="display:flex;gap:3px;margin-bottom:14px;flex-wrap:wrap" id="cc-nav">
+  <button class="cc-tab active" data-v="overview" onclick="nav('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Overview</button>
+  <button class="cc-tab" data-v="leads" onclick="nav('leads')"><i class="ti ti-filter" aria-hidden="true"></i> Leads <span style="background:var(--amber-light);color:var(--amber);font-size:10px;padding:1px 5px;border-radius:99px;font-weight:500">12</span></button>
+  <button class="cc-tab" data-v="bookings" onclick="nav('bookings')"><i class="ti ti-calendar-event" aria-hidden="true"></i> Bookings <span style="background:var(--green-light);color:var(--green);font-size:10px;padding:1px 5px;border-radius:99px;font-weight:500">7</span></button>
+  <button class="cc-tab" data-v="clients" onclick="nav('clients')"><i class="ti ti-users" aria-hidden="true"></i> Clients</button>
+  <button class="cc-tab" data-v="automation" onclick="nav('automation')"><i class="ti ti-bolt" aria-hidden="true"></i> Automation</button>
+  <button class="cc-tab" data-v="analytics" onclick="nav('analytics')"><i class="ti ti-chart-line" aria-hidden="true"></i> Analytics</button>
+</div>
+
+<div id="compose-area"></div>
+<div id="notif-area" style="display:none"></div>
+
+<div id="v-overview">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px" id="ov-kpis"></div>
+  <div style="display:grid;grid-template-columns:1fr 220px;gap:14px">
+    <div>
+      <div class="cc-card" style="padding:0;overflow:hidden;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0">
+          <span style="font-size:13px;font-weight:500">Recent Bookings</span>
+          <div style="display:flex;gap:4px" id="ov-bk-tabs"></div>
+        </div>
+        <div style="padding:8px 14px"><table class="cc-tbl"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody id="ov-bk-body"></tbody></table></div>
+      </div>
+      <div class="cc-card">
+        <div style="font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">Lead Pipeline <button class="cc-btn sm" onclick="nav('leads')">View Kanban</button></div>
+        <div id="ov-funnel"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="cc-card">
+        <div style="font-size:13px;font-weight:500;margin-bottom:12px">This Week</div>
+        <div id="ov-week"></div>
+      </div>
+      <div class="cc-card" style="flex:1">
+        <div style="font-size:13px;font-weight:500;margin-bottom:10px">Activity</div>
+        <div id="ov-activity"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="v-leads" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:16px;font-weight:500">Lead Pipeline</div>
+      <div style="font-size:12px;color:var(--ink-muted)">12 active · KES 1.24M pipeline value</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="cc-btn sm" id="ld-kanban-btn" onclick="setLeadView('kanban')"><i class="ti ti-layout-kanban" aria-hidden="true"></i> Kanban</button>
+      <button class="cc-btn sm" id="ld-table-btn" onclick="setLeadView('table')"><i class="ti ti-table" aria-hidden="true"></i> Table</button>
+      <button class="cc-btn sm primary"><i class="ti ti-plus" aria-hidden="true"></i> New Lead</button>
+    </div>
+  </div>
+  <div id="ld-detail"></div>
+  <div id="ld-kanban" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px"></div>
+  <div id="ld-table" style="display:none"></div>
+</div>
+
+<div id="v-bookings" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div><div style="font-size:16px;font-weight:500">Bookings</div><div style="font-size:12px;color:var(--ink-muted)">All appointments and service sessions</div></div>
+    <button class="cc-btn sm primary"><i class="ti ti-plus" aria-hidden="true"></i> New Booking</button>
+  </div>
+  <div id="bk-detail"></div>
+  <div class="cc-card" style="padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px">
+      <div style="display:flex;gap:4px" id="bk-tabs"></div>
+      <input type="text" id="bk-search" placeholder="Search…" style="width:160px;padding:5px 10px;font-size:12px" oninput="renderBookingsTable()"/>
+    </div>
+    <table class="cc-tbl"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="bk-body"></tbody></table>
+  </div>
+</div>
+
+<div id="v-clients" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div><div style="font-size:16px;font-weight:500">Clients</div><div style="font-size:12px;color:var(--ink-muted)">Click any card for full history</div></div>
+    <input type="text" id="cl-search" placeholder="Search clients…" style="width:180px;padding:5px 10px;font-size:12px" oninput="renderClients()"/>
+  </div>
+  <div id="cl-detail"></div>
+  <div id="cl-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px"></div>
+</div>
+
+<div id="v-automation" style="display:none">
+  <div style="margin-bottom:14px">
+    <div style="font-size:16px;font-weight:500;margin-bottom:2px">Automation</div>
+    <div style="font-size:12px;color:var(--ink-muted)">WhatsApp, email, and trigger rules</div>
+  </div>
+  <div style="display:flex;gap:4px;margin-bottom:14px" id="auto-tabs">
+    <button class="cc-tab active" data-at="whatsapp" onclick="setAutoTab('whatsapp')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+    <button class="cc-tab" data-at="email" onclick="setAutoTab('email')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
+    <button class="cc-tab" data-at="triggers" onclick="setAutoTab('triggers')"><i class="ti ti-bolt" aria-hidden="true"></i> Triggers</button>
+  </div>
+  <div id="auto-content"></div>
+</div>
+
+<div id="v-analytics" style="display:none">
+  <div style="margin-bottom:14px">
+    <div style="font-size:16px;font-weight:500;margin-bottom:2px">Analytics</div>
+    <div style="font-size:12px;color:var(--ink-muted)">Revenue, conversions, and service performance</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px" id="an-kpis"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Revenue (KES 000s)</div><div id="rev-chart"></div></div>
+    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Lead Conversion Funnel</div><div id="funnel-chart"></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Service Mix</div><div id="svc-mix"></div></div>
+    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Lead Sources</div><div id="src-mix"></div></div>
+  </div>
+</div>
+
+</div>
+  </div>
+</div>
+
+<script>
+const AVCOLORS = ['#2da869','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#f97316','#6366f1'];
+const BOOKINGS = [
+  {id:'BK-001',client:'Amara Ochieng',org:'Freelance Designer',service:'Website Audit',date:'Today',time:'2:00 PM',amount:15000,status:'confirmed',av:'AO',avc:0},
+  {id:'BK-002',client:'Kariuki & Sons',org:'SME — Retail',service:'Landing Page Design',date:'Today',time:'4:30 PM',amount:45000,status:'pending',av:'KS',avc:3},
+  {id:'BK-003',client:'Kibali Ministry',org:'Nonprofit',service:'Brand Strategy',date:'Tomorrow',time:'10:00 AM',amount:80000,status:'confirmed',av:'KM',avc:1},
+  {id:'BK-004',client:'Wanjiku Foundation',org:'NGO — Health',service:'SEO Optimization',date:'Tomorrow',time:'2:00 PM',amount:28000,status:'confirmed',av:'WF',avc:4},
+  {id:'BK-005',client:'LumiCore Consultants',org:'B2B Consulting',service:'CRM Setup',date:'Dec 18',time:'9:00 AM',amount:120000,status:'pending',av:'LC',avc:5},
+  {id:'BK-006',client:'Amani Youth Org',org:'NGO — Youth',service:'Digital Marketing',date:'Dec 19',time:'11:00 AM',amount:35000,status:'cancelled',av:'AY',avc:6},
+  {id:'BK-007',client:'TechBridge Kenya',org:'Startup — Fintech',service:'AI & API Integration',date:'Dec 20',time:'3:00 PM',amount:95000,status:'confirmed',av:'TB',avc:2},
+  {id:'BK-008',client:'Zawadi Cooperative',org:'SACCO',service:'Funnel Optimization',date:'Dec 21',time:'10:30 AM',amount:42000,status:'pending',av:'ZC',avc:7},
+  {id:'BK-009',client:'Pamoja Health NGO',org:'NGO — Healthcare',service:'Website Development',date:'Dec 22',time:'1:00 PM',amount:180000,status:'confirmed',av:'PH',avc:0},
+  {id:'BK-010',client:'Safina Traders',org:'SME — Import/Export',service:'Conversion Audit',date:'Dec 23',time:'9:00 AM',amount:12000,status:'pending',av:'ST',avc:3},
+];
+const LEADS = [
+  {id:'LD-001',name:'Ngozi Adeyemi',org:'Design Studio',service:'Landing Page Design',value:55000,source:'Website',stage:'new',days:0,phone:'+254712000001',email:'ngozi@studio.co.ke'},
+  {id:'LD-002',name:'Baraka Solutions',org:'SME',service:'CRM Setup',value:120000,source:'Referral',stage:'contacted',days:2,phone:'+254798000002',email:'info@baraka.co.ke'},
+  {id:'LD-003',name:'Zuri Wellness',org:'Health & Wellness',service:'Website Development',value:180000,source:'Social',stage:'qualified',days:5,phone:'+254721000003',email:'hello@zuri.co.ke'},
+  {id:'LD-004',name:'Mkesha Tech',org:'Startup',service:'AI Integration',value:95000,source:'Website',stage:'proposal',days:3,phone:'+254733000004',email:'ceo@mkesha.io'},
+  {id:'LD-005',name:'Amkeni NGO',org:'Nonprofit',service:'Digital Marketing',value:40000,source:'Referral',stage:'won',days:12,phone:'+254745000005',email:'director@amkeni.org'},
+  {id:'LD-006',name:'Simba Retail',org:'SME — Retail',service:'SEO Optimization',value:30000,source:'Direct',stage:'lost',days:14,phone:'+254756000006',email:'simba@retail.co.ke'},
+  {id:'LD-007',name:'Tumaini Academy',org:'Education',service:'Website Audit',value:22000,source:'Website',stage:'new',days:1,phone:'+254767000007',email:'admin@tumaini.sc.ke'},
+  {id:'LD-008',name:'Karibu Resort',org:'Hospitality',service:'Brand Strategy',value:75000,source:'Social',stage:'contacted',days:4,phone:'+254778000008',email:'mgr@karibu.co.ke'},
+  {id:'LD-009',name:'PesaWise Ltd',org:'Fintech',service:'Landing Page Design',value:60000,source:'Form',stage:'qualified',days:6,phone:'+254789000009',email:'growth@pesawise.co'},
+  {id:'LD-010',name:'Afya Clinics',org:'Healthcare',service:'CRM Setup',value:90000,source:'Referral',stage:'proposal',days:8,phone:'+254790000010',email:'it@afyaclinics.ke'},
+  {id:'LD-011',name:'Savana Hardware',org:'SME — Hardware',service:'Website Development',value:55000,source:'Direct',stage:'new',days:0,phone:'+254791000011',email:'shop@savana.ke'},
+  {id:'LD-012',name:'Imara Properties',org:'Real Estate',service:'Digital Marketing',value:110000,source:'Website',stage:'contacted',days:3,phone:'+254792000012',email:'leads@imara.co.ke'},
+];
+const CLIENTS = [
+  {id:'C1',name:'Kibali Ministry',type:'Nonprofit / Ministry',bookings:4,spent:240000,av:'KM',avc:1,lastSeen:'2 days ago'},
+  {id:'C2',name:'LumiCore Consultants',type:'B2B Consulting',bookings:6,spent:380000,av:'LC',avc:5,lastSeen:'Today'},
+  {id:'C3',name:'TechBridge Kenya',type:'Fintech Startup',bookings:3,spent:215000,av:'TB',avc:2,lastSeen:'3 days ago'},
+  {id:'C4',name:'Pamoja Health NGO',type:'Healthcare NGO',bookings:5,spent:310000,av:'PH',avc:0,lastSeen:'Yesterday'},
+  {id:'C5',name:'Wanjiku Foundation',type:'NGO — Health',bookings:2,spent:56000,av:'WF',avc:4,lastSeen:'1 week ago'},
+  {id:'C6',name:'Kariuki & Sons',type:'SME — Retail',bookings:3,spent:95000,av:'KS',avc:3,lastSeen:'Today'},
+  {id:'C7',name:'Zawadi Cooperative',type:'SACCO',bookings:2,spent:84000,av:'ZC',avc:7,lastSeen:'4 days ago'},
+  {id:'C8',name:'Amara Ochieng',type:'Freelance Designer',bookings:1,spent:15000,av:'AO',avc:0,lastSeen:'Today'},
+  {id:'C9',name:'Safina Traders',type:'SME — Import/Export',bookings:2,spent:24000,av:'ST',avc:3,lastSeen:'5 days ago'},
+];
+
+const STATE = {view:'overview',bkFilter:'all',ldStage:'all',ldView:'kanban',autoTab:'whatsapp',notifOpen:false,composeSt:null,selectedBk:null,selectedLd:null,selectedCl:null};
+
+function kes(n){return 'KES '+n.toLocaleString('en-KE')}
+function av(t,i){return `<div class="avatar" style="background:${AVCOLORS[i%AVCOLORS.length]};width:28px;height:28px">${t}</div>`}
+function av40(t,i){return `<div class="avatar avatar-40" style="background:${AVCOLORS[i%AVCOLORS.length]}">${t}</div>`}
+function badge(s){return `<span class="cc-badge b-${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</span>`}
+
+function nav(v){
+  document.querySelectorAll('[id^="v-"]').forEach(el=>el.style.display='none');
+  document.getElementById('v-'+v).style.display='';
+  document.querySelectorAll('.cc-tab[data-v]').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
+  STATE.view=v;
+  if(v==='overview') renderOverview();
+  if(v==='leads') renderLeads();
+  if(v==='bookings') renderBookings();
+  if(v==='clients') renderClients();
+  if(v==='automation') renderAuto();
+  if(v==='analytics') renderAnalytics();
+  closeCompose();
+}
+
+function renderOverview(){
+  const kpis=[
+    {icon:'ti-calendar-check',label:'Today\'s Bookings',val:'24',delta:'+12%',up:true,col:'success'},
+    {icon:'ti-clock',label:'Pending Approval',val:'7',delta:'+3',up:false,col:'warning'},
+    {icon:'ti-users',label:'Active Clients',val:'142',delta:'+8',up:true,col:'info'},
+    {icon:'ti-cash',label:'Revenue (Dec)',val:'186K',delta:'+22%',up:true,col:'success'},
+  ];
+  document.getElementById('ov-kpis').innerHTML=kpis.map(k=>`
+    <div class="cc-card" style="padding:14px 16px">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+        <i class="ti ${k.icon}" style="font-size:16px;color:var(--ink)" aria-hidden="true"></i>
+      </div>
+      <div style="font-size:22px;font-weight:500;color:var(--ink);margin-bottom:2px">${k.val}</div>
+      <div style="font-size:11px;color:var(--ink-muted);margin-bottom:8px">${k.label}</div>
+      <span style="background:var(--bg);color:var(--ink);font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500">${k.delta}</span>
+    </div>
+  `).join('');
+  renderOvBookings('all');
+}
+
+function renderOvBookings(f){
+  const rows=f==='all'?BOOKINGS:BOOKINGS.filter(b=>b.status===f);
+  document.getElementById('ov-bk-body').innerHTML=rows.slice(0,5).map(b=>`
+    <tr onclick="openBkDetail('${b.id}')">
+      <td><div style="display:flex;align-items:center;gap:8px">${av(b.av,b.avc)}<div><div class="td-main">${b.client}</div><div class="td-sub">${b.org}</div></div></div></td>
+      <td style="max-width:120px">${b.service}</td>
+      <td><div class="td-main">${b.date}</div><div class="td-sub">${b.time}</div></td>
+      <td style="font-weight:500;font-size:12px">${kes(b.amount)}</td>
+      <td>${badge(b.status)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderLeads(){ if(STATE.ldView==='kanban') renderKanban(); else renderLeadTable(); }
+
+function setLeadView(v){
+  STATE.ldView=v;
+  document.getElementById('ld-kanban').style.display=v==='kanban'?'flex':'none';
+  document.getElementById('ld-table').style.display=v==='table'?'block':'none';
+  document.getElementById('ld-kanban-btn').classList.toggle('active',v==='kanban');
+  document.getElementById('ld-table-btn').classList.toggle('active',v==='table');
+  if(v==='kanban') renderKanban(); else renderLeadTable();
+}
+
+function renderKanban(){
+  const stages=[{id:'new',label:'New',col:'info'},{id:'contacted',label:'Contacted',col:'purple'},{id:'qualified',label:'Qualified',col:'success'},{id:'proposal',label:'Proposal Sent',col:'warning'},{id:'won',label:'Won',col:'success'}];
+  const srcCol={'Website':'info','Referral':'success','Social':'purple','Direct':'','Form':'success'};
+  document.getElementById('ld-kanban').innerHTML=stages.map(st=>{
+    const cards=LEADS.filter(l=>l.stage===st.id);
+    return `<div style="flex:0 0 195px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--border-radius-md)">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;border-radius:50%;background:var(--ink)"></div><span style="font-size:12px;font-weight:500">${st.label}</span></div>
+        <span style="font-size:11px;background:var(--bg);color:var(--ink-muted);padding:1px 6px;border-radius:99px">${cards.length}</span>
+      </div>
+      <div>${cards.length?cards.map(c=>`<div class="kc" onclick="openLdDetail('${c.id}')"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:12px;font-weight:500;color:var(--ink)">${c.name}</div>${c.source?`<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:var(--bg);color:var(--ink-muted)">${c.source}</span>`:''}</div><div style="font-size:11px;color:var(--ink-muted);margin-bottom:7px">${c.service}</div><div style="font-size:13px;font-weight:500;margin-bottom:8px">${kes(c.value)}</div><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;color:var(--ink-muted)">${c.days===0?'New today':c.days+' days'}</span><div style="display:flex;gap:4px"><button class="cc-btn sm" style="padding:3px 7px;font-size:11px;background:var(--green-light);border-color:var(--green-light)" onclick="event.stopPropagation();openCompose('whatsapp','${c.id}','lead')"><i class="ti ti-brand-whatsapp" style="color:var(--green)" aria-hidden="true"></i></button><button class="cc-btn sm" style="padding:3px 7px;font-size:11px" onclick="event.stopPropagation();openCompose('email','${c.id}','lead')"><i class="ti ti-mail" aria-hidden="true"></i></button></div></div></div>`).join(''):`<div style="text-align:center;padding:20px 12px;color:var(--ink-muted);font-size:11px;border:0.5px dashed var(--border);border-radius:var(--border-radius-md)">No leads</div>`}</div></div>`;
+  }).join('');
+}
+
+function renderLeadTable(){
+  const f=STATE.ldStage; const rows=f==='all'?LEADS:LEADS.filter(l=>l.stage===f);
+  document.getElementById('ld-table').innerHTML=`<div class="cc-card" style="padding:0;overflow:hidden"><table class="cc-tbl"><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Source</th><th>Stage</th><th>Days</th><th></th></tr></thead><tbody>${rows.map(l=>`<tr onclick="openLdDetail('${l.id}')"><td><div class="td-main">${l.name}</div><div class="td-sub">${l.org}</div></td><td>${l.service}</td><td style="font-weight:500;font-size:12px">${kes(l.value)}</td><td><span style="font-size:11px;color:var(--ink-2)">${l.source}</span></td><td>${badge(l.stage)}</td><td style="font-size:11px;color:var(--ink-muted)">${l.days===0?'New':l.days+'d'}</td><td><div style="display:flex;gap:4px"><button class="cc-btn sm" onclick="event.stopPropagation();openCompose('whatsapp','${l.id}','lead')" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button><button class="cc-btn sm" onclick="event.stopPropagation();openCompose('email','${l.id}','lead')" aria-label="Email"><i class="ti ti-mail" aria-hidden="true"></i></button></div></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function renderBookings(){
+  const tabs=['All','Pending','Confirmed','Completed','Cancelled'];
+  document.getElementById('bk-tabs').innerHTML=tabs.map(t=>`<button class="cc-tab sm ${t==='All'?'active':''}" style="padding:4px 9px;font-size:11px" onclick="STATE.bkFilter='${t.toLowerCase()}';renderBookingsTable()">${t}</button>`).join(''); renderBookingsTable();
+}
+
+function renderBookingsTable(){
+  const f=STATE.bkFilter; const q=(document.getElementById('bk-search')||{}).value||'';
+  let rows=f==='all'?BOOKINGS:BOOKINGS.filter(b=>b.status===f);
+  if(q) rows=rows.filter(b=>b.client.toLowerCase().includes(q.toLowerCase())||b.service.toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('bk-body').innerHTML=rows.map(b=>`<tr onclick="openBkDetail('${b.id}')"><td><div style="display:flex;align-items:center;gap:8px">${av(b.av,b.avc)}<div><div class="td-main">${b.client}</div><div class="td-sub">${b.org}</div></div></div></td><td>${b.service}</td><td><div class="td-main">${b.date}</div><div class="td-sub">${b.time}</div></td><td style="font-weight:500;font-size:12px">${kes(b.amount)}</td><td>${badge(b.status)}</td><td><div style="display:flex;gap:4px"><button class="cc-btn sm" onclick="event.stopPropagation();openCompose('whatsapp','${b.id}','booking')" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button><button class="cc-btn sm" onclick="event.stopPropagation();openCompose('email','${b.id}','booking')" aria-label="Email"><i class="ti ti-mail" aria-hidden="true"></i></button></div></td></tr>`).join('');
+}
+
+function renderClients(){
+  const q=(document.getElementById('cl-search')||{}).value||'';
+  const rows=q?CLIENTS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.type.toLowerCase().includes(q.toLowerCase())):CLIENTS;
+  document.getElementById('cl-grid').innerHTML=rows.map(c=>`<div style="background:var(--white);border:0.5px solid var(--border);border-radius:var(--border-radius-lg);padding:14px 16px;cursor:pointer;transition:all .14s" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.07)'" onmouseout="this.style.boxShadow=''" onclick="openClDetail('${c.id}')"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">${av40(c.av,c.avc)}<div><div style="font-size:13px;font-weight:500">${c.name}</div><div style="font-size:11px;color:var(--ink-muted)">${c.type}</div></div></div><div style="display:flex;border-top:0.5px solid var(--border);padding-top:10px"><div style="flex:1;text-align:center"><div style="font-size:16px;font-weight:500">${c.bookings}</div><div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em">Bookings</div></div><div style="flex:1;text-align:center;border-left:0.5px solid var(--border)"><div style="font-size:16px;font-weight:500">${Math.round(c.spent/1000)}K</div><div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em">KES Spent</div></div></div></div>`).join('');
+}
+
+function openClDetail(id){
+  const c=CLIENTS.find(x=>x.id===id);if(!c)return;
+  const cBks=BOOKINGS.filter(b=>b.client.includes(c.name.split(' ')[0]));
+  document.getElementById('cl-detail').innerHTML=`<div class="detail-panel"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="display:flex;align-items:center;gap:12px">${av40(c.av,c.avc)}<div><div style="font-size:15px;font-weight:500">${c.name}</div><div style="font-size:12px;color:var(--ink-muted)">${c.type} · Last seen ${c.lastSeen}</div></div></div><button class="cc-btn sm" onclick="closeClDetail()"><i class="ti ti-x" aria-hidden="true"></i></button></div><div style="display:flex;gap:10px;margin-bottom:14px"><div class="stat-pill"><div class="sp-val">${c.bookings}</div><div class="sp-lbl">Bookings</div></div><div class="stat-pill"><div class="sp-val">${Math.round(c.spent/1000)}K</div><div class="sp-lbl">KES Spent</div></div><div class="stat-pill"><div class="sp-val">${Math.round(c.spent/Math.max(c.bookings,1)/1000)}K</div><div class="sp-lbl">Avg/Session</div></div></div><div style="font-size:12px;font-weight:500;margin-bottom:8px">Service History</div>${cBks.length?`<table class="cc-tbl" style="margin-bottom:12px"><thead><tr><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${cBks.map(b=>`<tr><td>${b.service}</td><td>${b.date} ${b.time}</td><td style="font-weight:500">${kes(b.amount)}</td><td>${badge(b.status)}</td></tr>`).join('')}</tbody></table>`:'<div style="font-size:12px;color:var(--ink-muted);margin-bottom:12px">No bookings from this view — full history in Bookings.</div>'}<div style="display:flex;gap:7px"><button class="cc-btn sm wa" onclick="openCompose('whatsapp','${c.id}','client')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button><button class="cc-btn sm" onclick="openCompose('email','${c.id}','client')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button></div></div>`;
+}
+function closeClDetail(){document.getElementById('cl-detail').innerHTML='';}
+
+function openBkDetail(id){
+  const b=BOOKINGS.find(x=>x.id===id);if(!b)return;
+  document.getElementById('bk-detail').innerHTML=`<div class="detail-panel"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px">${av40(b.av,b.avc)}<div><div style="font-size:14px;font-weight:500">${b.client}</div><div style="font-size:12px;color:var(--ink-muted)">${b.org}</div></div>${badge(b.status)}</div><button class="cc-btn sm" onclick="closeBkDetail()"><i class="ti ti-x" aria-hidden="true"></i></button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:12px"><div><span style="color:var(--ink-muted)">Booking ID: </span><b>${b.id}</b></div><div><span style="color:var(--ink-muted)">Amount: </span><b>${kes(b.amount)}</b></div><div><span style="color:var(--ink-muted)">Service: </span>${b.service}</div><div><span style="color:var(--ink-muted)">Date: </span>${b.date} · ${b.time}</div></div><div style="display:flex;gap:7px">${b.status==='pending'?`<button class="cc-btn sm primary" onclick="confirmBk('${b.id}')">Confirm Booking</button>`:''}<button class="cc-btn sm wa" onclick="openCompose('whatsapp','${b.id}','booking')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button><button class="cc-btn sm" onclick="openCompose('email','${b.id}','booking')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button></div></div>`;
+}
+function closeBkDetail(){document.getElementById('bk-detail').innerHTML='';}
+function confirmBk(id){const b=BOOKINGS.find(x=>x.id===id);if(b){b.status='confirmed';renderBookings();closeBkDetail();}}
+
+function toggleNotifs(){STATE.notifOpen=!STATE.notifOpen;document.getElementById('notif-area').style.display=STATE.notifOpen?'block':'none';}
+
+function init(){const now=new Date();const el=document.getElementById('cc-date');if(el) el.textContent=now.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});renderOverview();}
+init();
+</script>
+</body>
+</html>
