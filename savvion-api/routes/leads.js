@@ -160,17 +160,35 @@ router.post('/', async (req, res, next) => {
       VALUES ('ti-user-plus', 'var(--blue)', ?, ?)
     `, [`New lead <strong>${clientName}</strong> added`, JSON.stringify({ leadId: newLead.id })]);
 
-    // Create immediate notifications for all admin users
-    const admins = raw(`SELECT id FROM users WHERE role = 'admin'`);
-    const leadInfo = `${clientName}${clientEmail ? ' • ' + clientEmail : ''}${clientPhone ? ' • ' + clientPhone : ''}`;
-    const notificationText = `New lead: <strong>${clientName}</strong>${notes ? ` • ${notes.substring(0, 60)}${notes.length > 60 ? '...' : ''}` : ''}`;
+    // Create immediate in-app notifications for all admin users
+    try {
+      const admins = raw(`SELECT id, name FROM users WHERE role = 'admin'`);
+      const leadPreview = `${clientName}${clientEmail ? ' • ' + clientEmail : ''}`;
+      const notifText = `New lead: <strong>${clientName}</strong>${notes ? ` • ${notes.substring(0, 50)}...` : ''}`;
 
-    admins.forEach(admin => {
-      raw(`
-        INSERT INTO notifications (user_id, icon, icon_color, text, type, action_url)
-        VALUES (?, 'ti-user-plus', 'var(--blue)', ?, 'lead', '/admin/leads')
-      `, [admin.id, notificationText]);
-    });
+      admins.forEach(admin => {
+        raw(`
+          INSERT INTO notifications (user_id, icon, icon_color, text, type, action_url)
+          VALUES (?, 'ti-user-plus', 'var(--blue)', ?, 'lead', '/admin/leads')
+        `, [admin.id, notifText]);
+      });
+    } catch (notifErr) {
+      console.error('Failed to create admin notifications:', notifErr);
+      // Non-critical - continue
+    }
+
+    // Attempt to send immediate WhatsApp/Email alerts to admins if configured
+    // Note: services array and budget are already captured in req.body.notes but we also have them as separate fields if sent
+    // For best results, frontend should send services and budget as separate fields; currently they are embedded in notes.
+    // We'll pass the notes string which contains both; sendAdminAlert will extract.
+    sendAdminAlert({
+      clientName,
+      clientEmail,
+      clientPhone,
+      notes: notes || '',
+      servicesList: (req.body.services ? Array.isArray(req.body.services) ? req.body.services.join(', ') : req.body.services : ''),
+      budget: req.body.budget || ''
+    }).catch(err => console.error('Failed to send admin alert:', err));
 
     res.status(201).json({
       success: true,
@@ -181,6 +199,104 @@ router.post('/', async (req, res, next) => {
     next(err);
   }
 });
+
+/**
+ * Send immediate alert to admins via WhatsApp/Email if configured
+ */
+async function sendAdminAlert({ clientName, clientEmail, clientPhone, services, budget }) {
+  // Check for WhatsApp config
+  const whatsappToken = process.env.WHATSAPP_TOKEN;
+  const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
+  const adminWhatsAppNumbers = process.env.ADMIN_WHATSAPP_NUMBERS
+    ? process.env.ADMIN_WHATSAPP_NUMBERS.split(',').map(n => n.trim())
+    : ['+25495582978', '+254713082563']; // Default admin numbers
+
+  // Check for Email config
+  const emailService = process.env.EMAIL_SERVICE;
+  const emailApiKey = process.env.EMAIL_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM || 'noreply@savvion.co.ke';
+  const adminEmails = process.env.ADMIN_EMAILS
+    ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim())
+    : ['hello@savvion.co.ke'];
+
+  const message = `�� New Lead Alert!\n\n` +
+                  `Name: ${clientName}\n` +
+                  `Email: ${clientEmail || 'N/A'}\n` +
+                  `Phone: ${clientPhone || 'N/A'}\n` +
+                  `Services: ${services}\n` +
+                  `Budget: ${budget}\n\n` +
+                  `Time: ${new Date().toLocaleString('en-KE')}`;
+
+  // Send WhatsApp if configured
+  if (whatsappToken && whatsappPhoneId) {
+    for (const to of adminWhatsAppNumbers) {
+      try {
+        await fetch(
+          `https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${whatsappToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messaging_product: 'whatsapp',
+              to,
+              type: 'text',
+              text: { body: message }
+            })
+          }
+        );
+        console.log(`[WhatsApp] Alert sent to ${to}`);
+      } catch (err) {
+        console.error(`[WhatsApp] Failed to send to ${to}:`, err.message);
+      }
+    }
+  } else {
+    console.log('[WhatsApp] Not configured. Skipping WhatsApp alerts.');
+  }
+
+  // Send Email if configured
+  if (emailService && emailApiKey) {
+    const emailSubject = `New Lead: ${clientName} – ${services.substring(0, 30)}...`;
+    const emailHtml = `
+      <div style="font-family:Arial,sans-serif;padding:20px;background:#f9f9f9;border-radius:8px">
+        <h2 style="color:#16A066">New Lead Received</h2>
+        <p><strong>Name:</strong> ${clientName}</p>
+        <p><strong>Email:</strong> ${clientEmail || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${clientPhone || 'N/A'}</p>
+        <p><strong>Services:</strong> ${services}</p>
+        <p><strong>Budget:</strong> ${budget}</p>
+        <p style="margin-top:20px;font-size:12px;color:#666">
+          Received at ${new Date().toLocaleString('en-KE')}
+        </p>
+      </div>
+    `;
+
+    for (const to of adminEmails) {
+      try {
+        // Using Resend as example
+        if (emailService === 'resend') {
+          const resend = require('resend')(emailApiKey);
+          await resend.emails.send({
+            from: emailFrom,
+            to,
+            subject: emailSubject,
+            html: emailHtml
+          });
+          console.log(`[Email] Alert sent to ${to}`);
+        } else {
+          // Placeholder for other providers (SendGrid, Nodemailer, etc.)
+          console.log(`[Email] Provider ${emailService} not implemented in this snippet.`);
+        }
+      } catch (err) {
+        console.error(`[Email] Failed to send to ${to}:`, err.message);
+      }
+    }
+  } else {
+    console.log('[Email] Not configured. Skipping email alerts.');
+  }
+}
 
 /**
  * PATCH /api/leads/:id

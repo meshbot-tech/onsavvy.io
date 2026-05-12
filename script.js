@@ -303,10 +303,14 @@ if (pills.length) {
   // API base - same origin
   const API_BASE = window.location.origin;
 
-  submitBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
+   submitBtn.addEventListener('click', async (e) => {
+     e.preventDefault();
 
-    // Collect form values
+     // Hide any previous confirmation
+     const oldConf = document.getElementById('formConfirmation');
+     if (oldConf) oldConf.style.display = 'none';
+
+     // Collect form values
     const name        = document.getElementById('leadName')?.value.trim();
     const email      = document.getElementById('leadEmail')?.value.trim();
     const phone      = document.getElementById('leadPhone')?.value.trim();

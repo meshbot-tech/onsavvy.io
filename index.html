@@ -4233,7 +4233,7 @@ body.dark-theme .preloader-progress-bar{
           email,
           phone,
           services,
-          budget,
+          budget: budgetText,
           description,
           timestamp: Date.now(),
           status: 'new'
@@ -4254,95 +4254,7 @@ body.dark-theme .preloader-progress-bar{
             source: 'website',
             service: services.join(', ') || 'General Inquiry',
             value: 0,
-            notes: `Budget: ${budget}\nServices: ${services.join(', ')}\n${description}`
-          };
-
-          try {
-            await fetch(`${API_BASE}/api/leads`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-          } catch (apiErr) {
-            console.warn('API submit failed (localStorage only):', apiErr);
-          }
-
-          leadSubmitBtn.textContent = "✓ Received — we'll be in touch shortly";
-          leadSubmitBtn.style.background = '#0D7A4E';
-          leadSubmitBtn.style.pointerEvents = 'none';
-
-          // Reset form after 1 second
-          setTimeout(() => {
-            document.getElementById('leadName').value = '';
-            document.getElementById('leadEmail').value = '';
-            document.getElementById('leadPhone').value = '';
-            document.getElementById('leadDescription').value = '';
-            document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
-
-            // Reset button after 3 seconds
-            leadSubmitBtn.textContent = "Submit →";
-            leadSubmitBtn.style.background = '';
-            leadSubmitBtn.style.pointerEvents = '';
-          }, 3000);
-
-        } catch (err) {
-          console.error('Failed to save lead:', err);
-          leadSubmitBtn.textContent = "Error — try again";
-          leadSubmitBtn.style.background = '#B8720A';
-          setTimeout(() => {
-            leadSubmitBtn.textContent = "Submit →";
-            leadSubmitBtn.style.background = '';
-          }, 2000);
-        }
-      });
-    }
-
-    // CTA form simple acknowledgment
-    const ctaSubmitBtn = document.getElementById('submitBtnCta');
-    if (ctaSubmitBtn) {
-      ctaSubmitBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        this.textContent = '✓ Request received — we\'ll be in touch shortly';
-        this.style.background = '#0D7A4E';
-        this.style.pointerEvents = 'none';
-      });
-    }
-
-  })(); // End of fetchServiceMappings
-
-        // Determine primary service (first selected or default)
-        const primaryService = services.length > 0 ? services[0] : 'General Inquiry';
-        const serviceId = serviceMap[primaryService.toLowerCase()] || 1; // Default to first service
-
-        const lead = {
-          id: Date.now(),
-          name,
-          email,
-          phone,
-          services,
-          budget: budgetText,
-          description,
-          timestamp: Date.now(),
-          status: 'new'
-        };
-
-        try {
-          // Save to localStorage (offline fallback)
-          const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
-          leads.unshift(lead);
-          localStorage.setItem('savvion_leads', JSON.stringify(leads));
-
-          // Also send to API
-          const API_BASE = location.origin; // assumes API on same origin; override if needed
-          const payload = {
-            client_name: name,
-            client_email: email,
-            client_phone: phone || null,
-            service_id: serviceId,
-            source: 'website',
-            value: budgetValue,
-            stage: 'new',
-            notes: description
+            notes: `Budget: ${budgetText}\nServices: ${services.join(', ')}\n${description}`
           };
 
           try {
