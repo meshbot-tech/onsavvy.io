@@ -1,15 +1,15 @@
 /**
  * Database Configuration
  * Supports SQLite (development) and PostgreSQL (production)
+ * Falls back to JSON file storage if better-sqlite3 is unavailable
  */
 
 const { Pool } = require('pg');
-const sqlite3 = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
 // Ensure data directory exists for SQLite
-const dataDir = path.join(__dirname, 'data');
+const dataDir = path.join(__dirname, '..', 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -33,29 +33,45 @@ function initDatabase() {
       connectionTimeoutMillis: 2000,
     });
     console.log('✅ Connected to PostgreSQL');
-  } else {
-    // SQLite for development (no external DB needed)
-    const dbPath = process.env.DB_PATH || path.join(__dirname, 'data', 'savvion.db');
-    db = sqlite3(dbPath);
+    return db;
+  }
+
+  // Try SQLite first, fall back to JSON DB
+  try {
+    const betterSqlite3 = require('better-sqlite3');
+    const dbPath = process.env.DB_PATH || path.join(dataDir, 'savvion.db');
+    db = betterSqlite3(dbPath);
     db.pragma('journal_mode = WAL'); // Better concurrency
     console.log('✅ Connected to SQLite:', dbPath);
+  } catch (err) {
+    if (err.code === 'MODULE_NOT_FOUND') {
+      console.warn('⚠️  better-sqlite3 not available, using JSON file database fallback');
+      const jsonDb = require('../middleware/db-fallback');
+      db = jsonDb;
+      // Initialize the JSON DB
+      db.initDatabase();
+    } else {
+      console.error('❌ Database initialization failed:', err);
+      throw err;
+    }
   }
   return db;
 }
 
 /**
- * Execute a query (PostgreSQL returns Promise, SQLite is sync)
+ * Execute a query (PostgreSQL returns Promise, SQLite/JSON are sync)
  */
 function query(sql, params = []) {
-  if (process.env.NODE_ENV === 'production' && process.env.PG_HOST) {
+  try {
+    if (process.env.NODE_ENV === 'production' && process.env.PG_HOST) {
+      return db.query(sql, params);
+    }
+    // SQLite or JSON DB - both have synchronous query
     return db.query(sql, params);
+  } catch (err) {
+    console.error('Query error:', err);
+    throw err;
   }
-  // SQLite
-  const stmt = db.prepare(sql);
-  if (params.length) {
-    return stmt.all(params);
-  }
-  return stmt.all();
 }
 
 /**
@@ -65,8 +81,7 @@ function run(sql, params = []) {
   if (process.env.NODE_ENV === 'production' && process.env.PG_HOST) {
     return db.query(sql, params);
   }
-  const stmt = db.prepare(sql);
-  return stmt.run(params);
+  return db.run(sql, params);
 }
 
 function getDb() {
