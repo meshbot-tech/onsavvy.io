@@ -300,11 +300,14 @@ if (pills.length) {
 
   if (!submitBtn) return;
 
+  // API base - same origin
+  const API_BASE = window.location.origin;
+
   submitBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
     // Collect form values
-    const name       = document.getElementById('leadName')?.value.trim();
+    const name        = document.getElementById('leadName')?.value.trim();
     const email      = document.getElementById('leadEmail')?.value.trim();
     const phone      = document.getElementById('leadPhone')?.value.trim();
     const description= document.getElementById('leadDescription')?.value.trim();
@@ -317,44 +320,55 @@ if (pills.length) {
     const budgetEl = document.querySelector('.bwc-pill[data-group="budget"].active');
     const budget = budgetEl ? budgetEl.textContent.trim() : '';
 
+    // Validate reCAPTCHA
+    if (typeof grecaptcha === 'undefined' || !window.recaptchaVerified) {
+      showSubmitError('Please complete the reCAPTCHA verification');
+      return;
+    }
+
     // Basic validation
     if (!name || !email) {
-      submitBtn.textContent = "Please fill in required fields";
-      submitBtn.style.background = '#B83030';
-      setTimeout(() => {
-        submitBtn.textContent = "Submit →";
-        submitBtn.style.background = '';
-      }, 2000);
+      showSubmitError('Please fill in required fields (name and email)');
+      return;
+    }
+
+    if (!services.length) {
+      showSubmitError('Please select at least one service');
       return;
     }
 
     // Build lead object
-    const lead = {
-      id: Date.now(),
-      name,
-      email,
-      phone,
-      services,
-      budget,
-      description,
-      timestamp: Date.now(),
-      status: 'new'
+    const leadData = {
+      clientName: name,
+      clientEmail: email,
+      clientPhone: phone || null,
+      source: 'website',
+      value: 0, // Will be determined by admin based on service
+      stage: 'new',
+      notes: [description, `Services: ${services.join(', ')}`, budget ? `Budget: ${budget}` : ''].filter(Boolean).join(' | ')
     };
 
-    // Save to localStorage
-    try {
-      const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
-      leads.unshift(lead); // newest first
-      localStorage.setItem('savvion_leads', JSON.stringify(leads));
+    // Show loading state
+    setSubmitLoading(true);
 
-      // Also broadcast to other tabs/windows via storage event (automatically fired)
-      // No need for custom event; other tabs listening to storage will get update.
+    try {
+      const response = await fetch(`${API_BASE}/api/leads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to submit. Please try again.');
+      }
 
       // Success feedback
-      submitBtn.textContent = "✓ Received — we'll be in touch shortly";
-      submitBtn.style.background = '#0D7A4E';
-      submitBtn.style.pointerEvents = 'none';
-
+      showSubmitSuccess('✓ Received — we\'ll be in touch shortly');
+      
       // Reset form
       document.getElementById('leadName').value = '';
       document.getElementById('leadEmail').value = '';
@@ -362,14 +376,72 @@ if (pills.length) {
       document.getElementById('leadDescription').value = '';
       document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
 
+      // Broadcast to other tabs (client portal listening)
+      const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
+      leads.unshift({
+        ...leadData,
+        id: data.data?.id || Date.now(),
+        timestamp: Date.now(),
+        services,
+        budget
+      });
+      localStorage.setItem('savvion_leads', JSON.stringify(leads));
+
+      // Dispatch custom event for real-time updates
+      window.dispatchEvent(new CustomEvent('leadCaptured', { detail: leadData }));
+
     } catch (err) {
-      console.error('Failed to save lead:', err);
-      submitBtn.textContent = "Error — try again";
-      submitBtn.style.background = '#B8720A';
-      setTimeout(() => {
-        submitBtn.textContent = "Submit →";
-        submitBtn.style.background = '';
-      }, 2000);
+      console.error('Lead submission failed:', err);
+      showSubmitError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitLoading(false);
+    }
+  });
+
+  function showSubmitError(msg) {
+    submitBtn.textContent = msg;
+    submitBtn.style.background = '#B83030';
+    setTimeout(() => {
+      submitBtn.textContent = "Submit →";
+      submitBtn.style.background = '';
+    }, 3000);
+  }
+
+  function showSubmitSuccess(msg) {
+    submitBtn.textContent = msg;
+    submitBtn.style.background = '#0D7A4E';
+    submitBtn.style.pointerEvents = 'none';
+    setTimeout(() => {
+      submitBtn.textContent = "Submit →";
+      submitBtn.style.background = '';
+      submitBtn.style.pointerEvents = '';
+    }, 4000);
+  }
+
+  function setSubmitLoading(loading) {
+    if (loading) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Sending…</span>';
+    } else {
+      submitBtn.disabled = false;
+    }
+  }
+
+  // Add CSS for spinner
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+  `;
+  document.head.appendChild(style);
+
+  // Listen for reCAPTCHA ready
+  window.recaptchaVerified = false;
+  window.addEventListener('recaptchaLoaded', () => {
+    if (typeof grecaptcha !== 'undefined') {
+      grecaptcha.enterprise.ready(() => {
+        // reCAPTCHA ready
+      });
     }
   });
 })();

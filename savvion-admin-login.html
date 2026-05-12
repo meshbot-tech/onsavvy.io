@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Savvion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    :root {
+      --green: #2da869; --green-dark: #22895a; --green-light: #edf7f2;
+      --black: #0d0d0d; --gray-50: #f8f8f6; --gray-100: #f0f0ed;
+      --gray-200: #e2e2de; --gray-400: #9a9a95; --gray-600: #565650;
+      --white: #ffffff; --danger: #dc2626; --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --r-sm:8px; --r-md:10px; --r-lg:16px; --r-xl:20px;
+    }
+    body {
+      font-family: var(--font);
+      background: radial-gradient(ellipse at 65% 0%, #e4f5ed 0%, #f4f4f2 60%);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px; -webkit-font-smoothing: antialiased;
+    }
+    .auth-card {
+      display: flex; width: 100%; max-width: 400px; min-height: 520px;
+      background: var(--white); border-radius: var(--r-xl);
+      border: 1px solid var(--gray-200); box-shadow: 0 4px 48px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+    .auth-form {
+      flex: 1; padding: 44px 36px; display: flex; flex-direction: column;
+    }
+    .brand-logo {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
+    }
+    .brand-logo-icon {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px;
+    }
+    .brand-logo-text { color: var(--black); font-weight: 700; font-size: 15px; letter-spacing: -.02em; }
+    .auth-title { font-size: 26px; font-weight: 800; letter-spacing: -.03em; color: var(--black); margin-bottom: 8px; }
+    .auth-subtitle { font-size: 13px; color: var(--gray-600); margin-bottom: 32px; }
+    .form-field { margin-bottom: 20px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .form-field input {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--gray-200);
+      border-radius: var(--r-md); font-family: inherit; font-size: 14px;
+      transition: all .2s;
+    }
+    .form-field input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
+    .form-field input.is-error { border-color: var(--danger); }
+    .error-msg { font-size: 12px; color: var(--danger); margin-top: 6px; display: none; }
+    .error-msg.is-visible { display: block; }
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: var(--r-md);
+      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary { background: var(--black); color: var(--white); }
+    .btn-primary:hover { background: var(--gray-600); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .divider {
+      display: flex; align-items: center; gap: 12px; margin: 24px 0; color: var(--gray-400); font-size: 12px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+    .back-link {
+      text-align: center; margin-top: 24px; font-size: 13px; color: var(--gray-600);
+    }
+    .back-link a { color: var(--green); text-decoration: none; font-weight: 600; }
+    .back-link a:hover { text-decoration: underline; }
+    .demo-hint {
+      margin-top: 16px; padding: 12px; background: var(--green-light);
+      border-radius: var(--r-md); font-size: 12px; color: var(--green-text);
+    }
+    .otp-box {
+      width: 40px; height: 50px; border: 2px solid var(--gray-200);
+      border-radius: var(--r-md); font-size: 24px; text-align: center;
+      font-feature-settings: 'tnum'; font-family: var(--font);
+      transition: border-color .2s;
+    }
+    .otp-box:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
+    .otp-box.is-filled { border-color: var(--green); }
+    .otp-box.is-error { border-color: var(--danger); }
+    .otp-group {
+      display: flex; gap: 8px; justify-content: center;
+    }
+    .resend-btn {
+      background: none; border: none; color: var(--green);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      padding: 4px 8px; border-radius: var(--r-sm);
+    }
+    .resend-btn:disabled { opacity: .5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="auth-form">
+      <div class="brand-logo">
+        <div class="brand-logo-icon"><i class="ti ti-lock"></i></div>
+        <div class="brand-logo-text">Savvion Admin</div>
+      </div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to access the admin panel</p>
+
+      <div class="divider">or use email</div>
+
+      <form id="login-form" novalidate>
+        <!-- Step 1: Email/Phone Input -->
+        <div id="step-1" class="form-field">
+          <label for="identifier">Email or Phone Number</label>
+          <input type="text" id="identifier" name="identifier" placeholder="Enter your email or phone" autocomplete="email" required>
+          <div class="error-msg" id="identifier-error">Please enter a valid email or phone number</div>
+          
+          <!-- Delivery method options (will be shown for phone numbers) -->
+          <div id="delivery-options" style="margin-top: 12px; display: none;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; display: block;">Delivery method:</label>
+            <div style="display: flex; gap: 16px;">
+              <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="radio" name="delivery" value="sms" checked>
+                <span>SMS</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="radio" name="delivery" value="whatsapp">
+                <span>WhatsApp</span>
+              </label>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" id="btn-send-code">
+            Send code <i class="ti ti-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div id="step-2" class="form-field" style="display: none;">
+          <label for="otp-destination">We've sent a code to:</label>
+          <p id="otp-destination" style="font-size: 14px; font-weight: 600; color: var(--black); margin: 8px 0;"></p>
+          
+          <div class="otp-group" id="otp-group">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+            <input type="text" class="otp-box" inputmode="numeric" maxlength="1">
+          </div>
+          
+          <div class="error-msg" id="otp-error" style="margin-top: 12px;">
+            <span id="otp-error-msg"></span>
+          </div>
+          
+          <div style="margin-top: 16px; text-align: center;">
+            <button type="button" class="resend-btn" id="btn-resend-code" disabled>
+              Resend code in <span id="resend-timer">60</span>s
+            </button>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" id="btn-verify-code" disabled>
+            Verify &amp; sign in <i class="ti ti-arrow-right" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="btn" id="btn-back-to-identifier" style="margin-top: 12px; background: var(--gray-50); color: var(--gray-600);">
+            ← Back
+          </button>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div id="step-3" style="display: none; text-align: center;">
+          <div style="margin-bottom: 24px;">
+            <i class="ti ti-check" style="font-size: 48px; color: var(--green);"></i>
+          </div>
+          <h2>Success!</h2>
+          <p>You've been signed in. Redirecting to admin panel...</p>
+          <div id="redirect-countdown" style="margin-top: 16px; font-size: 18px; font-weight: 600; color: var(--green);">
+            3
+          </div>
+        </div>
+      </form>
+
+      <div class="demo-hint" id="setup-hint">
+        <strong>Demo credentials:</strong><br>
+        Email: admin@savvion.co.ke<br>
+        Phone: +254 700 000 000<br>
+        Any 6-digit code except "000000" will work
+      </div>
+
+      <div class="back-link">
+        <a href="index.html">← Back to website</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+      
+      const API_BASE = (() => {
+        const saved = localStorage.getItem('savvion_api_base');
+        if (saved) return saved;
+        return window.location.origin;
+      })();
+
+      // Configuration
+      const DASHBOARD_URL = './Savvion admin.html';
+      const RESEND_SECONDS = 60;
+      const REDIRECT_DELAY = 3;
+
+      // Validation
+      const Validate = {
+        phone(raw) {
+          const v = raw.replace(/\s/g, "");
+          return /^(07|01)\d{8}$/.test(v)
+              || /^\+2547\d{8}$/.test(v)
+              || /^\+2541\d{8}$/.test(v);
+        },
+        email(v) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+        },
+      };
+
+      // Normalize phone number
+      function normalizePhone(raw) {
+        const d = raw.replace(/\D/g, "");
+        if (d.startsWith("254")) return "+" + d;
+        if (d.startsWith("0"))   return "+254" + d.slice(1);
+        return raw;
+      }
+
+      // State
+      const state = {
+        mode: "email", // "email" | "phone"
+        value: "",     // normalized email or phone
+        deliveryMethod: "sms", // "sms" | "whatsapp" (phone only)
+        resendInterval: null,
+        redirectInterval: null,
+      };
+
+      // DOM Elements
+      const dom = {
+        // Steps
+        step1: $("#step-1"),
+        step2: $("#step-2"),
+        step3: $("#step-3"),
+        
+        // Step 1
+        identifierInput: $("#identifier"),
+        identifierError: $("#identifier-error"),
+        btnSendCode: $("#btn-send-code"),
+        deliveryOptions: $("#delivery-options"),
+        
+        // Step 2
+        otpDestination: $("#otp-destination"),
+        otpBoxes: $$("#otp-group .otp-box"),
+        otpError: $("#otp-error"),
+        otpErrorMsg: $("#otp-error-msg"),
+        btnResendCode: $("#btn-resend-code"),
+        resendTimer: $("#resend-timer"),
+        btnVerifyCode: $("#btn-verify-code"),
+        btnBack: $("#btn-back-to-identifier"),
+        
+        // Step 3
+        redirectCountdown: $("#redirect-countdown"),
+      };
+
+      // API Functions (similar to savvion-auth.js but for admin)
+      const API = {
+        async requestOtp({ mode, value, delivery }) {
+          // Development / demo mode
+          console.log("[DEMO] requestOtp:", { mode, value, delivery, timestamp: new Date().toISOString() });
+          await new Promise(r => setTimeout(r, 1200));
+          return { ok: true };
+
+          // Production (uncomment when backend is ready):
+          /*
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/request-otp`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mode, value, delivery }),
+            });
+            return await res.json();
+          } catch (err) {
+            console.error("requestOtp error:", err);
+            return { ok: false, message: "Network error — check connection and retry." };
+          }
+          */
+        },
+
+        async verifyOtp(mode, value, code) {
+          // Development / demo mode
+          console.log("[DEMO] verifyOtp:", { mode, value, code, timestamp: new Date().toISOString() });
+          await new Promise(r => setTimeout(r, 1400));
+          if (code === "000000") return { ok: false, message: "That code is incorrect. Try again." };
+          return { ok: true, token: "demo-admin-token-" + Date.now(), user: { name: "Admin User", role: "Super Admin" } };
+
+          // Production (uncomment when backend is ready):
+          /*
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mode, value, code }),
+            });
+            return await res.json();
+          } catch (err) {
+            console.error("verifyOtp error:", err);
+            return { ok: false, message: "Network error — check connection and retry." };
+          }
+          */
+        },
+
+        async resendOtp({ mode, value, delivery }) {
+          // Development / demo mode
+          console.log("[DEMO] resendOtp:", { mode, value, delivery, timestamp: new Date().toISOString() });
+          await new Promise(r => setTimeout(r, 900));
+          return { ok: true };
+
+          // Production (uncomment when backend is ready):
+          /*
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/resend-otp`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ mode, value, delivery }),
+            });
+            return await res.json();
+          } catch (err) {
+            console.error("resendOtp error:", err);
+            return { ok: false, message: "Network error — check connection and retry." };
+          }
+          */
+        },
+      };
+
+      // Step Management
+      function goToStep(stepNumber) {
+        dom.step1.style.display = stepNumber === 1 ? "block" : "none";
+        dom.step2.style.display = stepNumber === 2 ? "block" : "none";
+        dom.step3.style.display = stepNumber === 3 ? "block" : "none";
+      }
+
+      function clearErrors() {
+        dom.identifierError.classList.remove("is-visible");
+        dom.identifierInput.classList.remove("is-error");
+        dom.otpError.classList.remove("is-visible");
+        dom.otpBoxes.forEach(box => box.classList.remove("is-error", "is-filled"));
+      }
+
+      function getInputValue() {
+        return dom.identifierInput.value.trim();
+      }
+
+      function isInputValid() {
+        const val = getInputValue();
+        return state.mode === "phone" ? Validate.phone(val) : Validate.email(val);
+      }
+
+      function updateSendButton() {
+        dom.btnSendCode.disabled = !isInputValid();
+      }
+
+      function showIdentifierError() {
+        dom.identifierError.classList.add("is-visible");
+        dom.identifierInput.classList.add("is-error");
+        dom.identifierInput.focus();
+      }
+
+      function updateHintText() {
+        // Update placeholder based on mode
+        if (state.mode === "phone") {
+          dom.identifierInput.placeholder = "Enter your phone number";
+          dom.deliveryOptions.style.display = "block";
+        } else {
+          dom.identifierInput.placeholder = "Enter your email";
+          dom.deliveryOptions.style.display = "none";
+        }
+      }
+
+      // OTP Functions
+      function getOtpValue() {
+        return dom.otpBoxes.map(b => b.value).join("");
+      }
+
+      function resetOtpBoxes() {
+        dom.otpBoxes.forEach(b => {
+          b.value = "";
+          b.classList.remove("is-filled", "is-error");
+        });
+        dom.otpError.classList.remove("is-visible");
+        dom.btnVerifyCode.disabled = true;
+      }
+
+      function clearOtpErrors() {
+        dom.otpBoxes.forEach(b => b.classList.remove("is-error"));
+        dom.otpError.classList.remove("is-visible");
+      }
+
+      function showOtpError(msg) {
+        dom.otpErrorMsg.textContent = msg || "That code is incorrect. Try again.";
+        dom.otpError.classList.add("is-visible");
+        dom.otpBoxes.forEach(b => b.classList.add("is-error"));
+        dom.otpBoxes[0].focus();
+      }
+
+      function initOtpBoxes() {
+        dom.otpBoxes.forEach((box, i) => {
+          box.addEventListener("input", (e) => {
+            const char = e.target.value.replace(/\D/g, "").slice(-1);
+            box.value = char;
+            box.classList.toggle("is-filled", !!char);
+            clearOtpErrors();
+
+            if (char && i < dom.otpBoxes.length - 1) {
+              dom.otpBoxes[i + 1].focus();
+            }
+
+            dom.btnVerifyCode.disabled = getOtpValue().length < 6;
+          });
+
+          box.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace") {
+              if (!box.value && i > 0) {
+                dom.otpBoxes[i - 1].value = "";
+                dom.otpBoxes[i - 1].classList.remove("is-filled");
+                dom.otpBoxes[i - 1].focus();
+              }
+              box.classList.remove("is-filled");
+              dom.btnVerifyCode.disabled = true;
+            }
+            if (e.key === "ArrowLeft" && i > 0) dom.otpBoxes[i - 1].focus();
+            if (e.key === "ArrowRight" && i < dom.otpBoxes.length - 1) dom.otpBoxes[i + 1].focus();
+            if (e.key === "Enter" && getOtpValue().length === 6) handleVerify();
+          });
+
+          box.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData)
+              .getData("text")
+              .replace(/\D/g, "")
+              .slice(0, 6);
+
+            dom.otpBoxes.forEach((b, j) => {
+              b.value = pasted[j] || "";
+              b.classList.toggle("is-filled", !!pasted[j]);
+            });
+
+            const focusIdx = Math.min(pasted.length, dom.otpBoxes.length - 1);
+            dom.otpBoxes[focusIdx].focus();
+            dom.btnVerifyCode.disabled = pasted.length < 6;
+            clearOtpErrors();
+          });
+
+          box.addEventListener("focus", (e) => e.target.select());
+        });
+      }
+
+      // Main Handlers
+      async function handleSendCode() {
+        if (!isInputValid()) { showIdentifierError(); return; }
+        clearErrors();
+
+        const raw = getInputValue();
+        state.value = state.mode === "phone" ? normalizePhone(raw) : raw.toLowerCase();
+
+        // Loading state
+        dom.btnSendCode.disabled = true;
+        dom.btnSendCode.innerHTML = '<span class="spinner"></span> Sending…';
+
+        try {
+          const params = state.mode === "phone"
+            ? { mode: state.mode, value: state.value, delivery: state.deliveryMethod }
+            : { mode: state.mode, value: state.value };
+          const result = await API.requestOtp(params);
+          if (!result.ok) throw new Error(result.message || "Failed to send code.");
+
+          // Transition to step 2
+          dom.otpDestination.textContent = state.mode === "phone" 
+            ? state.value.slice(0, 4) + "×××" + state.value.slice(-4) 
+            : state.value;
+          goToStep(2);
+          resetOtpBoxes();
+          startResendTimer();
+          dom.otpBoxes[0].focus();
+
+        } catch (err) {
+          showIdentifierError();
+          dom.identifierError.lastChild.textContent = err.message;
+        } finally {
+          dom.btnSendCode.disabled = false;
+          dom.btnSendCode.innerHTML = 'Send code <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+          updateSendButton();
+        }
+      }
+
+      async function handleVerify() {
+        const code = getOtpValue();
+        if (code.length < 6) return;
+        clearOtpErrors();
+
+        dom.btnVerifyCode.disabled = true;
+        dom.btnVerifyCode.innerHTML = '<span class="spinner"></span> Verifying…';
+        dom.otpBoxes.forEach(b => (b.disabled = true));
+
+        try {
+          const result = await API.verifyOtp(state.mode, state.value, code);
+
+          if (!result.ok) {
+            showOtpError(result.message);
+            return;
+          }
+
+          // Store session for admin system
+          sessionStorage.setItem('token', result.token || "demo-token");
+          sessionStorage.setItem('user', JSON.stringify(result.user || { name: "Admin", role: "Super Admin" }));
+          
+          // Also set admin-specific keys if needed by the admin panel
+          sessionStorage.setItem('adminLoggedIn', "true");
+          sessionStorage.setItem('adminEmail', state.mode === "phone"
+            ? state.value.replace(/^\+254/, "0") + "@savvion.ke"
+            : state.value);
+
+          transitionToSuccess();
+
+        } catch (err) {
+          showOtpError("Something went wrong. Please try again.");
+        } finally {
+          dom.btnVerifyCode.disabled = false;
+          dom.btnVerifyCode.innerHTML = 'Verify &amp; sign in <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+          dom.otpBoxes.forEach((b) => (b.disabled = false));
+        }
+      }
+
+      // Resend Timer
+      function startResendTimer(seconds = RESEND_SECONDS) {
+        clearInterval(state.resendInterval);
+
+        dom.resendTimer.style.display = "";
+        dom.btnResendCode.classList.remove("is-visible");
+        dom.btnResendCode.disabled = true;
+
+        let remaining = seconds;
+        updateResendDisplay(remaining);
+
+        state.resendInterval = setInterval(() => {
+          remaining -= 1;
+          updateResendDisplay(remaining);
+
+          if (remaining <= 0) {
+            clearInterval(state.resendInterval);
+            dom.resendTimer.style.display = "none";
+            dom.btnResendCode.classList.add("is-visible");
+            dom.btnResendCode.disabled = false;
+          }
+        }, 1000);
+      }
+
+      function updateResendDisplay(secs) {
+        dom.resendTimer.textContent = String(secs).padStart(2, "0");
+      }
+
+      async function handleResend() {
+        dom.btnResendCode.disabled = true;
+        dom.btnResendCode.innerHTML = '<span class="spinner" style="border-top-color:var(--green);border-color:rgba(45,168,105,.3)"></span> Sending…';
+
+        try {
+          const params = state.mode === "phone"
+            ? { mode: state.mode, value: state.value, delivery: state.deliveryMethod }
+            : { mode: state.mode, value: state.value };
+          const result = await API.resendOtp(params);
+          if (!result.ok) throw new Error("Failed to resend.");
+          resetOtpBoxes();
+          startResendTimer();
+          dom.otpBoxes[0].focus();
+        } catch {
+          dom.btnResendCode.disabled = false;
+        } finally {
+          dom.btnResendCode.classList.add("is-visible");
+          dom.btnResendCode.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Resend code';
+        }
+      }
+
+      // Navigation
+      function handleBack() {
+        clearInterval(state.resendInterval);
+        resetOtpBoxes();
+        goToStep(1);
+
+        // Restore send button
+        dom.btnSendCode.disabled = !isInputValid();
+        dom.btnSendCode.innerHTML = 'Send code <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+      }
+
+      // Success & Redirect
+      function transitionToSuccess() {
+        goToStep(3);
+        startRedirectCountdown();
+      }
+
+      function startRedirectCountdown(seconds = REDIRECT_DELAY) {
+        clearInterval(state.redirectInterval);
+        let remaining = seconds;
+        dom.redirectCountdown.textContent = remaining;
+
+        state.redirectInterval = setInterval(() => {
+          remaining -= 1;
+          dom.redirectCountdown.textContent = remaining;
+
+          if (remaining <= 0) {
+            clearInterval(state.redirectInterval);
+            navigateToDashboard();
+          }
+        }, 1000);
+      }
+
+      function navigateToDashboard() {
+        window.location.href = DASHBOARD_URL;
+      }
+
+      // Event Wiring
+      function init() {
+        // Mode detection based on input
+        dom.identifierInput.addEventListener("input", () => {
+          const val = getInputValue();
+          const isPhone = Validate.phone(val);
+          if (isPhone !== (state.mode === "phone")) {
+            state.mode = isPhone ? "phone" : "email";
+            updateHintText();
+            clearErrors();
+            updateSendButton();
+          }
+          clearErrors();
+          updateSendButton();
+        });
+
+        // Delivery method options (phone mode only)
+        $$('input[name="delivery"]').forEach(radio => {
+          radio.addEventListener("change", () => {
+            if (state.mode === "phone") {
+              state.deliveryMethod = radio.value;
+            }
+          });
+        });
+
+        // Live validation for send-button enable/disable
+        dom.identifierInput.addEventListener("input", updateSendButton);
+
+        // Enter-key shortcut on identifier inputs
+        dom.identifierInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleSendCode();
+        });
+
+        // Send code
+        dom.btnSendCode.addEventListener("click", handleSendCode);
+
+        // OTP boxes
+        initOtpBoxes();
+
+        // Verify
+        dom.btnVerifyCode.addEventListener("click", handleVerify);
+
+        // Resend
+        dom.btnResendCode.addEventListener("click", handleResend);
+
+        // Back
+        dom.btnBack.addEventListener("click", handleBack);
+
+        // Initial state
+        updateHintText();
+        setTimeout(() => dom.identifierInput.focus(), 100);
+      }
+
+      // Boot
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+
+      // API health check (optional)
+      fetch(`${API_BASE}/api/health`).then(r => r.json()).then(() => {
+        console.log('✅ API connected at', API_BASE);
+      }).catch(() => {
+        console.warn('⚠️ API server not running - using demo mode');
+        document.getElementById('setup-hint').innerHTML = `
+          <strong>ℹ️ Demo Mode Active</strong><br>
+          The API server is not running, so we're using demo credentials.<br>
+          Any 6-digit code except "000000" will work for testing.
+        `;
+        document.getElementById('setup-hint').style.fontSize = '11px';
+      });
+    })();
+  </script>
+</body>
+</html>

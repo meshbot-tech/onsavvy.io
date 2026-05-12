@@ -198,87 +198,11 @@ textarea{resize:vertical;min-height:80px}
       <div class="cc-card">
         <div style="font-size:13px;font-weight:500;margin-bottom:12px">This Week</div>
         <div id="ov-week"></div>
-      </div>
-      <div class="cc-card" style="flex:1">
-        <div style="font-size:13px;font-weight:500;margin-bottom:10px">Activity</div>
-        <div id="ov-activity"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="v-leads" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-    <div>
-      <div style="font-size:16px;font-weight:500">Lead Pipeline</div>
-      <div style="font-size:12px;color:var(--ink-muted)">12 active · KES 1.24M pipeline value</div>
-    </div>
-    <div style="display:flex;gap:6px">
-      <button class="cc-btn sm" id="ld-kanban-btn" onclick="setLeadView('kanban')"><i class="ti ti-layout-kanban" aria-hidden="true"></i> Kanban</button>
-      <button class="cc-btn sm" id="ld-table-btn" onclick="setLeadView('table')"><i class="ti ti-table" aria-hidden="true"></i> Table</button>
-      <button class="cc-btn sm primary"><i class="ti ti-plus" aria-hidden="true"></i> New Lead</button>
-    </div>
-  </div>
-  <div id="ld-detail"></div>
-  <div id="ld-kanban" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px"></div>
-  <div id="ld-table" style="display:none"></div>
-</div>
-
-<div id="v-bookings" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <div><div style="font-size:16px;font-weight:500">Bookings</div><div style="font-size:12px;color:var(--ink-muted)">All appointments and service sessions</div></div>
-    <button class="cc-btn sm primary"><i class="ti ti-plus" aria-hidden="true"></i> New Booking</button>
-  </div>
-  <div id="bk-detail"></div>
-  <div class="cc-card" style="padding:0;overflow:hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px">
-      <div style="display:flex;gap:4px" id="bk-tabs"></div>
-      <input type="text" id="bk-search" placeholder="Search…" style="width:160px;padding:5px 10px;font-size:12px" oninput="renderBookingsTable()"/>
-    </div>
-    <table class="cc-tbl"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="bk-body"></tbody></table>
-  </div>
-</div>
-
-<div id="v-clients" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <div><div style="font-size:16px;font-weight:500">Clients</div><div style="font-size:12px;color:var(--ink-muted)">Click any card for full history</div></div>
-    <input type="text" id="cl-search" placeholder="Search clients…" style="width:180px;padding:5px 10px;font-size:12px" oninput="renderClients()"/>
-  </div>
-  <div id="cl-detail"></div>
-  <div id="cl-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px"></div>
-</div>
-
-<div id="v-automation" style="display:none">
-  <div style="margin-bottom:14px">
-    <div style="font-size:16px;font-weight:500;margin-bottom:2px">Automation</div>
-    <div style="font-size:12px;color:var(--ink-muted)">WhatsApp, email, and trigger rules</div>
-  </div>
-  <div style="display:flex;gap:4px;margin-bottom:14px" id="auto-tabs">
-    <button class="cc-tab active" data-at="whatsapp" onclick="setAutoTab('whatsapp')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
-    <button class="cc-tab" data-at="email" onclick="setAutoTab('email')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
-    <button class="cc-tab" data-at="triggers" onclick="setAutoTab('triggers')"><i class="ti ti-bolt" aria-hidden="true"></i> Triggers</button>
-  </div>
-  <div id="auto-content"></div>
-</div>
-
-<div id="v-analytics" style="display:none">
-  <div style="margin-bottom:14px">
-    <div style="font-size:16px;font-weight:500;margin-bottom:2px">Analytics</div>
-    <div style="font-size:12px;color:var(--ink-muted)">Revenue, conversions, and service performance</div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px" id="an-kpis"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Revenue (KES 000s)</div><div id="rev-chart"></div></div>
-    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Lead Conversion Funnel</div><div id="funnel-chart"></div></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Service Mix</div><div id="svc-mix"></div></div>
-    <div class="cc-card"><div style="font-size:13px;font-weight:500;margin-bottom:12px">Lead Sources</div><div id="src-mix"></div></div>
-  </div>
 </div>
 
 </div>
-  </div>
+</div>
+</div>
 </div>
 
 <script>

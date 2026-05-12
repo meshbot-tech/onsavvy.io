@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Control Centre — Savvion Bookings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+  --green:#2da869;--green-d:#22895a;--green-l:#edf7f2;--green-m:#b3dfc5;
+  --wa:#25d366;--wa-d:#128c7e;--wa-l:#e3f7d9;
+  --black:#0d0d0d;--white:#ffffff;
+  --g50:#f9f9f7;--g100:#f1f1ee;--g200:#e3e3df;--g300:#cfcfca;--g400:#9a9a95;--g600:#565650;
+  --amber:#f59e0b;--amber-l:#fffbeb;
+  --blue:#3b82f6;--blue-l:#eff6ff;
+  --red:#ef4444;--red-l:#fef2f2;
+  --purple:#8b5cf6;--purple-l:#f5f3ff;
+  --teal:#14b8a6;--teal-l:#f0fdfa;
+  --sw:232px;--hh:54px;
+  --r:8px;--rl:14px;--rx:18px;--r2x:24px;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--g50);color:var(--black);-webkit-font-smoothing:antialiased;display:flex}
+a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--sw);height:100vh;background:var(--black);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:width .2s ease;overflow:hidden;flex-shrink:0}
+.sb.col{width:58px}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:13px;border-bottom:1px solid rgba(255,255,255,.07);min-height:var(--hh);cursor:pointer;text-decoration:none}
+.sb-logo-icon{width:28px;height:28px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0}
+.sb-logo-txt{font-size:13.5px;font-weight:800;color:#fff;letter-spacing:-.03em;white-space:nowrap;transition:opacity .15s}
+.sb.col .sb-logo-txt,.sb.col .sb-lbl,.sb.col .sb-badge,.sb.col .sb-ui,.sb.col .bc-lbl,.sb.col .sb-sec{opacity:0;pointer-events:none}
+.sb-nav{flex:1;padding:8px 7px;overflow-y:auto}
+.sb-sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.28);padding:14px 9px 5px;white-space:nowrap;transition:opacity .15s}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--r);color:rgba(255,255,255,.5);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;margin-bottom:1px;text-decoration:none}
+.sb-item i{font-size:17px;flex-shrink:0;width:19px;text-align:center}
+.sb-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.sb-item.active{background:rgba(45,168,105,.2);color:var(--green)}
+.sb-lbl{transition:opacity .15s}
+.sb-badge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;flex-shrink:0;transition:opacity .15s}
+.sb-badge.g{background:var(--green);color:#fff}
+.sb-badge.a{background:var(--amber);color:#fff}
+.sb-foot{border-top:1px solid rgba(255,255,255,.07);padding:8px 7px}
+.sb-user{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--r);cursor:pointer;transition:background .12s;margin-bottom:4px}
+.sb-user:hover{background:rgba(255,255,255,.07)}
+.sb-av{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.sb-ui{overflow:hidden;transition:opacity .15s}
+.sb-uname{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.sb-urole{font-size:10.5px;color:rgba(255,255,255,.38);white-space:nowrap}
+.btn-col{display:flex;align-items:center;gap:10px;width:100%;padding:7px 9px;border-radius:var(--r);background:none;border:none;cursor:pointer;font-family:var(--font);color:rgba(255,255,255,.35);font-size:12.5px;font-weight:500;transition:background .12s,color .12s;white-space:nowrap}
+.btn-col:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)}
+.btn-col i{font-size:17px;flex-shrink:0;width:19px;text-align:center;transition:transform .2s}
+.sb.col .btn-col i{transform:rotate(180deg)}
+.bc-lbl{transition:opacity .15s}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;height:100vh;display:flex;flex-direction:column;transition:margin-left .2s;overflow:hidden}
+.main.col{margin-left:58px}
+
+/* ── TOPBAR ── */
+.tb{height:var(--hh);background:var(--white);border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0}
+.tb-title{font-size:14.5px;font-weight:800;letter-spacing:-.02em;flex:1}
+.tb-sub{font-size:11.5px;color:var(--g400);font-weight:400;margin-left:8px}
+.search{display:flex;align-items:center;gap:8px;background:var(--g100);border:1px solid var(--g200);border-radius:var(--rl);padding:6px 12px;width:220px;transition:border-color .15s,width .2s}
+.search:focus-within{border-color:var(--g400);width:260px}
+.search i{color:var(--g400);font-size:14px;flex-shrink:0}
+.search input{border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--black);width:100%}
+.search input::placeholder{color:var(--g400)}
+.tb-right{display:flex;align-items:center;gap:7px}
+.ico{width:32px;height:32px;border-radius:var(--r);border:1px solid var(--g200);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--g600);font-size:16px;transition:background .12s;position:relative}
+.ico:hover{background:var(--g100)}
+.ndot{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--green);border:1.5px solid var(--white)}
+.tb-div{width:1px;height:22px;background:var(--g200)}
+.tb-av{width:30px;height:30px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.view{display:none;flex-direction:column;gap:16px;animation:fu .22s ease forwards}
+.view.on{display:flex}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{transform:scale(.7) translateY(16px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── SHARED ── */
+.card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rx)}
+.card-p{padding:16px 18px}
+.ph{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.ph h2{font-size:19px;font-weight:800;letter-spacing:-.03em}
+.ph p{font-size:12.5px;color:var(--g400);margin-top:2px}
+.ph-r{display:flex;gap:8px;align-items:center}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .14s;white-space:nowrap}
+.btn-g{background:var(--green);color:#fff}.btn-g:hover{background:var(--green-d);transform:translateY(-1px)}
+.btn-gh{background:var(--white);color:var(--g600);border:1px solid var(--g200)}.btn-gh:hover{background:var(--g100)}
+.btn-wa{background:var(--wa);color:#fff}.btn-wa:hover{background:var(--wa-d);transform:translateY(-1px)}
+.btn-dk{background:var(--black);color:#fff}.btn-dk:hover{background:#222}
+.btn-sm{padding:5px 11px;font-size:12px}
+.ico-btn{padding:6px;border-radius:var(--r);background:var(--g100);border:none;cursor:pointer;color:var(--g600);font-size:16px;transition:background .12s}
+.ico-btn:hover{background:var(--g200)}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.b-confirmed{background:var(--green-l);color:#15573a}.b-confirmed::before{background:var(--green)}
+.b-pending{background:var(--amber-l);color:#78350f}.b-pending::before{background:var(--amber)}
+.b-cancelled{background:var(--red-l);color:#7f1d1d}.b-cancelled::before{background:var(--red)}
+.b-completed{background:var(--blue-l);color:#1e3a8a}.b-completed::before{background:var(--blue)}
+.b-new{background:var(--blue-l);color:#1e3a8a}.b-new::before{background:var(--blue)}
+.b-contacted{background:var(--purple-l);color:#4c1d95}.b-contacted::before{background:var(--purple)}
+.b-qualified{background:var(--green-l);color:#15573a}.b-qualified::before{background:var(--green)}
+.b-proposal{background:var(--amber-l);color:#78350f}.b-proposal::before{background:var(--amber)}
+.b-won{background:var(--green-l);color:#15573a}.b-won::before{background:var(--green)}
+.b-lost{background:var(--red-l);color:#7f1d1d}.b-lost::before{background:var(--red)}
+
+.ftabs{display:flex;gap:3px;background:var(--g100);border-radius:var(--r);padding:3px}
+.ftab{padding:5px 13px;border-radius:6px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--g400);transition:all .12s}
+.ftab.on{background:var(--white);color:var(--black);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);padding:9px 14px;text-align:left;border-bottom:1px solid var(--g200)}
+.tbl td{padding:11px 14px;font-size:12.5px;color:var(--g600);border-bottom:1px solid var(--g100);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer;transition:background .1s}
+.tbl tbody tr:hover{background:var(--g50)}
+.td-m{font-size:13px;font-weight:600;color:var(--black)}
+.td-s{font-size:11px;color:var(--g400);margin-top:1px}
+.td-row{display:flex;align-items:center;gap:9px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--white);border:1px solid var(--g200);border-radius:var(--rx);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 var(--rx) var(--rx)}
+.kpi.cg::after{background:var(--green)}.kpi.ca::after{background:var(--amber)}.kpi.cb::after{background:var(--blue)}.kpi.cp::after{background:var(--purple)}
+.kpi-icon{width:34px;height:34px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px}
+.ki-g{background:var(--green-l);color:var(--green)}.ki-a{background:var(--amber-l);color:var(--amber)}.ki-b{background:var(--blue-l);color:var(--blue)}.ki-p{background:var(--purple-l);color:var(--purple)}
+.kpi-val{font-size:26px;font-weight:900;color:var(--black);letter-spacing:-.04em;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums}
+.kpi-lbl{font-size:11.5px;color:var(--g400);font-weight:500;margin-bottom:10px}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:99px}
+.delta.up{background:var(--green-l);color:#15573a}.delta.dn{background:var(--red-l);color:#7f1d1d}
+.kpi-spark{margin-top:10px}
+.kpi-period{font-size:10.5px;color:var(--g400);margin-left:5px}
+
+/* ── TWO/THREE COL ── */
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ── ACTIVITY / MINI STATS ── */
+.act-list{display:flex;flex-direction:column}
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--g100)}
+.act-item:last-child{border-bottom:none}
+.act-ico{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.act-txt{font-size:12px;color:var(--g600);line-height:1.5}
+.act-txt b{color:var(--black);font-weight:600}
+.act-time{font-size:10.5px;color:var(--g400);margin-top:2px}
+.ms{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--g100)}
+.ms:last-child{border-bottom:none}
+.ms-l{font-size:12.5px;color:var(--g600)}.ms-v{font-size:13px;font-weight:700;font-family:var(--mono)}
+
+/* ── KANBAN ── */
+.kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
+.k-col{flex:0 0 200px;display:flex;flex-direction:column;gap:8px}
+.k-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--white);border:1px solid var(--g200);border-radius:var(--rl)}
+.k-dot{width:8px;height:8px;border-radius:50%}
+.k-name{font-size:12px;font-weight:700}
+.k-cnt{font-size:11px;font-weight:700;background:var(--g100);color:var(--g600);padding:1px 7px;border-radius:99px}
+.k-cards{display:flex;flex-direction:column;gap:8px;min-height:60px}
+.lc{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);padding:12px 13px;cursor:pointer;transition:all .14s}
+.lc:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);transform:translateY(-2px);border-color:var(--g300)}
+.lc-name{font-size:12.5px;font-weight:700;margin-bottom:5px}
+.lc-svc{font-size:11px;color:var(--g600);margin-bottom:6px}
+.lc-val{font-size:13px;font-weight:800;font-family:var(--mono);margin-bottom:8px}
+.lc-foot{display:flex;align-items:center;justify-content:space-between}
+.lc-days{font-size:10.5px;color:var(--g400)}
+.lc-acts{display:flex;gap:4px}
+.la{width:25px;height:25px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .12s}
+.la-w{background:var(--wa-l);color:var(--wa-d)}.la-w:hover{background:#c5f0d8}
+.la-e{background:var(--blue-l);color:var(--blue)}.la-e:hover{background:#dbeafe}
+.src-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px}
+.src-w{background:var(--blue-l);color:var(--blue)}
+.src-r{background:var(--green-l);color:var(--green-d)}
+.src-s{background:var(--purple-l);color:var(--purple)}
+.src-d{background:var(--g100);color:var(--g600)}
+.src-f{background:var(--teal-l);color:var(--teal)}
+.k-empty{text-align:center;padding:20px 12px;color:var(--g400);font-size:11px;border:1px dashed var(--g200);border-radius:var(--rl)}
+
+/* ── CLIENT GRID ── */
+.cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cc{background:var(--white);border:1px solid var(--g200);border-radius:var(--rx);padding:15px 17px;cursor:pointer;transition:all .15s}
+.cc:hover{box-shadow:0 6px 20px rgba(0,0,0,.07);transform:translateY(-2px)}
+.cc-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.cc-nm{font-size:13.5px;font-weight:700}.cc-tp{font-size:11px;color:var(--g400);margin-top:1px}
+.cc-stats{display:flex;border-top:1px solid var(--g100);padding-top:10px}
+.cc-stat{flex:1;text-align:center}
+.cc-stat:not(:last-child){border-right:1px solid var(--g100)}
+.cc-sv{font-size:15px;font-weight:800;font-family:var(--mono)}
+.cc-sl{font-size:9.5px;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* ── AUTOMATION ── */
+.tmpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.tc{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);padding:15px 17px;transition:all .15s}
+.tc:hover{border-color:var(--g300);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.tc-icon{width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.tc-nm{font-size:12.5px;font-weight:700}.tc-tr{font-size:11px;color:var(--g400)}
+.tc-prev{font-size:11.5px;color:var(--g600);line-height:1.55;border-radius:var(--r);padding:9px 11px;margin:10px 0;font-style:italic}
+.tc-foot{display:flex;align-items:center;justify-content:space-between}
+.tc-sent{font-size:11px;color:var(--g400)}
+.tr-row{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);padding:12px 15px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.tr-icon{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.tr-nm{font-size:12.5px;font-weight:700}.tr-ds{font-size:11px;color:var(--g400);margin-top:1px}
+.tr-arrow{font-size:11px;color:var(--g400);padding:0 6px}
+.tr-act{font-size:12px;font-weight:600}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tsl{position:absolute;inset:0;background:var(--g200);border-radius:99px;cursor:pointer;transition:background .2s}
+.tsl::before{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;left:2px;top:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.tsl{background:var(--green)}
+.toggle input:checked+.tsl::before{transform:translateX(16px)}
+
+/* ── ANALYTICS ── */
+.chart-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rx);padding:18px 20px}
+.chart-ttl{font-size:13px;font-weight:700;margin-bottom:12px}
+.bar-chart{display:flex;align-items:flex-end;gap:7px;height:110px}
+.b-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.bar{width:100%;border-radius:5px 5px 0 0;min-height:4px;transition:opacity .15s;position:relative}
+.bar:hover{opacity:.75}
+.b-lbl{font-size:9px;color:var(--g400);text-align:center}
+.b-val{font-size:9px;font-weight:600;font-family:var(--mono)}
+.prog{height:7px;background:var(--g100);border-radius:99px;overflow:hidden;flex:1}
+.prog-fill{height:100%;border-radius:99px}
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.funnel-lbl{font-size:11.5px;color:var(--g600);width:85px;flex-shrink:0}
+.funnel-bar{flex:1;height:22px;background:var(--g100);border-radius:99px;overflow:hidden}
+.funnel-fill{height:100%;border-radius:99px;display:flex;align-items:center;padding-left:10px;transition:width 1s ease}
+.funnel-cnt{font-size:11px;font-weight:700;color:#fff;font-family:var(--mono)}
+.funnel-pct{font-size:11px;color:var(--g400);width:34px;text-align:right;flex-shrink:0}
+
+/* ── OVERLAY / DRAWER / MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.on{opacity:1;pointer-events:all}
+.drawer{position:fixed;right:-480px;top:0;bottom:0;width:440px;background:var(--white);border-left:1px solid var(--g200);box-shadow:-8px 0 40px rgba(0,0,0,.1);z-index:300;transition:right .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.drawer.on{right:0}
+.dr-hdr{padding:16px 20px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dr-hdr h3{font-size:14px;font-weight:800}
+.dr-body{flex:1;overflow-y:auto;padding:20px}
+.dr-foot{padding:14px 20px;border-top:1px solid var(--g200);display:flex;gap:9px;flex-shrink:0}
+.dr-field{margin-bottom:18px}
+.dr-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);display:block;margin-bottom:4px}
+.dr-field p{font-size:13.5px;font-weight:500}
+.modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;opacity:0;transition:opacity .2s}
+.modal.on{opacity:1;pointer-events:all}
+.modal-box{background:var(--white);border-radius:var(--r2x);width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.18);animation:pop .25s ease forwards;display:flex;flex-direction:column;max-height:90vh}
+.m-hdr{padding:17px 22px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.m-hdr h3{font-size:15px;font-weight:800}
+.m-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:13px}
+.m-foot{padding:14px 22px;border-top:1px solid var(--g200);display:flex;gap:9px;justify-content:flex-end;flex-shrink:0}
+.ff{display:flex;flex-direction:column;gap:5px}
+.ff label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g400)}
+.ff input,.ff select,.ff textarea{border:1.5px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:var(--font);font-size:13.5px;color:var(--black);background:var(--white);outline:none;transition:border-color .14s;width:100%}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--green)}
+.ff textarea{resize:vertical;min-height:90px}
+.msg-prev{border-radius:var(--r);padding:12px 14px;font-size:12.5px;line-height:1.6;color:var(--g600);white-space:pre-wrap;margin-top:6px}
+.wa-prev{background:var(--wa-l)}
+.em-prev{background:var(--g50);border:1px solid var(--g200)}
+
+/* ── NOTIF PANEL ── */
+.np{position:fixed;right:-320px;top:var(--hh);bottom:0;width:300px;background:var(--white);border-left:1px solid var(--g200);box-shadow:-6px 0 28px rgba(0,0,0,.07);z-index:250;transition:right .2s;display:flex;flex-direction:column}
+.np.on{right:0}
+.np-hdr{padding:13px 18px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between}
+.np-hdr h3{font-size:13.5px;font-weight:700}
+.np-mark{font-size:11px;color:var(--green);font-weight:600;cursor:pointer}
+.np-list{flex:1;overflow-y:auto}
+.np-item{display:flex;align-items:flex-start;gap:10px;padding:11px 18px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--g100)}
+.np-item:hover{background:var(--g50)}
+.np-item.unread{background:var(--green-l)}
+.np-ico{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.np-txt{font-size:12px;color:var(--g600);line-height:1.5}
+.np-txt b{color:var(--black);font-weight:600}
+.np-time{font-size:10.5px;color:var(--g400);margin-top:2px}
+
+/* ── DETAIL INLINE CARD ── */
+.detail-card{background:var(--g50);border:1px solid var(--g200);border-radius:var(--rx);padding:16px;margin-bottom:14px;animation:fu .22s ease forwards}
+.stat-pills{display:flex;gap:10px;margin-bottom:14px}
+.spill{display:flex;flex-direction:column;align-items:center;padding:10px 14px;background:var(--white);border:1px solid var(--g200);border-radius:var(--r)}
+.spill-v{font-size:18px;font-weight:800;font-family:var(--mono)}
+.spill-l{font-size:10px;color:var(--g400);margin-top:2px}
+
+/* ── TOAST ── */
+#toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--black);color:#fff;font-size:13px;font-weight:500;padding:11px 16px;border-radius:var(--rl);box-shadow:0 8px 28px rgba(0,0,0,.22);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease forwards;pointer-events:all;min-width:220px}
+.toast.fading{animation:toastOut .25s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes toastOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(8px)}}
+.toast.t-success i{color:var(--green)}.toast.t-error i{color:var(--red)}.toast.t-info i{color:var(--blue)}.toast.t-warning i{color:var(--amber)}
+
+/* ── FORM GRID ── */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── CHART TOOLTIP ── */
+.chart-tip{position:fixed;background:var(--black);color:#fff;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9000;white-space:nowrap;transform:translate(-50%,-110%)}
+.chart-tip.show{opacity:1}
+.bar:hover{cursor:pointer}
+
+/* ── STATUS PILL ── */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .14s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.cl-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:960px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.sb{width:58px}.sb .sb-logo-txt,.sb .sb-lbl,.sb .sb-badge,.sb .sb-ui,.sb .bc-lbl,.sb .sb-sec{opacity:0;pointer-events:none}.main{margin-left:58px}.cl-grid{grid-template-columns:1fr}.search{display:none}}
+.client-view{padding:0;gap:0}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ────────────────────────────────────── -->
+<aside class="sb" id="sb">
+  <a class="sb-logo" href="savvion-auth.html">
+    <div class="sb-logo-icon"><i class="ti ti-calendar-check" aria-hidden="true"></i></div>
+    <span class="sb-logo-txt">Control Centre</span>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-sec">Operations</div>
+    <div class="sb-item active" data-v="overview" onclick="nav('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="sb-lbl">Overview</span></div>
+    <div class="sb-item" data-v="leads" onclick="nav('leads')"><i class="ti ti-filter" aria-hidden="true"></i><span class="sb-lbl">Leads</span><span class="sb-badge a">12</span></div>
+    <div class="sb-item" data-v="bookings" onclick="nav('bookings')"><i class="ti ti-calendar-event" aria-hidden="true"></i><span class="sb-lbl">Bookings</span><span class="sb-badge g">7</span></div>
+     <div class="sb-item" data-v="clients" onclick="nav('clients')"><i class="ti ti-users" aria-hidden="true"></i><span class="sb-lbl">Clients</span></div>
+     <div class="sb-item" data-v="staff" onclick="nav('staff')"><i class="ti ti-users-group" aria-hidden="true"></i><span class="sb-lbl">Staff</span></div>
+     <div class="sb-sec">Client Views</div>
+    <div class="sb-item" data-v="client-dashboard" onclick="nav('client-dashboard')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="sb-lbl">Client Dashboard</span></div>
+    <div class="sb-item" data-v="client-portal" onclick="nav('client-portal')"><i class="ti ti-user" aria-hidden="true"></i><span class="sb-lbl">Client Portal</span></div>
+    <div class="sb-sec">Engagement</div>
+    <div class="sb-item" data-v="automation" onclick="nav('automation')"><i class="ti ti-bolt" aria-hidden="true"></i><span class="sb-lbl">Automation</span></div>
+    <div class="sb-item" data-v="analytics" onclick="nav('analytics')"><i class="ti ti-chart-line" aria-hidden="true"></i><span class="sb-lbl">Analytics</span></div>
+    <div class="sb-sec">System</div>
+    <div class="sb-item" data-v="settings" onclick="nav('settings')"><i class="ti ti-settings" aria-hidden="true"></i><span class="sb-lbl">Settings</span></div>
+    <a class="sb-item" href="savvion-auth.html"><i class="ti ti-logout" aria-hidden="true"></i><span class="sb-lbl">Sign out</span></a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">EM</div>
+      <div class="sb-ui"><div class="sb-uname">Emmanuel M.</div><div class="sb-urole">Super Admin</div></div>
+    </div>
+    <button class="btn-col" id="btn-col" onclick="toggleSb()">
+      <i class="ti ti-arrow-bar-left" aria-hidden="true"></i>
+      <span class="bc-lbl">Collapse</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ── MAIN ──────────────────────────────────────── -->
+<div class="main" id="main">
+
+  <!-- TOPBAR -->
+  <header class="tb">
+    <span class="tb-title" id="tb-title">Overview <span class="tb-sub" id="tb-sub"></span></span>
+    <div class="search"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="gsearch" placeholder="Search clients, leads, bookings…"/></div>
+    <div class="tb-right">
+      <button class="btn btn-wa btn-sm" onclick="openCompose('whatsapp',null)"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Message</button>
+      <button class="ico" id="btn-notif" onclick="toggleNotif()" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i><div class="ndot"></div></button>
+      <div class="tb-div"></div>
+      <div class="tb-av" title="Emmanuel Meshack">EM</div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- ═══ OVERVIEW ═══════════════════════════════ -->
+    <div class="view on" id="v-overview">
+      <div class="ph">
+        <div><h2>Dashboard</h2><p id="ov-date"></p></div>
+        <div class="ph-r">
+          <button class="btn btn-gh btn-sm"><i class="ti ti-download" aria-hidden="true"></i> Export</button>
+          <button class="btn btn-g btn-sm"><i class="ti ti-plus" aria-hidden="true"></i> New Booking</button>
+        </div>
+      </div>
+      <div class="kpi-grid" id="ov-kpis"></div>
+      <div class="two-col">
+        <div>
+          <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 0">
+              <span style="font-size:13px;font-weight:700">Recent Bookings</span>
+              <button class="btn btn-gh btn-sm" onclick="nav('bookings')">See all</button>
+            </div>
+            <div style="padding:9px 16px"><div class="ftabs" id="ov-bk-tabs"></div></div>
+            <table class="tbl"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody id="ov-bk-body"></tbody></table>
+          </div>
+          <div class="card card-p">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <span style="font-size:13px;font-weight:700">Lead Pipeline</span>
+              <button class="btn btn-gh btn-sm" onclick="nav('leads')">View Kanban</button>
+            </div>
+            <div id="ov-funnel"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card card-p"><div style="font-size:13px;font-weight:700;margin-bottom:12px">This Week</div><div id="ov-week"></div></div>
+          <div class="card card-p" style="flex:1"><div style="font-size:13px;font-weight:700;margin-bottom:10px">Live Activity</div><div class="act-list" id="ov-act"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LEADS ══════════════════════════════════ -->
+    <div class="view" id="v-leads">
+      <div class="ph">
+        <div><h2>Lead Pipeline</h2><p>12 active leads · KES 1.24M pipeline value</p></div>
+        <div class="ph-r">
+          <div class="ftabs" id="ld-view-tabs">
+            <button class="ftab on" data-lv="kanban" onclick="setLdView('kanban')"><i class="ti ti-layout-kanban" aria-hidden="true"></i> Kanban</button>
+            <button class="ftab" data-lv="table" onclick="setLdView('table')"><i class="ti ti-table" aria-hidden="true"></i> Table</button>
+          </div>
+          <button class="btn btn-g btn-sm" onclick="openNewLead()"><i class="ti ti-plus" aria-hidden="true"></i> New Lead</button>
+        </div>
+      </div>
+      <div id="ld-detail"></div>
+      <div class="kanban" id="ld-kanban"></div>
+      <div id="ld-table" style="display:none"></div>
+    </div>
+
+    <!-- ═══ BOOKINGS ═══════════════════════════════ -->
+    <div class="view" id="v-bookings">
+      <div class="ph">
+        <div><h2>Bookings</h2><p>All client appointments and service sessions</p></div>
+        <div class="ph-r">
+          <button class="btn btn-gh btn-sm"><i class="ti ti-download" aria-hidden="true"></i> Export</button>
+          <button class="btn btn-g btn-sm"><i class="ti ti-plus" aria-hidden="true"></i> New Booking</button>
+        </div>
+      </div>
+      <div id="bk-detail"></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px">
+          <div class="ftabs" id="bk-tabs"></div>
+          <div class="search" style="width:190px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="bk-search" placeholder="Search…" oninput="renderBkTable()"/></div>
+        </div>
+        <table class="tbl"><thead><tr><th>Client</th><th>Service</th><th>Date &amp; Time</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="bk-body"></tbody></table>
+      </div>
+    </div>
+
+     <!-- ═══ CLIENTS ════════════════════════════════ -->
+     <div class="view" id="v-clients">
+       <div class="ph">
+         <div><h2>Clients</h2><p>142 active · click any card for full history &amp; services</p></div>
+         <div class="ph-r">
+           <div class="search" style="width:210px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="cl-search" placeholder="Search clients…" oninput="renderClients()"/></div>
+           <button class="btn btn-g btn-sm"><i class="ti ti-user-plus" aria-hidden="true"></i> Add Client</button>
+         </div>
+       </div>
+       <div id="cl-detail"></div>
+       <div class="cl-grid" id="cl-grid"></div>
+     </div>
+
+     <!-- ═══ STAFF ════════════════════════════════════ -->
+     <div class="view" id="v-staff">
+       <div class="ph">
+         <div><h2>Staff Management</h2><p>Manage team members and their access levels</p></div>
+         <div class="ph-r">
+           <div class="search" style="width:210px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="st-search" placeholder="Search staff…" oninput="renderStaff()"/></div>
+           <button class="btn btn-g btn-sm" onclick="openAddStaffModal()"><i class="ti ti-user-plus" aria-hidden="true"></i> Add Staff</button>
+         </div>
+       </div>
+       <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
+         <table class="tbl" style="margin-bottom:0">
+           <thead>
+             <tr>
+               <th>Name</th>
+               <th>Email</th>
+               <th>Role</th>
+               <th>Phone</th>
+               <th>Status</th>
+               <th></th>
+             </tr>
+           </thead>
+           <tbody id="st-body"></tbody>
+         </table>
+       </div>
+     </div>
+
+     <!-- ═══ AUTOMATION ═════════════════════════════ -->
+    <div class="view" id="v-automation">
+      <div class="ph">
+        <div><h2>Automation</h2><p>WhatsApp, email templates, and smart trigger rules</p></div>
+        <div class="ph-r">
+          <button class="btn btn-wa btn-sm" onclick="openCompose('whatsapp',null)"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Compose WhatsApp</button>
+          <button class="btn btn-dk btn-sm" onclick="openCompose('email',null)"><i class="ti ti-mail" aria-hidden="true"></i> Compose Email</button>
+        </div>
+      </div>
+      <div class="ftabs" style="align-self:flex-start" id="auto-tabs">
+        <button class="ftab on" data-at="wa" onclick="setAutoTab('wa')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+        <button class="ftab" data-at="em" onclick="setAutoTab('em')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
+        <button class="ftab" data-at="tr" onclick="setAutoTab('tr')"><i class="ti ti-bolt" aria-hidden="true"></i> Triggers</button>
+      </div>
+      <div id="auto-body"></div>
+    </div>
+
+    <!-- ═══ ANALYTICS ══════════════════════════════ -->
+    <div class="view" id="v-analytics">
+      <div class="ph">
+        <div><h2>Analytics</h2><p>Revenue, conversions, service performance, and client growth</p></div>
+        <div class="ph-r">
+          <div class="ftabs" id="an-range">
+            <button class="ftab" data-rng="7d" onclick="setRange('7d')">7d</button>
+            <button class="ftab on" data-rng="30d" onclick="setRange('30d')">30d</button>
+            <button class="ftab" data-rng="90d" onclick="setRange('90d')">90d</button>
+          </div>
+          <button class="btn btn-gh btn-sm"><i class="ti ti-download" aria-hidden="true"></i> Export PDF</button>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)" id="an-kpis"></div>
+      <div class="two-col">
+        <div class="chart-card"><div class="chart-ttl">Revenue (KES thousands) — Last 6 months</div><div id="rev-chart"></div></div>
+        <div class="chart-card"><div class="chart-ttl">Lead Conversion Funnel</div><div id="funnel-chart"></div></div>
+      </div>
+      <div class="three-col">
+        <div class="chart-card"><div class="chart-ttl">Bookings by Month</div><div id="bk-chart"></div></div>
+        <div class="chart-card"><div class="chart-ttl">Service Mix</div><div id="svc-mix" style="display:flex;flex-direction:column;gap:9px"></div></div>
+        <div class="chart-card"><div class="chart-ttl">Lead Sources</div><div id="src-mix" style="display:flex;flex-direction:column;gap:9px"></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-ttl">Top Clients by Lifetime Value</div>
+        <table class="tbl" id="top-cl-tbl"><thead><tr><th>Client</th><th>Type</th><th>Bookings</th><th>Total Spent (KES)</th><th>Last Active</th></tr></thead><tbody id="top-cl-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS ═══════════════════════════════ -->
+    <div class="view" id="v-settings">
+      <div class="ph"><div><h2>Settings</h2><p>Business profile, integrations, and preferences</p></div></div>
+      <div class="two-col">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card card-p">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">Business Profile</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="ff"><label>Business Name</label><input type="text" value="Savvion Agency"/></div>
+              <div class="ff"><label>Contact Email</label><input type="email" value="hello@savvion.com"/></div>
+              <div class="ff"><label>WhatsApp Number</label><input type="tel" value="+254 795 582 978"/></div>
+              <div class="ff"><label>Location</label><input type="text" value="Nairobi, Kenya"/></div>
+              <button class="btn btn-g" style="align-self:flex-start">Save Changes</button>
+            </div>
+          </div>
+          <div class="card card-p">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">Integrations</div>
+            <div id="int-list"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card card-p">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">Notifications</div>
+            <div id="notif-settings"></div>
+          </div>
+          <div class="card card-p">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px">System Links</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <a href="savvion-auth.html" class="btn btn-gh" style="justify-content:flex-start"><i class="ti ti-lock" style="color:var(--g400)" aria-hidden="true"></i> Auth / Sign-in Page</a>
+              <a href="client-dashboard.html" class="btn btn-gh" style="justify-content:flex-start"><i class="ti ti-layout-dashboard" style="color:var(--g400)" aria-hidden="true"></i> Client Dashboard</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- OVERLAYS -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<!-- Booking Drawer -->
+<div class="drawer" id="bk-drawer">
+  <div class="dr-hdr"><h3>Booking Details</h3><button class="ico-btn" onclick="closeDr('bk-drawer')"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+  <div class="dr-body" id="bk-dr-body"></div>
+  <div class="dr-foot">
+    <button class="btn btn-g" style="flex:1" id="bk-confirm-btn">Confirm Booking</button>
+    <button class="btn btn-wa" id="bk-wa-btn"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button>
+    <button class="btn btn-gh" onclick="closeDr('bk-drawer')">Close</button>
+  </div>
+</div>
+
+<!-- Client Drawer -->
+<div class="drawer" id="cl-drawer">
+  <div class="dr-hdr"><h3 id="cl-dr-title">Client Profile</h3><button class="ico-btn" onclick="closeDr('cl-drawer')"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+  <div class="dr-body" id="cl-dr-body"></div>
+  <div class="dr-foot">
+    <button class="btn btn-wa" style="flex:1" id="cl-wa-btn"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+    <button class="btn btn-dk" style="flex:1" id="cl-em-btn"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
+    <button class="btn btn-gh" onclick="closeDr('cl-drawer')">Close</button>
+  </div>
+</div>
+
+<!-- Lead Drawer -->
+<div class="drawer" id="ld-drawer">
+  <div class="dr-hdr"><h3 id="ld-dr-title">Lead Details</h3><button class="ico-btn" onclick="closeDr('ld-drawer')"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+  <div class="dr-body" id="ld-dr-body"></div>
+  <div class="dr-foot">
+    <button class="btn btn-wa" style="flex:1" id="ld-wa-btn"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+    <button class="btn btn-g" id="ld-conv-btn">Convert to Booking</button>
+    <button class="btn btn-gh" onclick="closeDr('ld-drawer')">Close</button>
+  </div>
+</div>
+
+<!-- Compose Modal -->
+<div class="modal" id="compose-modal">
+  <div class="modal-box">
+    <div class="m-hdr"><h3 id="cm-title">Compose Message</h3><button class="ico-btn" onclick="closeCompose()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    <div class="m-body" id="cm-body"></div>
+    <div class="m-foot" id="cm-foot"></div>
+  </div>
+</div>
+
+<!-- Notification Panel -->
+<div class="np" id="np">
+  <div class="np-hdr"><h3>Notifications</h3><span class="np-mark" onclick="closeNp()">Mark all read</span></div>
+  <div class="np-list" id="np-list"></div>
+</div>
+
+<div id="toast-wrap"></div>
+<div id="chart-tip" class="chart-tip"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════════════ */
+const AVC=['#2da869','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#f97316','#6366f1'];
+const BOOKINGS=[
+  {id:'BK-001',client:'Amara Ochieng',org:'Freelance Designer',service:'Website Audit',date:'Today',time:'2:00 PM',amount:15000,status:'confirmed',av:'AO',ai:0},
+  {id:'BK-002',client:'Kariuki & Sons',org:'SME — Retail',service:'Landing Page Design',date:'Today',time:'4:30 PM',amount:45000,status:'pending',av:'KS',ai:3},
+  {id:'BK-003',client:'Kibali Ministry',org:'Nonprofit',service:'Brand Strategy',date:'Tomorrow',time:'10:00 AM',amount:80000,status:'confirmed',av:'KM',ai:1},
+  {id:'BK-004',client:'Wanjiku Foundation',org:'NGO — Health',service:'SEO Optimization',date:'Tomorrow',time:'2:00 PM',amount:28000,status:'confirmed',av:'WF',ai:4},
+  {id:'BK-005',client:'LumiCore Consultants',org:'B2B Consulting',service:'CRM Setup',date:'Dec 18',time:'9:00 AM',amount:120000,status:'pending',av:'LC',ai:5},
+  {id:'BK-006',client:'Amani Youth Org',org:'NGO — Youth',service:'Digital Marketing',date:'Dec 19',time:'11:00 AM',amount:35000,status:'cancelled',av:'AY',ai:6},
+  {id:'BK-007',client:'TechBridge Kenya',org:'Startup — Fintech',service:'AI & API Integration',date:'Dec 20',time:'3:00 PM',amount:95000,status:'confirmed',av:'TB',ai:2},
+  {id:'BK-008',client:'Zawadi Cooperative',org:'SACCO',service:'Funnel Optimization',date:'Dec 21',time:'10:30 AM',amount:42000,status:'pending',av:'ZC',ai:7},
+  {id:'BK-009',client:'Pamoja Health NGO',org:'NGO — Healthcare',service:'Website Development',date:'Dec 22',time:'1:00 PM',amount:180000,status:'confirmed',av:'PH',ai:0},
+  {id:'BK-010',client:'Safina Traders',org:'SME — Import/Export',service:'Conversion Audit',date:'Dec 23',time:'9:00 AM',amount:12000,status:'pending',av:'ST',ai:3},
+];
+const LEADS=[
+  {id:'LD-001',name:'Ngozi Adeyemi',org:'Design Studio',service:'Landing Page Design',value:55000,source:'Website',stage:'new',days:0,phone:'+254712000001',email:'ngozi@studio.co.ke'},
+  {id:'LD-002',name:'Baraka Solutions',org:'SME',service:'CRM Setup',value:120000,source:'Referral',stage:'contacted',days:2,phone:'+254798000002',email:'info@baraka.co.ke'},
+  {id:'LD-003',name:'Zuri Wellness',org:'Health & Wellness',service:'Website Development',value:180000,source:'Social',stage:'qualified',days:5,phone:'+254721000003',email:'hello@zuri.co.ke'},
+  {id:'LD-004',name:'Mkesha Tech',org:'Startup',service:'AI Integration',value:95000,source:'Website',stage:'proposal',days:3,phone:'+254733000004',email:'ceo@mkesha.io'},
+  {id:'LD-005',name:'Amkeni NGO',org:'Nonprofit',service:'Digital Marketing',value:40000,source:'Referral',stage:'won',days:12,phone:'+254745000005',email:'director@amkeni.org'},
+  {id:'LD-006',name:'Simba Retail',org:'SME — Retail',service:'SEO Optimization',value:30000,source:'Direct',stage:'lost',days:14,phone:'+254756000006',email:'simba@retail.co.ke'},
+  {id:'LD-007',name:'Tumaini Academy',org:'Education',service:'Website Audit',value:22000,source:'Website',stage:'new',days:1,phone:'+254767000007',email:'admin@tumaini.sc.ke'},
+  {id:'LD-008',name:'Karibu Resort',org:'Hospitality',service:'Brand Strategy',value:75000,source:'Social',stage:'contacted',days:4,phone:'+254778000008',email:'mgr@karibu.co.ke'},
+  {id:'LD-009',name:'PesaWise Ltd',org:'Fintech',service:'Landing Page Design',value:60000,source:'Form',stage:'qualified',days:6,phone:'+254789000009',email:'growth@pesawise.co'},
+  {id:'LD-010',name:'Afya Clinics',org:'Healthcare',service:'CRM Setup',value:90000,source:'Referral',stage:'proposal',days:8,phone:'+254790000010',email:'it@afyaclinics.ke'},
+  {id:'LD-011',name:'Savana Hardware',org:'SME — Hardware',service:'Website Development',value:55000,source:'Direct',stage:'new',days:0,phone:'+254791000011',email:'shop@savana.ke'},
+  {id:'LD-012',name:'Imara Properties',org:'Real Estate',service:'Digital Marketing',value:110000,source:'Website',stage:'contacted',days:3,phone:'+254792000012',email:'leads@imara.co.ke'},
+];
+const CLIENTS=[
+  {id:'C1',name:'Kibali Ministry',type:'Nonprofit / Ministry',bookings:4,spent:240000,av:'KM',ai:1,last:'2 days ago'},
+  {id:'C2',name:'LumiCore Consultants',type:'B2B Consulting',bookings:6,spent:380000,av:'LC',ai:5,last:'Today'},
+  {id:'C3',name:'TechBridge Kenya',type:'Fintech Startup',bookings:3,spent:215000,av:'TB',ai:2,last:'3 days ago'},
+  {id:'C4',name:'Pamoja Health NGO',type:'Healthcare NGO',bookings:5,spent:310000,av:'PH',ai:0,last:'Yesterday'},
+  {id:'C5',name:'Wanjiku Foundation',type:'NGO — Health',bookings:2,spent:56000,av:'WF',ai:4,last:'1 week ago'},
+  {id:'C6',name:'Kariuki & Sons',type:'SME — Retail',bookings:3,spent:95000,av:'KS',ai:3,last:'Today'},
+  {id:'C7',name:'Zawadi Cooperative',type:'SACCO',bookings:2,spent:84000,av:'ZC',ai:7,last:'4 days ago'},
+  {id:'C8',name:'Amara Ochieng',type:'Freelance Designer',bookings:1,spent:15000,av:'AO',ai:0,last:'Today'},
+  {id:'C9',name:'Safina Traders',type:'SME — Import/Export',bookings:2,spent:24000,av:'ST',ai:3,last:'5 days ago'},
+];
+const WA_TPLS=[
+  {id:'W1',name:'Booking Confirmation',trigger:'On booking confirm',sent:124,msg:'Hello {{name}}! 🎉 Your booking for *{{service}}* has been confirmed for {{date}} at {{time}}.\n\nWe look forward to working with you!\n\n— Savvion Team'},
+  {id:'W2',name:'Appointment Reminder',trigger:'24 hrs before session',sent:89,msg:'Hi {{name}}, a quick reminder that your *{{service}}* session is tomorrow at {{time}}.\n\nReply YES to confirm or call +254 795 582 978 to reschedule.'},
+  {id:'W3',name:'Lead Follow-up',trigger:'New lead captured',sent:207,msg:'Hello {{name}}! 👋 Thank you for your interest in {{service}}.\n\nWe\'d love to schedule a free 30-min discovery call. When works best for you?'},
+  {id:'W4',name:'Payment Received',trigger:'Payment confirmed',sent:61,msg:'Hi {{name}}, payment of *KES {{amount}}* received for {{service}}. ✅\n\nYour session is confirmed for {{date}}. See you then!'},
+  {id:'W5',name:'Post-Service Follow-up',trigger:'2 hrs after session',sent:43,msg:'Hi {{name}}, we hope your {{service}} session went well! Your feedback means the world to us. ⭐\n\nReply with your rating (1–5) or share a review.'},
+];
+const EM_TPLS=[
+  {id:'E1',name:'Welcome Email',trigger:'New client signup',sent:98,subject:'Welcome to Savvion — let\'s build something great',preview:'Thank you for choosing Savvion. Here\'s what to expect next…'},
+  {id:'E2',name:'Booking Confirmation',trigger:'Booking confirmed',sent:115,subject:'Your booking is confirmed — {{service}}',preview:'Hi {{name}}, your session for {{service}} is confirmed for {{date}} at {{time}}…'},
+  {id:'E3',name:'Invoice',trigger:'Session completed',sent:72,subject:'Invoice for {{service}} — KES {{amount}}',preview:'Please find attached your invoice for the {{service}} engagement…'},
+  {id:'E4',name:'Re-engagement',trigger:'30 days no activity',sent:34,subject:'We miss you, {{name}} 👋',preview:'It\'s been a while! Here\'s what\'s new at Savvion and how we can help you grow…'},
+  {id:'E5',name:'Proposal',trigger:'Lead qualified',sent:28,subject:'Proposal: {{service}} for {{org}}',preview:'Following our discovery call, please find your custom proposal attached…'},
+];
+const TRIGGERS=[
+  {id:'T1',icon:'ti-calendar-plus',name:'New booking created',desc:'Booking confirmed in system',action:'Send WhatsApp confirmation',ch:'WhatsApp',delay:'Immediately',on:true},
+  {id:'T2',icon:'ti-clock',name:'24 hrs before appointment',desc:'Upcoming session reminder',action:'Send WhatsApp reminder',ch:'WhatsApp',delay:'24h before',on:true},
+  {id:'T3',icon:'ti-filter',name:'New lead captured',desc:'Lead form submitted or added',action:'Send follow-up email',ch:'Email',delay:'10 min',on:true},
+  {id:'T4',icon:'ti-check',name:'Session completed',desc:'Booking marked as done',action:'Send review request email',ch:'Email',delay:'2 hrs after',on:false},
+  {id:'T5',icon:'ti-message-x',name:'Lead no response',desc:'No reply after 3 days',action:'Send WhatsApp nudge',ch:'WhatsApp',delay:'3 days',on:true},
+  {id:'T6',icon:'ti-cash',name:'Payment received',desc:'Payment confirmed',action:'Send payment receipt email',ch:'Email',delay:'Immediately',on:true},
+];
+const ACTIVITIES=[
+  {icon:'ti-calendar-plus',col:'#edf7f2',icol:'var(--green)',txt:'<b>Amara Ochieng</b> booked a Website Audit — Today 2:00 PM',t:'5 min ago'},
+  {icon:'ti-cash',col:'#eff6ff',icol:'var(--blue)',txt:'Payment of <b>KES 80,000</b> received from Kibali Ministry',t:'23 min ago'},
+  {icon:'ti-user-plus',col:'#edf7f2',icol:'var(--green)',txt:'New client registered: <b>TechBridge Kenya</b>',t:'2 hrs ago'},
+  {icon:'ti-calendar-x',col:'#fef2f2',icol:'var(--red)',txt:'Booking BK-006 cancelled by <b>Amani Youth Org</b>',t:'3 hrs ago'},
+  {icon:'ti-star',col:'#fffbeb',icol:'var(--amber)',txt:'<b>Pamoja Health NGO</b> left a 5-star review',t:'5 hrs ago'},
+];
+const NOTIFS=[
+  {icon:'ti-clock',bg:'#fffbeb',ic:'var(--amber)',txt:'7 bookings require your <b>approval</b>',t:'Just now',u:true},
+  {icon:'ti-cash',bg:'#eff6ff',ic:'var(--blue)',txt:'Payment received from <b>Kibali Ministry</b>',t:'23 min ago',u:true},
+  {icon:'ti-user-plus',bg:'#edf7f2',ic:'var(--green)',txt:'New client: <b>TechBridge Kenya</b>',t:'2 hrs ago',u:true},
+  {icon:'ti-calendar-x',bg:'#fef2f2',ic:'var(--red)',txt:'Booking BK-006 <b>cancelled</b>',t:'3 hrs ago',u:false},
+  {icon:'ti-chart-bar',bg:'#f5f3ff',ic:'var(--purple)',txt:'Weekly report <b>ready to view</b>',t:'Yesterday',u:false},
+];
+
+/* ════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════ */
+const S={view:'overview',bkF:'all',ldV:'kanban',ldF:'all',autoTab:'wa',activeBk:null,activeLd:null,activeCl:null};
+
+/* ════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════ */
+const kes=n=>'KES '+n.toLocaleString('en-KE');
+const ini=s=>s.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const avHTML=(t,i,sz=28)=>`<div class="av" style="width:${sz}px;height:${sz}px;background:${AVC[i%AVC.length]};font-size:${sz<=30?10:13}px">${t}</div>`;
+const bdg=s=>`<span class="badge b-${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</span>`;
+const srcClass={Website:'src-w',Referral:'src-r',Social:'src-s',Direct:'src-d',Form:'src-f'};
+
+/* ════════════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════════════ */
+function toggleSb(){
+  document.getElementById('sb').classList.toggle('col');
+  document.getElementById('main').classList.toggle('col');
+}
+
+/* ════════════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════════════ */
+const TITLES={overview:'Overview',leads:'Lead Pipeline',bookings:'Bookings',clients:'Clients',automation:'Automation',analytics:'Analytics',settings:'Settings'};
+function nav(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.sb-item[data-v]').forEach(el=>el.classList.toggle('active',el.dataset.v===v));
+  document.getElementById('tb-title').innerHTML=TITLES[v]||v;
+  S.view=v;
+  if(v==='overview')renderOverview();
+  if(v==='leads')renderLeads();
+  if(v==='bookings')renderBookings();
+  if(v==='clients')renderClients();
+  if(v==='automation')renderAuto();
+  if(v==='analytics')renderAnalytics();
+    if(v==='settings')renderSettings();
+    if(v==='client-dashboard')renderClientDashboard();
+    if(v==='client-portal')renderClientPortal();
+  closeAll();
+}
+document.querySelectorAll('[data-view]').forEach(el=>{
+  if(!el.classList.contains('sb-item')) el.addEventListener('click',()=>nav(el.dataset.view));
+});
+
+/* ════════════════════════════════════════════════════════
+   OVERVIEW
+════════════════════════════════════════════════════════ */
+function renderOverview(){
+  const now=new Date();
+  document.getElementById('ov-date').textContent=now.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('tb-sub').textContent=' Good morning, Emmanuel 👋';
+
+  document.getElementById('ov-kpis').innerHTML=[
+    {icon:'ti-calendar-check',cls:'ki-g',col:'cg',val:'24',lbl:"Today's Bookings",d:'+12%',up:true,sp:'0,28 20,22 40,25 60,14 80,18 100,10 120,14 140,6 160,8',sc:'#2da869'},
+    {icon:'ti-clock',cls:'ki-a',col:'ca',val:'7',lbl:'Pending Approval',d:'+3',up:false,sp:'0,10 20,14 40,10 60,18 80,12 100,20 120,16 140,24 160,20',sc:'#f59e0b'},
+    {icon:'ti-users',cls:'ki-b',col:'cb',val:'142',lbl:'Active Clients',d:'+8',up:true,sp:'0,24 20,20 40,22 60,16 80,14 100,12 120,10 140,8 160,6',sc:'#3b82f6'},
+    {icon:'ti-cash',cls:'ki-p',col:'cp',val:'186K',lbl:'Revenue (Dec) KES',d:'+22%',up:true,sp:'0,28 20,24 40,20 60,22 80,16 100,12 120,8 140,10 160,6',sc:'#8b5cf6'},
+  ].map(k=>`
+    <div class="kpi ${k.col}">
+      <div class="kpi-icon ${k.cls}"><i class="ti ${k.icon}" aria-hidden="true"></i></div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <span class="delta ${k.up?'up':'dn'}">${k.d}</span><span class="kpi-period">this week</span>
+      <div class="kpi-spark"><svg width="100%" height="28" viewBox="0 0 160 28"><polyline points="${k.sp}" fill="none" stroke="${k.sc}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+  `).join('');
+
+  const tabs=['All','Pending','Confirmed'];
+  document.getElementById('ov-bk-tabs').innerHTML=tabs.map(t=>`<button class="ftab ${t==='All'?'on':''}" onclick="renderOvBk('${t.toLowerCase()}')">${t}</button>`).join('');
+  renderOvBk('all');
+
+  const stages=[{n:'New',c:3,pct:100,col:'#3b82f6'},{n:'Contacted',c:3,pct:75,col:'#8b5cf6'},{n:'Qualified',c:2,pct:55,col:'#2da869'},{n:'Proposal',c:2,pct:38,col:'#f59e0b'},{n:'Won',c:1,pct:20,col:'#2da869'}];
+  document.getElementById('ov-funnel').innerHTML=stages.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--g600);width:75px;flex-shrink:0">${s.n}</div>
+      <div class="prog"><div class="prog-fill" style="width:${s.pct}%;background:${s.col}"></div></div>
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);width:14px;text-align:right">${s.c}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('ov-week').innerHTML=[{l:'Sessions',v:'38'},{l:'Completed',v:'29'},{l:'No-shows',v:'2'},{l:'Revenue',v:'47,200'},{l:'Avg value',v:'41,500'}]
+    .map(w=>`<div class="ms"><span class="ms-l">${w.l}</span><span class="ms-v">${w.v}</span></div>`).join('');
+
+  document.getElementById('ov-act').innerHTML=ACTIVITIES.map(a=>`
+    <div class="act-item">
+      <div class="act-ico" style="background:${a.col}"><i class="ti ${a.icon}" style="font-size:13px;color:${a.icol}" aria-hidden="true"></i></div>
+      <div><div class="act-txt">${a.txt}</div><div class="act-time">${a.t}</div></div>
+    </div>
+  `).join('');
+}
+
+function renderOvBk(f){
+  const rows=(f==='all'?BOOKINGS:BOOKINGS.filter(b=>b.status===f)).slice(0,5);
+  document.getElementById('ov-bk-body').innerHTML=rows.map(b=>`
+    <tr onclick="openBkDr('${b.id}')">
+      <td><div class="td-row">${avHTML(b.av,b.ai)}<div><div class="td-m">${b.client}</div><div class="td-s">${b.org}</div></div></div></td>
+      <td>${b.service}</td>
+      <td><div class="td-m">${b.date}</div><div class="td-s">${b.time}</div></td>
+      <td style="font-weight:700;font-size:12px">${kes(b.amount)}</td>
+      <td>${bdg(b.status)}</td>
+    </tr>
+  `).join('');
+  document.querySelectorAll('#ov-bk-tabs .ftab').forEach(t=>t.classList.toggle('on',t.textContent.toLowerCase()===f||(f==='all'&&t.textContent==='All')));
+}
+
+/* ════════════════════════════════════════════════════════
+   LEADS
+════════════════════════════════════════════════════════ */
+function renderLeads(){
+  if(S.ldV==='kanban') renderKanban();
+  else renderLdTable();
+}
+function setLdView(v){
+  S.ldV=v;
+  document.getElementById('ld-kanban').style.display=v==='kanban'?'flex':'none';
+  document.getElementById('ld-table').style.display=v==='table'?'block':'none';
+  document.querySelectorAll('#ld-view-tabs .ftab').forEach(t=>t.classList.toggle('on',t.dataset.lv===v));
+  if(v==='kanban') renderKanban(); else renderLdTable();
+}
+function renderKanban(){
+  const stages=[
+    {id:'new',lbl:'New',col:'#3b82f6'},
+    {id:'contacted',lbl:'Contacted',col:'#8b5cf6'},
+    {id:'qualified',lbl:'Qualified',col:'#2da869'},
+    {id:'proposal',lbl:'Proposal Sent',col:'#f59e0b'},
+    {id:'won',lbl:'Won',col:'#2da869'},
+  ];
+  document.getElementById('ld-kanban').innerHTML=stages.map(st=>{
+    const cards=LEADS.filter(l=>l.stage===st.id);
+    return `
+      <div class="k-col">
+        <div class="k-hdr">
+          <div style="display:flex;align-items:center;gap:7px"><div class="k-dot" style="background:${st.col}"></div><span class="k-name">${st.lbl}</span></div>
+          <span class="k-cnt">${cards.length}</span>
+        </div>
+        <div class="k-cards">
+          ${cards.length?cards.map(c=>`
+            <div class="lc" onclick="openLdDr('${c.id}')">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+                <div class="lc-name">${c.name}</div>
+                ${c.source?`<span class="src-tag ${srcClass[c.source]||'src-d'}">${c.source}</span>`:''}
+              </div>
+              <div class="lc-svc">${c.service}</div>
+              <div class="lc-val">${kes(c.value)}</div>
+              <div class="lc-foot">
+                <span class="lc-days">${c.days===0?'New today':c.days+'d in stage'}</span>
+                <div class="lc-acts">
+                  <button class="la la-w" onclick="event.stopPropagation();openCompose('whatsapp','${c.id}','lead')" aria-label="WhatsApp ${c.name}"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button>
+                  <button class="la la-e" onclick="event.stopPropagation();openCompose('email','${c.id}','lead')" aria-label="Email ${c.name}"><i class="ti ti-mail" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
+          `).join(''):`<div class="k-empty">No leads here</div>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function renderLdTable(){
+  const rows=S.ldF==='all'?LEADS:LEADS.filter(l=>l.stage===S.ldF);
+  document.getElementById('ld-table').innerHTML=`
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px">
+        <div class="ftabs">${['All','New','Contacted','Qualified','Proposal','Won'].map(t=>`<button class="ftab ${S.ldF===(t==='All'?'all':t.toLowerCase())?'on':''}" onclick="S.ldF='${t==='All'?'all':t.toLowerCase()}';renderLdTable()">${t}</button>`).join('')}</div>
+        <div class="search" style="width:180px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" placeholder="Search…"/></div>
+      </div>
+      <table class="tbl"><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Source</th><th>Stage</th><th>Days</th><th></th></tr></thead>
+      <tbody>${rows.map(l=>`
+        <tr onclick="openLdDr('${l.id}')">
+          <td><div class="td-m">${l.name}</div><div class="td-s">${l.org}</div></td>
+          <td>${l.service}</td>
+          <td style="font-weight:700;font-size:12px;font-family:var(--mono)">${kes(l.value)}</td>
+          <td><span class="src-tag ${srcClass[l.source]||'src-d'}">${l.source}</span></td>
+          <td>${bdg(l.stage)}</td>
+          <td style="font-size:11px;color:var(--g400)">${l.days===0?'New':l.days+'d'}</td>
+          <td><div style="display:flex;gap:4px">
+            <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('whatsapp','${l.id}','lead')" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button>
+            <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('email','${l.id}','lead')" aria-label="Email"><i class="ti ti-mail" aria-hidden="true"></i></button>
+          </div></td>
+        </tr>
+      `).join('')}</tbody></table>
+    </div>
+  `;
+}
+
+/* ════════════════════════════════════════════════════════
+   BOOKINGS
+════════════════════════════════════════════════════════ */
+function renderBookings(){
+  const tabs=['All','Pending','Confirmed','Completed','Cancelled'];
+  document.getElementById('bk-tabs').innerHTML=tabs.map(t=>`<button class="ftab ${S.bkF===(t==='All'?'all':t.toLowerCase())?'on':''}" onclick="S.bkF='${t==='All'?'all':t.toLowerCase()}';renderBkTable()">${t}</button>`).join('');
+  renderBkTable();
+}
+function renderBkTable(){
+  const f=S.bkF;
+  const q=(document.getElementById('bk-search')||{}).value||'';
+  let rows=f==='all'?BOOKINGS:BOOKINGS.filter(b=>b.status===f);
+  if(q){const ql=q.toLowerCase();rows=rows.filter(b=>b.client.toLowerCase().includes(ql)||b.service.toLowerCase().includes(ql));}
+  document.getElementById('bk-body').innerHTML=rows.map(b=>`
+    <tr onclick="openBkDr('${b.id}')">
+      <td><div class="td-row">${avHTML(b.av,b.ai)}<div><div class="td-m">${b.client}</div><div class="td-s">${b.org}</div></div></div></td>
+      <td>${b.service}</td>
+      <td><div class="td-m">${b.date}</div><div class="td-s">${b.time}</div></td>
+      <td style="font-weight:700;font-size:12px;font-family:var(--mono)">${kes(b.amount)}</td>
+      <td>${bdg(b.status)}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('whatsapp','${b.id}','booking')" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button>
+        <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('email','${b.id}','booking')" aria-label="Email"><i class="ti ti-mail" aria-hidden="true"></i></button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+/* ════════════════════════════════════════════════════════
+   CLIENTS
+════════════════════════════════════════════════════════ */
+function renderClients(){
+  const q=(document.getElementById('cl-search')||{}).value||'';
+  const rows=q?CLIENTS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.type.toLowerCase().includes(q.toLowerCase())):CLIENTS;
+  document.getElementById('cl-grid').innerHTML=rows.map(c=>`
+    <div class="cc" onclick="openClDr('${c.id}')">
+      <div class="cc-top">${avHTML(c.av,c.ai,40)}<div><div class="cc-nm">${c.name}</div><div class="cc-tp">${c.type}</div></div></div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="cc-sv">${c.bookings}</div><div class="cc-sl">Bookings</div></div>
+        <div class="cc-stat"><div class="cc-sv">${Math.round(c.spent/1000)}K</div><div class="cc-sl">KES Spent</div></div>
+        <div class="cc-stat"><div class="cc-sv">${c.last.replace(' ago','').replace('Today','Now')}</div><div class="cc-sl">Last Active</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════════════════════
+   AUTOMATION
+════════════════════════════════════════════════════════ */
+function renderAuto(){setAutoTab(S.autoTab);}
+function setAutoTab(t){
+  S.autoTab=t;
+  document.querySelectorAll('#auto-tabs .ftab').forEach(b=>b.classList.toggle('on',b.dataset.at===t));
+  const el=document.getElementById('auto-body');
+  if(t==='wa'){
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:13px;font-weight:700">WhatsApp Templates</span>
+        <button class="btn btn-wa btn-sm" onclick="openCompose('whatsapp',null)"><i class="ti ti-plus" aria-hidden="true"></i> New Compose</button>
+      </div>
+      <div class="tmpl-grid">
+        ${WA_TPLS.map(w=>`
+          <div class="tc">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+              <div class="tc-icon" style="background:var(--wa-l)"><i class="ti ti-brand-whatsapp" style="font-size:15px;color:var(--wa-d)" aria-hidden="true"></i></div>
+              <div><div class="tc-nm">${w.name}</div><div class="tc-tr">${w.trigger}</div></div>
+            </div>
+            <div class="tc-prev" style="background:var(--wa-l)">${w.msg.slice(0,90)}…</div>
+            <div class="tc-foot">
+              <span class="tc-sent">${w.sent} sent</span>
+              <button class="btn btn-wa btn-sm" onclick="openCompose('whatsapp',null,'tpl:${w.id}')">Use Template</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if(t==='em'){
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:13px;font-weight:700">Email Templates</span>
+        <button class="btn btn-dk btn-sm" onclick="openCompose('email',null)"><i class="ti ti-plus" aria-hidden="true"></i> New Compose</button>
+      </div>
+      <div class="tmpl-grid">
+        ${EM_TPLS.map(e=>`
+          <div class="tc">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+              <div class="tc-icon" style="background:var(--blue-l)"><i class="ti ti-mail" style="font-size:15px;color:var(--blue)" aria-hidden="true"></i></div>
+              <div><div class="tc-nm">${e.name}</div><div class="tc-tr">${e.trigger}</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--g400);margin-bottom:6px">Subject: ${e.subject}</div>
+            <div class="tc-prev" style="background:var(--g50);border:1px solid var(--g200)">${e.preview}</div>
+            <div class="tc-foot">
+              <span class="tc-sent">${e.sent} sent</span>
+              <button class="btn btn-gh btn-sm" onclick="openCompose('email',null,'tpl:${e.id}')">Use Template</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    el.innerHTML=`
+      <div style="font-size:13px;font-weight:700;margin-bottom:14px">Automation Triggers</div>
+      ${TRIGGERS.map((tr,i)=>`
+        <div class="tr-row">
+          <div class="tr-icon" style="background:${tr.ch==='WhatsApp'?'var(--wa-l)':'var(--blue-l)'}">
+            <i class="ti ${tr.icon}" style="font-size:15px;color:${tr.ch==='WhatsApp'?'var(--wa-d)':'var(--blue)'}" aria-hidden="true"></i>
+          </div>
+          <div style="flex:1"><div class="tr-nm">${tr.name}</div><div class="tr-ds">${tr.desc}</div></div>
+          <div class="tr-arrow"><i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+          <div style="flex:1">
+            <div class="tr-act">${tr.action}</div>
+            <div style="display:flex;gap:5px;margin-top:3px">
+              <span style="font-size:10px;background:var(--g100);padding:1px 6px;border-radius:4px;color:var(--g600)">${tr.ch}</span>
+              <span style="font-size:10px;color:var(--g400)">${tr.delay}</span>
+            </div>
+          </div>
+          <label class="toggle" aria-label="Toggle ${tr.name}">
+            <input type="checkbox" ${tr.on?'checked':''} onchange="TRIGGERS[${i}].on=this.checked">
+            <span class="tsl"></span>
+          </label>
+        </div>
+      `).join('')}
+    `;
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   ANALYTICS
+════════════════════════════════════════════════════════ */
+function setRange(r){
+  document.querySelectorAll('#an-range .ftab').forEach(b=>b.classList.toggle('on',b.dataset.rng===r));
+  // Adjust analytics KPIs by range
+  const mult={'7d':0.25,'30d':1,'90d':3.1};const m=mult[r]||1;
+  document.getElementById('an-kpis').innerHTML=[
+    {icon:'ti-cash',cls:'ki-g',col:'cg',val:`KES ${Math.round(186*m)}K`,lbl:'Revenue',d:'+22%',up:true},
+    {icon:'ti-calendar-check',cls:'ki-b',col:'cb',val:String(Math.round(94*m)),lbl:'Total Bookings',d:'+18%',up:true},
+    {icon:'ti-user-plus',cls:'ki-p',col:'cp',val:String(Math.round(18*m)),lbl:'New Clients',d:'+8',up:true},
+  ].map(k=>`
+    <div class="kpi ${k.col}" style="border-radius:var(--rx)">
+      <div class="kpi-icon ${k.cls}"><i class="ti ${k.icon}" aria-hidden="true"></i></div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-lbl">${k.lbl} (${r})</div>
+      <span class="delta ${k.up?'up':'dn'}">${k.d}</span><span class="kpi-period">vs prev period</span>
+    </div>
+  `).join('');
+  toast('Analytics updated for '+r+' range','info',2000);
+}
+function renderAnalytics(){
+  document.getElementById('an-kpis').innerHTML=[
+    {icon:'ti-cash',cls:'ki-g',col:'cg',val:'KES 186K',lbl:'Revenue (Dec)',d:'+22%',up:true},
+    {icon:'ti-calendar-check',cls:'ki-b',col:'cb',val:'94',lbl:'Total Bookings',d:'+18%',up:true},
+    {icon:'ti-user-plus',cls:'ki-p',col:'cp',val:'18',lbl:'New Clients (Dec)',d:'+8',up:true},
+  ].map(k=>`
+    <div class="kpi ${k.col}" style="border-radius:var(--rx)">
+      <div class="kpi-icon ${k.cls}"><i class="ti ${k.icon}" aria-hidden="true"></i></div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <span class="delta ${k.up?'up':'dn'}">${k.d}</span><span class="kpi-period">vs last month</span>
+    </div>
+  `).join('');
+
+  const rev=[{m:'Jul',v:62},{m:'Aug',v:75},{m:'Sep',v:58},{m:'Oct',v:90},{m:'Nov',v:112},{m:'Dec',v:186,hl:true}];
+  const maxR=Math.max(...rev.map(d=>d.v));
+  document.getElementById('rev-chart').innerHTML=`
+    <div class="bar-chart">
+      ${rev.map(d=>`
+        <div class="b-col" title="${d.m}: KES ${d.v}K">
+          <div class="bar" style="height:${Math.round(d.v/maxR*100)}px;background:${d.hl?'var(--green)':'#b3dfc5'}"></div>
+          <div class="b-lbl">${d.m}</div>
+          <div class="b-val">${d.v}K</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const bkd=[{m:'Jul',v:62},{m:'Aug',v:71},{m:'Sep',v:55},{m:'Oct',v:83},{m:'Nov',v:90},{m:'Dec',v:94,hl:true}];
+  const maxB=Math.max(...bkd.map(d=>d.v));
+  document.getElementById('bk-chart').innerHTML=`
+    <div class="bar-chart">
+      ${bkd.map(d=>`
+        <div class="b-col" title="${d.m}: ${d.v} bookings">
+          <div class="bar" style="height:${Math.round(d.v/maxB*100)}px;background:${d.hl?'var(--blue)':'#bfdbfe'}"></div>
+          <div class="b-lbl">${d.m}</div>
+          <div class="b-val">${d.v}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const funnel=[{l:'Leads captured',n:12,pct:100,col:'var(--blue)'},{l:'Contacted',n:9,pct:75,col:'var(--purple)'},{l:'Qualified',n:5,pct:42,col:'var(--teal)'},{l:'Proposal sent',n:3,pct:25,col:'var(--amber)'},{l:'Won',n:1,pct:8,col:'var(--green)'}];
+  document.getElementById('funnel-chart').innerHTML=funnel.map(f=>`
+    <div class="funnel-row">
+      <div class="funnel-lbl">${f.l}</div>
+      <div class="funnel-bar"><div class="funnel-fill" style="width:${f.pct}%;background:${f.col}"><span class="funnel-cnt">${f.n}</span></div></div>
+      <div class="funnel-pct">${f.pct}%</div>
+    </div>
+  `).join('');
+
+  [
+    {id:'svc-mix',data:[{l:'Web Dev',v:22,p:88},{l:'Landing Page',v:18,p:72},{l:'SEO',v:15,p:60},{l:'CRM Setup',v:12,p:48},{l:'Brand Strategy',v:10,p:40},{l:'AI Integration',v:8,p:32}],col:'var(--green)'},
+    {id:'src-mix',data:[{l:'Website',v:38,p:78},{l:'Referral',v:24,p:50},{l:'Social Media',v:18,p:38},{l:'Direct',v:12,p:25},{l:'Form',v:8,p:17}],col:'var(--blue)'},
+  ].forEach(({id,data,col})=>{
+    document.getElementById(id).innerHTML=data.map(s=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11.5px;color:var(--g600)">${s.l}</span><span style="font-size:11.5px;font-weight:700;font-family:var(--mono)">${s.v}</span></div>
+        <div class="prog"><div class="prog-fill" style="width:${s.p}%;background:${col}"></div></div>
+      </div>
+    `).join('');
+  });
+
+  document.getElementById('top-cl-body').innerHTML=CLIENTS.sort((a,b)=>b.spent-a.spent).map(c=>`
+    <tr onclick="nav('clients')">
+      <td><div class="td-row">${avHTML(c.av,c.ai)}<div><div class="td-m">${c.name}</div></div></div></td>
+      <td>${c.type}</td>
+      <td style="font-family:var(--mono)">${c.bookings}</td>
+      <td style="font-weight:700;font-family:var(--mono)">${kes(c.spent)}</td>
+      <td style="color:var(--g400)">${c.last}</td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+    CLIENT DASHBOARD VIEW
+═══════════════════════════════════════════════════════════ */
+function renderClientDashboard(){
+    // Load client dashboard content
+    document.getElementById('content').innerHTML = `
+        <iframe src="client-dashboard.html" style="width:100%;height:100vh;border:none;"></iframe>
+    `;
+    document.getElementById('tb-title').innerHTML = 'Client Dashboard';
+    document.getElementById('tb-sub').textContent = '';
+}
+
+/* ══════════════════════════════════════════════════════════
+    CLIENT PORTAL VIEW
+══════════════════════════════════════════════════════════ */
+function renderClientPortal(){
+    // Load client portal content
+    document.getElementById('content').innerHTML = `
+        <iframe src="savvion-client-portal.html" style="width:100%;height:100vh;border:none;"></iframe>
+    `;
+    document.getElementById('tb-title').innerHTML = 'Client Portal';
+    document.getElementById('tb-sub').textContent = '';
+}
+
+/* ═══════════════════════════════════════════════════════════
+    SETTINGS
+═════════════════════════════════════════════════════════════ */
+function renderSettings(){
+  document.getElementById('int-list').innerHTML=[
+    {icon:'📱',name:"Africa's Talking",sub:'Recommended for Kenya',col:'#e8f5e9',btn:'Connect',primary:true},
+    {icon:'📡',name:'Twilio',sub:'International gateway',col:'#e3f2fd',btn:'Connect',primary:false},
+    {icon:'✉️',name:'Resend',sub:'Email delivery',col:'#f3e8ff',btn:'Connect',primary:false},
+  ].map(i=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border:1px solid var(--g200);border-radius:var(--r);margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:8px;background:${i.col};display:flex;align-items:center;justify-content:center;font-size:16px">${i.icon}</div>
+        <div><div style="font-size:13px;font-weight:600">${i.name}</div><div style="font-size:11px;color:var(--g400)">${i.sub}</div></div>
+      </div>
+      <button class="btn ${i.primary?'btn-g':'btn-gh'} btn-sm">${i.btn}</button>
+    </div>
+  `).join('');
+
+  document.getElementById('notif-settings').innerHTML=[
+    {l:'New booking alerts',on:true},{l:'Payment received',on:true},{l:'Cancellations',on:false},{l:'Weekly summary email',on:true},{l:'New lead captured',on:true},
+  ].map(n=>`
+    <div class="ms">
+      <span class="ms-l">${n.l}</span>
+      <label class="toggle" aria-label="${n.l}">
+        <input type="checkbox" ${n.on?'checked':''}><span class="tsl"></span>
+      </label>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════════════════════
+   DRAWERS
+════════════════════════════════════════════════════════ */
+function openBkDr(id){
+  const b=BOOKINGS.find(x=>x.id===id);if(!b)return;
+  S.activeBk=b;
+  document.getElementById('bk-dr-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--g50);border-radius:var(--rl);margin-bottom:18px">
+      ${avHTML(b.av,b.ai,44)}
+      <div><div style="font-size:15px;font-weight:700">${b.client}</div><div style="font-size:12px;color:var(--g400)">${b.org}</div></div>
+      <div style="margin-left:auto">${bdg(b.status)}</div>
+    </div>
+    <div class="dr-field"><label>Booking ID</label><p style="font-family:var(--mono);color:var(--g400)">${b.id}</p></div>
+    <div class="dr-field"><label>Service</label><p>${b.service}</p></div>
+    <div class="dr-field"><label>Date &amp; Time</label><p>${b.date} · ${b.time}</p></div>
+    <div class="dr-field"><label>Amount</label><p style="font-size:20px;font-weight:900;font-family:var(--mono)">${kes(b.amount)}</p></div>
+    <div class="dr-field"><label>Status</label><p>${bdg(b.status)}</p></div>
+    <div class="dr-field"><label>Notes</label><textarea style="width:100%;border:1.5px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:var(--font);font-size:13px;outline:none;resize:vertical;min-height:80px" placeholder="Add internal notes…"></textarea></div>
+  `;
+  const cb=document.getElementById('bk-confirm-btn');
+  cb.disabled=b.status==='confirmed'||b.status==='completed';
+  cb.textContent=b.status==='confirmed'?'✓ Already Confirmed':b.status==='completed'?'Completed':'Confirm Booking';
+  cb.onclick=()=>{b.status='confirmed';renderBkTable();renderOvBk('all');openBkDr(id);toast('Booking '+id+' confirmed','success');};
+  document.getElementById('bk-wa-btn').onclick=()=>openCompose('whatsapp',id,'booking');
+  openDr('bk-drawer');
+}
+function openLdDr(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  S.activeLd=l;
+  document.getElementById('ld-dr-title').textContent='Lead — '+l.name;
+  document.getElementById('ld-dr-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--g50);border-radius:var(--rl);margin-bottom:18px">
+      ${avHTML(l.name.charAt(0)+'?',LEADS.indexOf(l),44)}
+      <div><div style="font-size:15px;font-weight:700">${l.name}</div><div style="font-size:12px;color:var(--g400)">${l.org}</div></div>
+      <div style="margin-left:auto">${bdg(l.stage)}</div>
+    </div>
+    <div class="dr-field"><label>Lead ID</label><p style="font-family:var(--mono);color:var(--g400)">${l.id}</p></div>
+    <div class="dr-field"><label>Service Interest</label><p>${l.service}</p></div>
+    <div class="dr-field"><label>Estimated Value</label><p style="font-size:20px;font-weight:900;font-family:var(--mono)">${kes(l.value)}</p></div>
+    <div class="dr-field"><label>Phone</label><p>${l.phone}</p></div>
+    <div class="dr-field"><label>Email</label><p>${l.email}</p></div>
+    <div class="dr-field"><label>Source</label><p><span class="src-tag ${srcClass[l.source]||'src-d'}">${l.source}</span></p></div>
+    <div class="dr-field"><label>Days in Stage</label><p>${l.days===0?'New today':l.days+' days'}</p></div>
+    <div class="dr-field"><label>Stage</label>
+      <select style="border:1.5px solid var(--g200);border-radius:var(--r);padding:8px 12px;font-family:var(--font);font-size:13.5px;outline:none;width:100%" onchange="l.stage=this.value;renderKanban()">
+        ${['new','contacted','qualified','proposal','won','lost'].map(s=>`<option value="${s}" ${l.stage===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="dr-field"><label>Notes</label><textarea style="width:100%;border:1.5px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:var(--font);font-size:13px;outline:none;resize:vertical;min-height:80px" placeholder="Add notes…"></textarea></div>
+  `;
+  document.getElementById('ld-wa-btn').onclick=()=>openCompose('whatsapp',id,'lead');
+  openDr('ld-drawer');
+}
+function openClDr(id){
+  const c=CLIENTS.find(x=>x.id===id);if(!c)return;
+  S.activeCl=c;
+  document.getElementById('cl-dr-title').textContent=c.name;
+  const cBks=BOOKINGS.filter(b=>b.client.toLowerCase().startsWith(c.name.split(' ')[0].toLowerCase()));
+  const totalVal=cBks.reduce((a,b)=>a+b.amount,0);
+  document.getElementById('cl-dr-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--g50);border-radius:var(--rl);margin-bottom:18px">
+      ${avHTML(c.av,c.ai,44)}
+      <div><div style="font-size:15px;font-weight:700">${c.name}</div><div style="font-size:12px;color:var(--g400)">${c.type}</div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <div class="stat-pills" style="display:flex;gap:10px">
+        <div class="spill"><div class="spill-v">${c.bookings}</div><div class="spill-l">Bookings</div></div>
+        <div class="spill"><div class="spill-v">${Math.round(c.spent/1000)}K</div><div class="spill-l">KES Total</div></div>
+        <div class="spill"><div class="spill-v">${Math.round(c.spent/Math.max(c.bookings,1)/1000)}K</div><div class="spill-l">Avg/Session</div></div>
+      </div>
+    </div>
+    <div class="dr-field"><label>Last Active</label><p>${c.last}</p></div>
+    <div class="dr-field"><label>Service History</label>
+      ${cBks.length?`<table class="tbl"><thead><tr><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+        ${cBks.map(b=>`<tr><td>${b.service}</td><td>${b.date}</td><td style="font-weight:700;font-family:var(--mono)">${kes(b.amount)}</td><td>${bdg(b.status)}</td></tr>`).join('')}
+      </tbody></table>`:'<p style="font-size:13px;color:var(--g400)">No matching bookings in this view.</p>'}
+    </div>
+    <div class="dr-field"><label>Notes</label><textarea style="width:100%;border:1.5px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:var(--font);font-size:13px;outline:none;resize:vertical;min-height:70px" placeholder="Client notes…"></textarea></div>
+  `;
+  document.getElementById('cl-wa-btn').onclick=()=>openCompose('whatsapp',id,'client');
+  document.getElementById('cl-em-btn').onclick=()=>openCompose('email',id,'client');
+  openDr('cl-drawer');
+}
+
+function openDr(id){
+  closeAllDr();
+  document.getElementById(id).classList.add('on');
+  document.getElementById('overlay').classList.add('on');
+}
+function closeDr(id){
+  document.getElementById(id).classList.remove('on');
+  document.getElementById('overlay').classList.remove('on');
+}
+function closeAllDr(){
+  ['bk-drawer','cl-drawer','ld-drawer'].forEach(id=>document.getElementById(id).classList.remove('on'));
+}
+
+/* ════════════════════════════════════════════════════════
+   COMPOSE MODAL
+════════════════════════════════════════════════════════ */
+function openCompose(type,refId,refType){
+  const isWa=type==='whatsapp';
+  let recipient=null,msg='',subject='';
+
+  if(refId){
+    if(refType==='lead'||refType==='tpl:W1'){
+      const l=LEADS.find(x=>x.id===refId);
+      if(l){recipient={name:l.name,contact:isWa?l.phone:l.email};msg=isWa?WA_TPLS[2].msg.replace('{{name}}',l.name.split(' ')[0]).replace('{{service}}',l.service):'';subject='Following up on '+l.service;}
+    }
+    if(refType==='booking'||refType?.startsWith('booking')){
+      const b=BOOKINGS.find(x=>x.id===refId);
+      if(b){recipient={name:b.client,contact:isWa?'+254700000000':b.client.toLowerCase().replace(/\s/g,'')+'@client.co.ke'};msg=isWa?WA_TPLS[0].msg.replace('{{name}}',b.client.split(' ')[0]).replace('{{service}}',b.service).replace('{{date}}',b.date).replace('{{time}}',b.time):'';subject='Re: '+b.service+' booking';}
+    }
+    if(refType==='client'){
+      const c=CLIENTS.find(x=>x.id===refId);
+      if(c){recipient={name:c.name,contact:isWa?'+254700000000':c.name.toLowerCase().replace(/\s/g,'')+'@org.co.ke'};}
+    }
+  }
+
+  if(refType?.startsWith('tpl:')){
+    const tplId=refType.replace('tpl:','');
+    const tpl=[...WA_TPLS,...EM_TPLS].find(t=>t.id===tplId);
+    if(tpl){msg=tpl.msg||tpl.preview||'';subject=tpl.subject||'';}
+  }
+
+  const tpls=isWa?WA_TPLS:EM_TPLS;
+  document.getElementById('cm-title').textContent=`Compose ${isWa?'WhatsApp':'Email'}`;
+
+  document.getElementById('cm-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:${isWa?'var(--wa-l)':'var(--blue-l)'};border-radius:var(--r)">
+      <i class="ti ti-${isWa?'brand-whatsapp':'mail'}" style="font-size:18px;color:${isWa?'var(--wa-d)':'var(--blue)'}" aria-hidden="true"></i>
+      <span style="font-size:13px;font-weight:700;color:${isWa?'var(--wa-d)':'var(--blue)'}">${isWa?'WhatsApp Business':'Email'}</span>
+      ${recipient?`<div style="margin-left:auto;display:flex;align-items:center;gap:7px;background:#fff;padding:3px 10px 3px 5px;border-radius:99px">
+        <div style="width:20px;height:20px;border-radius:50%;background:${isWa?'var(--wa-d)':'var(--blue)'};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff">${recipient.name.charAt(0)}</div>
+        <span style="font-size:12px;font-weight:600">${recipient.name}</span>
+        <span style="font-size:11px;color:var(--g400)">${recipient.contact}</span>
+      </div>`:''}
+    </div>
+
+    <div class="ff"><label>To (${isWa?'Phone / +254…':'Email address'})</label>
+      <input type="${isWa?'tel':'email'}" id="cm-to" placeholder="${isWa?'+254…':'client@email.co.ke'}" value="${recipient?recipient.contact:''}"/>
+    </div>
+    ${!isWa?`<div class="ff"><label>Subject</label><input type="text" id="cm-subject" value="${subject}" placeholder="Subject line…"/></div>`:''}
+    <div class="ff"><label>Template (optional)</label>
+      <select onchange="updatePrev(this.value,'${type}')">
+        <option value="">— Choose template —</option>
+        ${tpls.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="ff"><label>Message</label>
+      <textarea id="cm-msg" rows="5" oninput="document.getElementById('cm-prev').textContent=this.value">${msg}</textarea>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g400);margin-bottom:4px">Preview</div>
+      <div id="cm-prev" class="msg-prev ${isWa?'wa-prev':'em-prev'}">${msg}</div>
+    </div>
+  `;
+
+  document.getElementById('cm-foot').innerHTML=`
+    <button class="btn btn-gh" onclick="closeCompose()">Cancel</button>
+    <button class="btn btn-gh" onclick="scheduleSend()"><i class="ti ti-clock" aria-hidden="true"></i> Schedule</button>
+    <button class="btn ${isWa?'btn-wa':'btn-g'}" onclick="doSend('${type}')"><i class="ti ti-send" aria-hidden="true"></i> Send Now</button>
+  `;
+
+  document.getElementById('compose-modal').classList.add('on');
+  document.getElementById('overlay').classList.add('on');
+}
+
+function updatePrev(id,type){
+  const tpl=[...WA_TPLS,...EM_TPLS].find(t=>t.id===id);
+  if(!tpl)return;
+  const msg=tpl.msg||tpl.preview||'';
+  const ta=document.getElementById('cm-msg');
+  const pr=document.getElementById('cm-prev');
+  if(ta)ta.value=msg;
+  if(pr)pr.textContent=msg;
+}
+
+function closeCompose(){
+  document.getElementById('compose-modal').classList.remove('on');
+  document.getElementById('overlay').classList.remove('on');
+}
+
+function doSend(type){
+  const to=(document.getElementById('cm-to')||{}).value||'';
+  if(!to){toast('Please enter a recipient.','error');return;}
+  document.getElementById('cm-body').innerHTML=`
+    <div style="text-align:center;padding:28px 20px">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--green-l);border:2px solid var(--green-m);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:pop .3s ease">
+        <i class="ti ti-check" style="font-size:28px;color:var(--green)" aria-hidden="true"></i>
+      </div>
+      <div style="font-size:16px;font-weight:800;margin-bottom:6px">${type==='whatsapp'?'WhatsApp sent! 📱':'Email sent! ✉️'}</div>
+      <div style="font-size:13px;color:var(--g400);margin-bottom:6px">Delivered to <b>${to}</b></div>
+      <div style="font-size:12px;color:var(--g400);margin-bottom:18px">Activity logged automatically.</div>
+      <button class="btn btn-g" onclick="closeCompose()">Done</button>
+    </div>
+  `;
+  document.getElementById('cm-foot').innerHTML='';
+  toast(type==='whatsapp'?'WhatsApp message sent successfully':'Email sent successfully','success');
+  setTimeout(closeCompose,4000);
+}
+
+function scheduleSend(){alert('Schedule: integrate your backend to queue messages for a specific date and time.');}
+
+/* ════════════════════════════════════════════════════════
+   NOTIFICATIONS
+════════════════════════════════════════════════════════ */
+function toggleNotif(){
+  const np=document.getElementById('np');
+  const open=!np.classList.contains('on');
+  np.classList.toggle('on',open);
+  document.getElementById('np-list').innerHTML=NOTIFS.map(n=>`
+    <div class="np-item ${n.u?'unread':''}">
+      <div class="np-ico" style="background:${n.bg}"><i class="ti ${n.icon}" style="font-size:13px;color:${n.ic}" aria-hidden="true"></i></div>
+      <div>
+        <div class="np-txt">${n.txt}</div>
+        <div class="np-time">${n.t}</div>
+      </div>
+      ${n.u?`<div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:4px"></div>`:''}
+    </div>
+  `).join('');
+}
+function closeNp(){document.getElementById('np').classList.remove('on');}
+
+/* ════════════════════════════════════════════════════════
+   CLOSE ALL
+════════════════════════════════════════════════════════ */
+function closeAll(){
+  closeAllDr();
+  closeCompose();
+  closeNp();
+  document.getElementById('overlay').classList.remove('on');
+}
+
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+function toast(msg,type='success',duration=3200){
+  const wrap=document.getElementById('toast-wrap');
+  const icons={success:'ti-check',error:'ti-alert-circle',info:'ti-info-circle',warning:'ti-alert-triangle'};
+  const el=document.createElement('div');
+  el.className=`toast t-${type}`;
+  el.innerHTML=`<i class="ti ${icons[type]||'ti-check'}" aria-hidden="true"></i><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.classList.add('fading');setTimeout(()=>el.remove(),280);},duration);
+}
+
+/* ════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+════════════════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeAll();
+  // Ctrl/Cmd + K → focus global search
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('gsearch').focus();}
+});
+
+/* ════════════════════════════════════════════════════════
+   BAR CHART HOVER TOOLTIP
+════════════════════════════════════════════════════════ */
+function attachBarTips(){
+  const tip=document.getElementById('chart-tip');
+  document.querySelectorAll('.bar').forEach(bar=>{
+    bar.addEventListener('mousemove',e=>{
+      const label=bar.closest('.b-col')?.querySelector('.b-lbl')?.textContent||'';
+      const val=bar.closest('.b-col')?.querySelector('.b-val')?.textContent||bar.dataset.tip||'';
+      tip.textContent=`${label}: ${val}`;
+      tip.style.left=e.clientX+'px';
+      tip.style.top=e.clientY+'px';
+      tip.classList.add('show');
+    });
+    bar.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+  });
+}
+
+// Re-attach tips after any analytics render
+const _origAn=renderAnalytics;
+renderAnalytics=function(){_origAn();setTimeout(attachBarTips,50);};
+
+/* ════════════════════════════════════════════════════════
+   NEW LEAD FORM
+════════════════════════════════════════════════════════ */
+function openNewLead(){
+  document.getElementById('cm-title').textContent='Add New Lead';
+  document.getElementById('cm-body').innerHTML=`
+    <div class="fgrid">
+      <div class="ff"><label>Full Name *</label><input type="text" id="nl-name" placeholder="Lead or company name" autofocus/></div>
+      <div class="ff"><label>Organisation</label><input type="text" id="nl-org" placeholder="Company / NGO / startup"/></div>
+      <div class="ff"><label>Phone</label><input type="tel" id="nl-phone" placeholder="+254…"/></div>
+      <div class="ff"><label>Email</label><input type="email" id="nl-email" placeholder="email@org.co.ke"/></div>
+      <div class="ff"><label>Service Interest</label>
+        <select id="nl-svc">
+          ${['Website Audit','Landing Page Design','CRM Setup','Brand Strategy','SEO Optimization','Website Development','Digital Marketing','AI & API Integration','Funnel Optimization'].map(s=>`<option>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ff"><label>Estimated Value (KES)</label><input type="number" id="nl-val" placeholder="50000" min="0"/></div>
+      <div class="ff"><label>Lead Source</label>
+        <select id="nl-src">
+          ${['Website','Referral','Social','Direct','Form'].map(s=>`<option>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ff"><label>Initial Stage</label>
+        <select id="nl-stage">
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+        </select>
+      </div>
+    </div>
+    <div class="ff" style="margin-top:4px"><label>Notes</label>
+      <textarea id="nl-notes" placeholder="Any initial context about this lead…"></textarea>
+    </div>
+  `;
+  document.getElementById('cm-foot').innerHTML=`
+    <button class="btn btn-gh" onclick="closeCompose()">Cancel</button>
+    <button class="btn btn-g" onclick="submitNewLead()"><i class="ti ti-plus" aria-hidden="true"></i> Add Lead</button>
+  `;
+  document.getElementById('compose-modal').classList.add('on');
+  document.getElementById('overlay').classList.add('on');
+}
+
+function submitNewLead(){
+  const name=(document.getElementById('nl-name')?.value||'').trim();
+  if(!name){toast('Please enter a lead name.','error');return;}
+  const newLead={
+    id:'LD-'+String(LEADS.length+1).padStart(3,'0'),
+    name,
+    org: document.getElementById('nl-org')?.value||'',
+    service: document.getElementById('nl-svc')?.value||'Website Audit',
+    value: parseInt(document.getElementById('nl-val')?.value)||0,
+    source: document.getElementById('nl-src')?.value||'Website',
+    stage: document.getElementById('nl-stage')?.value||'new',
+    days: 0,
+    phone: document.getElementById('nl-phone')?.value||'+254700000000',
+    email: document.getElementById('nl-email')?.value||'',
+  };
+  LEADS.unshift(newLead);
+  // Update sidebar badge
+  const activeLeads=LEADS.filter(l=>l.stage!=='won'&&l.stage!=='lost').length;
+  const badge=document.getElementById('sb-leads-badge');
+  if(badge) badge.textContent=activeLeads;
+  closeCompose();
+  toast(`Lead "${name}" added to pipeline 🎉`,'success');
+  if(S.view==='leads') renderLeads();
+}
+
+/* ════════════════════════════════════════════════════════
+   LEAD STAGE QUICK-MOVE (kanban card arrow btn)
+════════════════════════════════════════════════════════ */
+const STAGE_ORDER=['new','contacted','qualified','proposal','won'];
+function moveLead(id,dir){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  const idx=STAGE_ORDER.indexOf(l.stage);
+  const next=STAGE_ORDER[idx+dir];
+  if(!next){toast('Lead is already at the '+(dir>0?'final':'first')+' stage.','info');return;}
+  l.stage=next;
+  toast(`${l.name} moved to "${next.charAt(0).toUpperCase()+next.slice(1)}"`, 'success');
+  renderLeads();
+}
+
+/* ════════════════════════════════════════════════════════
+   CONVERT LEAD → BOOKING
+════════════════════════════════════════════════════════ */
+function convertLead(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  const newBk={
+    id:'BK-0'+String(BOOKINGS.length+1).padStart(2,'0'),
+    client:l.name, org:l.org, service:l.service,
+    date:'TBD', time:'TBD', amount:l.value, status:'pending',
+    av:ini(l.name), ai:LEADS.indexOf(l)%AVC.length,
+  };
+  BOOKINGS.unshift(newBk);
+  l.stage='won';
+  closeDr('ld-drawer');
+  toast(`${l.name} converted! Booking ${newBk.id} created.`,'success');
+  if(S.view==='bookings') renderBookings();
+  if(S.view==='leads') renderLeads();
+  // Update bookings badge
+  const pending=BOOKINGS.filter(b=>b.status==='pending').length;
+  const bBadge=document.getElementById('sb-bookings-badge');
+  if(bBadge) bBadge.textContent=pending;
+}
+
+// Wire up lead convert button
+document.getElementById('ld-conv-btn').addEventListener('click',()=>{
+  if(S.activeLd) convertLead(S.activeLd.id);
+});
+
+/* ════════════════════════════════════════════════════════
+   SCHEDULE SEND (enhanced)
+════════════════════════════════════════════════════════ */
+function scheduleSend(){
+  const time=prompt('Schedule for (e.g. "2025-12-18 09:00"):');
+  if(time){toast(`Message scheduled for ${time}`,'info');}
+  closeCompose();
+}
+
+/* ════════════════════════════════════════════════════════
+   GLOBAL SEARCH — cross-view
+════════════════════════════════════════════════════════ */
+document.getElementById('gsearch').addEventListener('input',function(){
+  const q=this.value.toLowerCase().trim();
+  if(!q){if(S.view==='overview')renderOverview();return;}
+  // Search bookings regardless of view
+  if(S.view==='overview'||S.view==='bookings'){
+    const rows=BOOKINGS.filter(b=>b.client.toLowerCase().includes(q)||b.service.toLowerCase().includes(q)||b.org.toLowerCase().includes(q));
+    const tbody=document.getElementById(S.view==='overview'?'ov-bk-body':'bk-body');
+    if(tbody){
+      tbody.innerHTML=rows.slice(0,8).map(b=>`
+        <tr onclick="openBkDr('${b.id}')">
+          <td><div class="td-row">${avHTML(b.av,b.ai)}<div><div class="td-m">${b.client}</div><div class="td-s">${b.org}</div></div></div></td>
+          <td>${b.service}</td>
+          <td><div class="td-m">${b.date}</div><div class="td-s">${b.time}</div></td>
+          <td style="font-weight:700;font-size:12px">${kes(b.amount)}</td>
+          <td>${bdg(b.status)}</td>
+          ${S.view==='bookings'?'<td></td>':''}
+        </tr>
+      `).join('');
+    }
+  }
+  if(S.view==='clients'){
+    const rows=CLIENTS.filter(c=>c.name.toLowerCase().includes(q)||c.type.toLowerCase().includes(q));
+    document.getElementById('cl-grid').innerHTML=rows.map(c=>`
+      <div class="cc" onclick="openClDr('${c.id}')">
+        <div class="cc-top">${avHTML(c.av,c.ai,40)}<div><div class="cc-nm">${c.name}</div><div class="cc-tp">${c.type}</div></div></div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="cc-sv">${c.bookings}</div><div class="cc-sl">Bookings</div></div>
+          <div class="cc-stat"><div class="cc-sv">${Math.round(c.spent/1000)}K</div><div class="cc-sl">KES Spent</div></div>
+        </div>
+      </div>
+    `).join('');
+  }
+  if(S.view==='leads'){
+    const rows=LEADS.filter(l=>l.name.toLowerCase().includes(q)||l.service.toLowerCase().includes(q)||l.org.toLowerCase().includes(q));
+    setLdView('table');
+    document.getElementById('ld-table').innerHTML=`
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:10px 16px;font-size:12px;color:var(--g400)">Search results for "<b>${q}</b>" — ${rows.length} leads</div>
+        <table class="tbl"><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Stage</th><th></th></tr></thead>
+        <tbody>${rows.map(l=>`
+          <tr onclick="openLdDr('${l.id}')">
+            <td><div class="td-m">${l.name}</div><div class="td-s">${l.org}</div></td>
+            <td>${l.service}</td>
+            <td style="font-weight:700;font-family:var(--mono)">${kes(l.value)}</td>
+            <td>${bdg(l.stage)}</td>
+            <td><button class="btn btn-wa btn-sm" onclick="event.stopPropagation();openCompose('whatsapp','${l.id}','lead')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button></td>
+          </tr>
+        `).join('')}</tbody></table>
+      </div>
+    `;
+  }
+});
+
+/* ════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════ */
+(function init(){
+  const now=new Date();
+  const h=now.getHours();
+  const greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('tb-sub').textContent=` ${greet}, Emmanuel 👋`;
+  const el=document.getElementById('ov-date');
+  if(el)el.textContent=now.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderOverview();
+  setTimeout(()=>toast('Tip: press Ctrl+K to search anywhere, Esc to close panels','info',4500),1800);
+})();
+</script>
+</body>
+</html>
