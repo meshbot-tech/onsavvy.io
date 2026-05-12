@@ -160,9 +160,22 @@ router.post('/', async (req, res, next) => {
       VALUES ('ti-user-plus', 'var(--blue)', ?, ?)
     `, [`New lead <strong>${clientName}</strong> added`, JSON.stringify({ leadId: newLead.id })]);
 
+    // Create immediate notifications for all admin users
+    const admins = raw(`SELECT id FROM users WHERE role = 'admin'`);
+    const leadInfo = `${clientName}${clientEmail ? ' • ' + clientEmail : ''}${clientPhone ? ' • ' + clientPhone : ''}`;
+    const notificationText = `New lead: <strong>${clientName}</strong>${notes ? ` • ${notes.substring(0, 60)}${notes.length > 60 ? '...' : ''}` : ''}`;
+
+    admins.forEach(admin => {
+      raw(`
+        INSERT INTO notifications (user_id, icon, icon_color, text, type, action_url)
+        VALUES (?, 'ti-user-plus', 'var(--blue)', ?, 'lead', '/admin/leads')
+      `, [admin.id, notificationText]);
+    });
+
     res.status(201).json({
       success: true,
-      data: { id: newLead.id }
+      data: { id: newLead.id },
+      message: 'Lead created successfully'
     });
   } catch (err) {
     next(err);

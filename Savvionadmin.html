@@ -1536,6 +1536,8 @@ function moveLead(id,dir){
 ════════════════════════════════════════════════════════ */
 function convertLead(id){
   const l=LEADS.find(x=>x.id===id);if(!l)return;
+  // Combine services for the booking note
+  const servicesStr = l.services ? l.services.join(', ') : l.service;
   const newBk={
     id:'BK-0'+String(BOOKINGS.length+1).padStart(2,'0'),
     client:l.name, org:l.org, service:l.service,

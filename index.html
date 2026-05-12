@@ -4033,8 +4033,26 @@ body.dark-theme .preloader-progress-bar{
           <div class="bwc-field">
             <div class="bwc-label">Email*</div>
             <input class="bwc-input" type="email" placeholder="your.email@example.com" id="leadEmail">
+      <!-- Confirmation Message (shown after successful submission) -->
+      <div id="formConfirmation" style="display:none;background:linear-gradient(135deg,#e8f7f0,#d4f0e6);border:1.5px solid rgba(45,168,105,0.25);border-radius:12px;padding:18px 20px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="position:relative;z-index:1">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#16A066" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10l3 3 7-7"/></svg>
+            <span style="font-size:13px;font-weight:700;color:#0d3a2a">Inquiry Received!</span>
+          </div>
+          <p id="confirmationText" style="font-size:13px;color:#0d3a2a;line-height:1.6;margin-bottom:10px"></p>
+          <div style="font-size:12.5px;color:#0d3a2a;line-height:1.7">
+            <strong>Need to talk to us?</strong><br>
+            📞 +254 955 829 78<br>
+            💬 WhatsApp +254 713 082 563<br>
+            ✉️ hello@savvion.co.ke
           </div>
         </div>
+        <div style="position:absolute;top:-10px;right:-10px;width:60px;height:60px;background:rgba(22,160,102,0.08);border-radius:50%"></div>
+      </div>
+
+    </div>
+  </div>
 
         <!-- Phone field (optional) -->
         <div class="bwc-field" style="margin-top:12px">

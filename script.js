@@ -366,17 +366,35 @@ if (pills.length) {
         throw new Error(data.error || 'Failed to submit. Please try again.');
       }
 
-      // Success feedback
-      showSubmitSuccess('✓ Received — we\'ll be in touch shortly');
-      
-      // Reset form
-      document.getElementById('leadName').value = '';
-      document.getElementById('leadEmail').value = '';
-      document.getElementById('leadPhone').value = '';
-      document.getElementById('leadDescription').value = '';
-      document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
+        // Build detailed success message with user's selections
+      const servicesList = services.join(', ');
+      const successMsg = `✓ We've received your inquiry, ${name}! We'll get back within 2-5 hours. ` +
+                        `For urgent needs, call +254 955 829 78, WhatsApp +254 713 082 563, or email us.` +
+                        `\n\nServices: ${servicesList}${budget ? ' • Budget: ' + budget : ''}`;
+      showSubmitSuccess(successMsg);
 
-      // Broadcast to other tabs (client portal listening)
+      // Show detailed confirmation message on the form
+      const confirmationEl = document.getElementById('formConfirmation');
+      const confirmationText = document.getElementById('confirmationText');
+      if (confirmationEl && confirmationText) {
+        confirmationText.innerHTML = `We've received your inquiry, <strong>${name}</strong>! We'll get back within <strong>2-5 hours</strong>.<br><br>` +
+                                      `<strong>Services:</strong> ${servicesList}<br>` +
+                                      `${budget ? '<strong>Budget:</strong> ' + budget + '<br>' : ''}` +
+                                      `<strong>Contact us:</strong><br>` +
+                                      `📞 +254 955 829 78 | 💬 WhatsApp +254 713 082 563 | ✉️ hello@savvion.co.ke`;
+        confirmationEl.style.display = 'block';
+        // Scroll to confirmation
+        setTimeout(() => confirmationEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      }
+       
+       // Reset form
+       document.getElementById('leadName').value = '';
+       document.getElementById('leadEmail').value = '';
+       document.getElementById('leadPhone').value = '';
+       document.getElementById('leadDescription').value = '';
+       document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
+
+       // Broadcast to other tabs (client portal listening)
       const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
       leads.unshift({
         ...leadData,
