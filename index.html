@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -4676,58 +4677,62 @@ if (pills.length) {
  }
 
 /* =========================
-   RECAPTCHA VERIFICATION
-   ========================= */
+    RECAPTCHA VERIFICATION
+    ========================= */
 (function() {
-  const overlay = document.getElementById('recaptcha-overlay');
-  const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
-  
-  // Check if already verified in this session
-  if (sessionStorage.getItem('recaptchaVerified') === 'true') {
-    if (overlay) overlay.classList.add('hidden');
-    document.body.classList.add('verified');
-    return;
-  }
-  
-  // Function to verify reCaptcha token
-  function verifyRecaptcha() {
-    if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
-      grecaptcha.enterprise.ready(function() {
-        grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
-          // Token received - verify with your backend
-          // For now, we'll accept the token and allow access
-          sessionStorage.setItem('recaptchaVerified', 'true');
-          if (overlay) {
-            overlay.classList.add('hidden');
-            setTimeout(() => {
-              overlay.style.display = 'none';
-            }, 500);
-          }
-          document.body.classList.add('verified');
-        }).catch(function(error) {
-          console.error('reCaptcha error:', error);
-          // On error, still allow access but log the issue
-          sessionStorage.setItem('recaptchaVerified', 'true');
-          if (overlay) overlay.classList.add('hidden');
-          document.body.classList.add('verified');
-        });
-      });
-    } else {
-      // If grecaptcha isn't loaded, allow access after a delay
-      setTimeout(() => {
-        sessionStorage.setItem('recaptchaVerified', 'true');
-        if (overlay) overlay.classList.add('hidden');
-        document.body.classList.add('verified');
-      }, 2000);
-    }
-  }
-  
-  // Start verification when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', verifyRecaptcha);
-  } else {
-    verifyRecaptcha();
-  }
+   const overlay = document.getElementById('recaptcha-overlay');
+   const RECAPTCHA_SITE_KEY = '6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5';
+   
+   // Check if already verified in this session
+   if (sessionStorage.getItem('recaptchaVerified') === 'true') {
+     if (overlay) overlay.classList.add('hidden');
+     document.body.classList.add('verified');
+     return;
+   }
+   
+    // Function to verify reCaptcha token with retry and timeout
+    let retries = 0;
+    const maxRetries = 100; // 10 seconds (100 * 100ms)
+   
+   function attemptVerify() {
+     if (typeof grecaptcha !== 'undefined' && grecaptcha.enterprise) {
+       grecaptcha.enterprise.ready(function() {
+         grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {action: 'verify'}).then(function(token) {
+           // Token received - verify with your backend
+           // For now, we'll accept the token and allow access
+           sessionStorage.setItem('recaptchaVerified', 'true');
+           if (overlay) {
+             overlay.classList.add('hidden');
+             setTimeout(() => {
+               overlay.style.display = 'none';
+             }, 500);
+           }
+           document.body.classList.add('verified');
+         }).catch(function(error) {
+           console.error('reCaptcha error:', error);
+           // On error, still allow access but log the issue
+           sessionStorage.setItem('recaptchaVerified', 'true');
+           if (overlay) overlay.classList.add('hidden');
+           document.body.classList.add('verified');
+         });
+       });
+     } else if (retries < maxRetries) {
+       retries++;
+       setTimeout(attemptVerify, 100);
+     } else {
+       // Fallback: allow access after max retries
+       sessionStorage.setItem('recaptchaVerified', 'true');
+       if (overlay) overlay.classList.add('hidden');
+       document.body.classList.add('verified');
+     }
+   }
+   
+   // Start verification when DOM is ready
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', attemptVerify);
+   } else {
+     attemptVerify();
+   }
 })();
 </script>
 
