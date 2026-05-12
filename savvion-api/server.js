@@ -66,11 +66,18 @@ const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
 // Protected routes (require JWT)
-const protect = require('./middleware/auth');
-const adminOnly = require('./middleware/admin');
+const authMiddleware = require('./middleware/auth');
+const protect = authMiddleware;
+const adminOnly = authMiddleware.adminOnly;
 
-// Leads (admin only for write, but read is protected)
-app.use('/api/leads', protect, require('./routes/leads'));
+// Leads - POST is public for website forms, other methods protected
+const leadsRoutes = require('./routes/leads');
+app.get('/api/leads', protect, leadsRoutes); // Get all leads - protected
+app.get('/api/leads/:id', protect, leadsRoutes); // Get single lead - protected
+app.post('/api/leads', leadsRoutes); // Create new lead - public
+app.patch('/api/leads/:id', protect, adminOnly, leadsRoutes); // Update lead - admin only
+app.delete('/api/leads/:id', protect, adminOnly, leadsRoutes); // Delete lead - admin only
+app.get('/api/leads/stats/pipeline', protect, adminOnly, leadsRoutes); // Pipeline stats - admin only
 
 // Bookings (clients can only see their own)
 app.use('/api/bookings', protect, require('./routes/bookings'));
