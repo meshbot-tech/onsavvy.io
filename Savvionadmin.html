@@ -190,6 +190,8 @@ a{text-decoration:none;color:inherit}
 .src-s{background:var(--purple-l);color:var(--purple)}
 .src-d{background:var(--g100);color:var(--g600)}
 .src-f{background:var(--teal-l);color:var(--teal)}
+/* ── SERVICE PILLS ── */
+.svc-pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--teal-l);color:var(--teal);margin-right:4px;margin-bottom:4px}
 .k-empty{text-align:center;padding:20px 12px;color:var(--g400);font-size:11px;border:1px dashed var(--g200);border-radius:var(--rl)}
 
 /* ── CLIENT GRID ── */
@@ -641,18 +643,18 @@ const BOOKINGS=[
   {id:'BK-010',client:'Safina Traders',org:'SME — Import/Export',service:'Conversion Audit',date:'Dec 23',time:'9:00 AM',amount:12000,status:'pending',av:'ST',ai:3},
 ];
 const LEADS=[
-  {id:'LD-001',name:'Ngozi Adeyemi',org:'Design Studio',service:'Landing Page Design',value:55000,source:'Website',stage:'new',days:0,phone:'+254712000001',email:'ngozi@studio.co.ke'},
-  {id:'LD-002',name:'Baraka Solutions',org:'SME',service:'CRM Setup',value:120000,source:'Referral',stage:'contacted',days:2,phone:'+254798000002',email:'info@baraka.co.ke'},
-  {id:'LD-003',name:'Zuri Wellness',org:'Health & Wellness',service:'Website Development',value:180000,source:'Social',stage:'qualified',days:5,phone:'+254721000003',email:'hello@zuri.co.ke'},
-  {id:'LD-004',name:'Mkesha Tech',org:'Startup',service:'AI Integration',value:95000,source:'Website',stage:'proposal',days:3,phone:'+254733000004',email:'ceo@mkesha.io'},
-  {id:'LD-005',name:'Amkeni NGO',org:'Nonprofit',service:'Digital Marketing',value:40000,source:'Referral',stage:'won',days:12,phone:'+254745000005',email:'director@amkeni.org'},
-  {id:'LD-006',name:'Simba Retail',org:'SME — Retail',service:'SEO Optimization',value:30000,source:'Direct',stage:'lost',days:14,phone:'+254756000006',email:'simba@retail.co.ke'},
-  {id:'LD-007',name:'Tumaini Academy',org:'Education',service:'Website Audit',value:22000,source:'Website',stage:'new',days:1,phone:'+254767000007',email:'admin@tumaini.sc.ke'},
-  {id:'LD-008',name:'Karibu Resort',org:'Hospitality',service:'Brand Strategy',value:75000,source:'Social',stage:'contacted',days:4,phone:'+254778000008',email:'mgr@karibu.co.ke'},
-  {id:'LD-009',name:'PesaWise Ltd',org:'Fintech',service:'Landing Page Design',value:60000,source:'Form',stage:'qualified',days:6,phone:'+254789000009',email:'growth@pesawise.co'},
-  {id:'LD-010',name:'Afya Clinics',org:'Healthcare',service:'CRM Setup',value:90000,source:'Referral',stage:'proposal',days:8,phone:'+254790000010',email:'it@afyaclinics.ke'},
-  {id:'LD-011',name:'Savana Hardware',org:'SME — Hardware',service:'Website Development',value:55000,source:'Direct',stage:'new',days:0,phone:'+254791000011',email:'shop@savana.ke'},
-  {id:'LD-012',name:'Imara Properties',org:'Real Estate',service:'Digital Marketing',value:110000,source:'Website',stage:'contacted',days:3,phone:'+254792000012',email:'leads@imara.co.ke'},
+  {id:'LD-001',name:'Ngozi Adeyemi',org:'Design Studio',service:'Landing Page Design',services:['Landing Page Design'],value:55000,budget:'KSh 50K – 100K',source:'Website',stage:'new',days:0,phone:'+254712000001',email:'ngozi@studio.co.ke'},
+  {id:'LD-002',name:'Baraka Solutions',org:'SME',service:'CRM Setup',services:['CRM Setup','Consultation'],value:120000,budget:'KSh 100K – 150K',source:'Referral',stage:'contacted',days:2,phone:'+254798000002',email:'info@baraka.co.ke'},
+  {id:'LD-003',name:'Zuri Wellness',org:'Health & Wellness',service:'Website Development',services:['Website Development & Management','SEO'],value:180000,budget:'KSh 150K – 200K',source:'Social',stage:'qualified',days:5,phone:'+254721000003',email:'hello@zuri.co.ke'},
+  {id:'LD-004',name:'Mkesha Tech',org:'Startup',service:'AI Integration',services:['AI & API Integration'],value:95000,budget:'KSh 100K – 150K',source:'Website',stage:'proposal',days:3,phone:'+254733000004',email:'ceo@mkesha.io'},
+  {id:'LD-005',name:'Amkeni NGO',org:'Nonprofit',service:'Digital Marketing',services:['Digital Marketing','Brand Strategy & Positioning'],value:40000,budget:'Under KSh 50K',source:'Referral',stage:'won',days:12,phone:'+254745000005',email:'director@amkeni.org'},
+  {id:'LD-006',name:'Simba Retail',org:'SME — Retail',service:'SEO Optimization',services:['SEO','Conversion Audit'],value:30000,budget:'Under KSh 50K',source:'Direct',stage:'lost',days:14,phone:'+254756000006',email:'simba@retail.co.ke'},
+  {id:'LD-007',name:'Tumaini Academy',org:'Education',service:'Website Audit',services:['Website Development & Management','Domain Management'],value:22000,budget:'Under KSh 50K',source:'Website',stage:'new',days:1,phone:'+254767000007',email:'admin@tumaini.sc.ke'},
+  {id:'LD-008',name:'Karibu Resort',org:'Hospitality',service:'Brand Strategy',services:['Brand Strategy & Positioning','UI/UX'],value:75000,budget:'KSh 50K – 100K',source:'Social',stage:'contacted',days:4,phone:'+254778000008',email:'mgr@karibu.co.ke'},
+  {id:'LD-009',name:'PesaWise Ltd',org:'Fintech',service:'Landing Page Design',services:['Landing Page Design','CRM Selection & Implementation'],value:60000,budget:'KSh 50K – 100K',source:'Form',stage:'qualified',days:6,phone:'+254789000009',email:'growth@pesawise.co'},
+  {id:'LD-010',name:'Afya Clinics',org:'Healthcare',service:'CRM Setup',services:['CRM Setup','UI/UX'],value:90000,budget:'KSh 100K – 150K',source:'Referral',stage:'proposal',days:8,phone:'+254790000010',email:'it@afyaclinics.ke'},
+  {id:'LD-011',name:'Savana Hardware',org:'SME — Hardware',service:'Website Development',services:['Website Development & Management','Domain Management'],value:55000,budget:'KSh 50K – 100K',source:'Direct',stage:'new',days:0,phone:'+254791000011',email:'shop@savana.ke'},
+  {id:'LD-012',name:'Imara Properties',org:'Real Estate',service:'Digital Marketing',services:['Digital Marketing','SEO'],value:110000,budget:'KSh 100K – 150K',source:'Website',stage:'contacted',days:3,phone:'+254792000012',email:'leads@imara.co.ke'},
 ];
 const CLIENTS=[
   {id:'C1',name:'Kibali Ministry',type:'Nonprofit / Ministry',bookings:4,spent:240000,av:'KM',ai:1,last:'2 days ago'},
@@ -871,16 +873,17 @@ function renderLdTable(){
         <div class="ftabs">${['All','New','Contacted','Qualified','Proposal','Won'].map(t=>`<button class="ftab ${S.ldF===(t==='All'?'all':t.toLowerCase())?'on':''}" onclick="S.ldF='${t==='All'?'all':t.toLowerCase()}';renderLdTable()">${t}</button>`).join('')}</div>
         <div class="search" style="width:180px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" placeholder="Search…"/></div>
       </div>
-      <table class="tbl"><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Source</th><th>Stage</th><th>Days</th><th></th></tr></thead>
-      <tbody>${rows.map(l=>`
-        <tr onclick="openLdDr('${l.id}')">
-          <td><div class="td-m">${l.name}</div><div class="td-s">${l.org}</div></td>
-          <td>${l.service}</td>
-          <td style="font-weight:700;font-size:12px;font-family:var(--mono)">${kes(l.value)}</td>
-          <td><span class="src-tag ${srcClass[l.source]||'src-d'}">${l.source}</span></td>
-          <td>${bdg(l.stage)}</td>
-          <td style="font-size:11px;color:var(--g400)">${l.days===0?'New':l.days+'d'}</td>
-          <td><div style="display:flex;gap:4px">
+       <table class="tbl"><thead><tr><th>Lead</th><th>Service</th><th>Value</th><th>Budget</th><th>Source</th><th>Stage</th><th>Days</th><th></th></tr></thead>
+       <tbody>${rows.map(l=>`
+         <tr onclick="openLdDr('${l.id}')">
+           <td><div class="td-m">${l.name}</div><div class="td-s">${l.org}</div></td>
+           <td>${l.service}</td>
+           <td style="font-weight:700;font-size:12px;font-family:var(--mono)">${kes(l.value)}</td>
+           <td style="font-size:12px;color:var(--g600)">${l.budget || '-'}</td>
+           <td><span class="src-tag ${srcClass[l.source]||'src-d'}">${l.source}</span></td>
+           <td>${bdg(l.stage)}</td>
+           <td style="font-size:11px;color:var(--g400)">${l.days===0?'New':l.days+'d'}</td>
+           <td><div style="display:flex;gap:4px">
             <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('whatsapp','${l.id}','lead')" aria-label="WhatsApp"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></button>
             <button class="btn btn-gh btn-sm" onclick="event.stopPropagation();openCompose('email','${l.id}','lead')" aria-label="Email"><i class="ti ti-mail" aria-hidden="true"></i></button>
           </div></td>
@@ -1202,8 +1205,13 @@ function openLdDr(id){
       <div style="margin-left:auto">${bdg(l.stage)}</div>
     </div>
     <div class="dr-field"><label>Lead ID</label><p style="font-family:var(--mono);color:var(--g400)">${l.id}</p></div>
-    <div class="dr-field"><label>Service Interest</label><p>${l.service}</p></div>
-    <div class="dr-field"><label>Estimated Value</label><p style="font-size:20px;font-weight:900;font-family:var(--mono)">${kes(l.value)}</p></div>
+     <div class="dr-field"><label>Services</label>
+       <div>
+         ${(l.services || [l.service]).map(s => `<span class="svc-pill">${s}</span>`).join('')}
+       </div>
+     </div>
+     <div class="dr-field"><label>Budget</label><p>${l.budget || 'Not specified'}</p></div>
+     <div class="dr-field"><label>Estimated Value</label><p style="font-size:20px;font-weight:900;font-family:var(--mono)">${kes(l.value)}</p></div>
     <div class="dr-field"><label>Phone</label><p>${l.phone}</p></div>
     <div class="dr-field"><label>Email</label><p>${l.email}</p></div>
     <div class="dr-field"><label>Source</label><p><span class="src-tag ${srcClass[l.source]||'src-d'}">${l.source}</span></p></div>
