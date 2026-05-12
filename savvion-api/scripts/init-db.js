@@ -15,7 +15,8 @@ async function init() {
   initDatabase();
 
   // Read and execute schema
-  const schemaPath = path.join(__dirname, 'database', 'schema.sql');
+  // Schema is located in savvion-api/database/schema.sql (sibling to scripts/)
+  const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
   const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
 
   if (process.env.NODE_ENV === 'production' && process.env.PG_HOST) {

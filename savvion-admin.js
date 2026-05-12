@@ -67,6 +67,7 @@ function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 const DB = {
   currentUser: { name: "Emmanuel M.", initials: "EM", role: "Super Admin" },
   leads: [], bookings: [], clients: [],
+  users: [],
   activities: [], notifications: [],
   integrations: [], notificationSettings: [],
   revenueHistory: [], bookingsByMonth: [], topClients: [],
@@ -408,6 +409,76 @@ async function loadFromAPI() {
     ];
 
     // Success - data loaded from API
+    console.log('✅ Data loaded from API');
+  } catch (err) {
+    console.error('Data load failed:', err);
+    if (err.message.includes('401')) {
+      window.location.href = 'savvion-auth.html';
+    } else {
+      // Fallback to mock data when API is unavailable
+      console.warn('API unavailable - using demo data');
+      generateMockData();
+    }
+  } finally {
+    document.body.classList.remove('loading');
+  }
+}
+
+async function loadUsers() {
+  try {
+    const res = await apiFetch('/api/users', { headers: getAuthHeaders(), search: '' });
+    if (res.success) {
+      DB.users = res.data || [];
+    }
+  } catch (err) {
+    console.error('Failed to load users:', err);
+    DB.users = [];
+  }
+}
+
+    // Build analytics data from real numbers
+    const totalRev = analyticsRes.data?.totalRevenue || DB.bookings.reduce((sum,b) => sum + (b.amount||0), 0);
+    const totalBookings = analyticsRes.data?.totalBookings || DB.bookings.length;
+    DB.revenueHistory = generateRevenueHistory(totalRev);
+    DB.bookingsByMonth = generateBookingsByMonth(totalBookings);
+    DB.topClients = analyticsRes.data?.topClients || DB.clients.slice(0,5);
+
+    DB.whatsappTemplates = automationRes.data?.filter(t => t.channel === 'whatsapp') || [];
+    DB.emailTemplates = automationRes.data?.filter(t => t.channel === 'email') || [];
+    DB.notifications = notifRes.data || [];
+
+    // Static/reference
+    DB.integrations = [
+      { name: "WhatsApp Business API", icon: "ti-brand-whatsapp", status: "connected", desc: "Send automated WhatsApp messages" },
+      { name: "SMTP Email", icon: "ti-mail", status: "connected", desc: "Transactional & marketing emails" },
+      { name: "Google Calendar", icon: "ti-calendar", status: "disconnected", desc: "Sync bookings to calendar" },
+      { name: "Stripe Payments", icon: "ti-credit-card", status: "connected", desc: "Receive online payments" },
+    ];
+    DB.notificationSettings = [
+      { setting: "New Booking", enabled: true },
+      { setting: "Cancellation", enabled: true },
+      { setting: "Payment Received", enabled: true },
+      { setting: "Weekly Digest", enabled: false },
+      { setting: "System Alerts", enabled: true },
+    ];
+    DB.triggers = [
+      { id:'1', name:"Booking Confirmed", icon:"ti-check", iconColor:"var(--green)", enabled:true },
+      { id:'2', name:"Payment Received", icon:"ti-currency-shilling", iconColor:"var(--amber)", enabled:true },
+      { id:'3', name:"24h Before Appointment", icon:"ti-clock", iconColor:"var(--blue)", enabled:false },
+      { id:'4', name:"Lead Won", icon:"ti-trophy", iconColor:"var(--green)", enabled:true },
+      { id:'5', name:"Lead Lost", icon:"ti-thumb-down", iconColor:"var(--red)", enabled:false },
+    ];
+
+    // Activity (from DB or mock)
+    DB.activities = [
+      { icon:"ti-check", color:"var(--green)", text:"Booking <strong>confirmed</strong> for Tabitha M.", time:"2 minutes ago" },
+      { icon:"ti-brand-whatsapp", color:"var(--wa-dark)", text:"WhatsApp sent to <strong>Samuel O.</strong>", time:"12 minutes ago" },
+      { icon:"ti-user-plus", color:"var(--blue)", text:"New lead <strong>Martin Okello</strong> added", time:"32 minutes ago" },
+      { icon:"ti-chart-line", color:"var(--purple)", text:"Monthly report generated", time:"1 hour ago" },
+      { icon:"ti-calendar-event", color:"var(--amber)", text:"Reminder: Booking with <strong>Linet C.</strong> in 1h", time:"2 hours ago" },
+    ];
+
+    // Success - data loaded from API
     showToast('Data loaded successfully from API', 'green');
   } catch (err) {
     console.error('Data load failed:', err);
@@ -527,18 +598,19 @@ function switchView(viewId) {
   });
 
   const titleEl = $("#topbar-title");
-  switch (viewId) {
-    case "overview":
-      titleEl.innerHTML = `Overview <span class="topbar-sub">Good ${new Date().getHours()<12?"morning":new Date().getHours()<17?"afternoon":"evening"}, ${DB.currentUser.name.split(" ")[0]} 👋</span>`;
-      renderOverview();
-      break;
-    case "leads": renderLeads(); break;
-    case "bookings": renderBookings(); break;
-    case "clients": renderClients(); break;
-    case "automation": renderAutomation(); break;
-    case "analytics": renderAnalytics(); break;
-    case "settings": renderSettings(); break;
-  }
+   switch (viewId) {
+     case "overview":
+       titleEl.innerHTML = `Overview <span class="topbar-sub">Good ${new Date().getHours()<12?"morning":new Date().getHours()<17?"afternoon":"evening"}, ${DB.currentUser.name.split(" ")[0]} 👋</span>`;
+       renderOverview();
+       break;
+     case "leads": renderLeads(); break;
+     case "bookings": renderBookings(); break;
+     case "clients": renderClients(); break;
+     case "staff": renderStaff(); break;
+     case "automation": renderAutomation(); break;
+     case "analytics": renderAnalytics(); break;
+     case "settings": renderSettings(); break;
+   }
 }
 
 // ──── Sidebar collapse ──────────────────────────────────────────────────────────────
@@ -875,7 +947,7 @@ async function openBookingDrawer(bookingId) {
 // ──── Clients ─────────────────────────────────────────────────────────────────────────
 function setupClients() {}
 function renderClients() {
-  const grid = $("#clients-grid"); if (!grid) return;
+  const grid = $("#cl-grid"); if (!grid) return;
   let html = "";
   DB.clients.forEach(c => {
     html += `<div class="client-card" onclick="openClientDrawer('${c.id}')">
@@ -887,6 +959,144 @@ function renderClients() {
       </div></div>`;
   });
   grid.innerHTML = html;
+}
+
+async function openClientDrawer(clientId) {
+  const client = DB.clients.find(c => c.id === clientId);
+  if (!client) return;
+  const drawer = $("#client-drawer");
+  const body = $("#client-drawer-body");
+
+  body.innerHTML = `
+    <div class="drawer-field"><label>Name</label><p>${client.name}</p></div>
+    <div class="drawer-field"><label>Type</label><p>${client.type}</p></div>
+    <div class="drawer-field"><label>Total Spent</label><p class="td-mono td-amount">KES ${((client.totalSpent||0)/1000).toFixed(0)}K</p></div>
+    <div class="drawer-field"><label>Bookings</label><p>${client.bookings||0} sessions</p></div>
+    <div class="drawer-field"><label>Last Active</label><p>${client.lastActive||new Date().toLocaleDateString("en-KE")}</p></div>
+    <div class="drawer-field"><label>Contact</label><p>${client.phone||'+254 700 000 000'}</p></div>
+  `;
+
+  drawer.classList.add("is-open");
+}
+
+// ──── Staff Management ───────────────────────────────────────────────────────────────
+let DB.users = [];
+
+function setupStaff() {}
+function setupStaff() {
+  const searchInput = $("#st-search");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => renderStaff());
+  }
+}
+
+function renderStaff() {
+  // Ensure users are loaded
+  if (DB.users.length === 0) {
+    loadUsers().then(() => {
+      // After loading, render again
+      renderStaff();
+    });
+    return;
+  }
+
+  const tbody = $("#st-body"); if (!tbody) return;
+  const search = $("#st-search")?.value.toLowerCase() || "";
+  let users = DB.users;
+
+  if (search) {
+    users = users.filter(u => 
+      (u.name && u.name.toLowerCase().includes(search)) ||
+      (u.email && u.email.toLowerCase().includes(search))
+    );
+  }
+
+  let html = "";
+  users.forEach(u => {
+    const roleBadge = u.role === 'admin' ? 'badge-won' : u.role === 'staff' ? 'badge-confirmed' : 'badge-pending';
+    const statusDot = u.email_verified ? 'var(--green)' : 'var(--amber)';
+    const statusText = u.email_verified ? 'Active' : 'Pending';
+    
+    html += `<tr data-id="${u.id}">
+      <td>
+        <div class="td-flex">
+          <div class="c-avatar" style="background:${u.avatarColor||'#3b82f6'}">${(u.name||'U')[0].toUpperCase()}</div>
+          <div><div class="td-primary">${u.name}</div><div class="td-sub">ID: ${u.id}</div></div>
+        </div>
+      </td>
+      <td class="td-sub">${u.email}</td>
+      <td><span class="badge ${roleBadge}">${u.role.charAt(0).toUpperCase() + u.role.slice(1)}</span></td>
+      <td class="td-sub">${u.phone||'—'}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:${statusDot}"></div><span style="font-size:12px;color:var(--g600)">${statusText}</span></div></td>
+      <td>
+        <button class="ico-btn" onclick="openEditStaff('${u.id}')" title="Edit"><i class="ti ti-pencil"></i></button>
+        ${u.role !== 'admin' ? `<button class="ico-btn" onclick="deleteStaff('${u.id}')" title="Delete" style="color:var(--red)"><i class="ti ti-trash"></i></button>` : ''}
+      </td>
+    </tr>`;
+  });
+  tbody.innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--g400)">No staff found</td></tr>';
+}
+
+async function openEditStaff(userId) {
+  const user = DB.users.find(u => u.id === userId);
+  if (!user) return;
+  // Simple prompt-based editing - could be enhanced with modal
+  const newName = prompt("Update name:", user.name);
+  if (!newName) return;
+  
+  try {
+    await apiFetch(`/api/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ name: newName })
+    });
+    user.name = newName;
+    renderStaff();
+    openNotify('Staff updated successfully');
+  } catch (err) {
+    openNotify('Failed to update staff', 'red');
+  }
+}
+
+async function deleteStaff(userId) {
+  if (!confirm('Are you sure you want to delete this staff member?')) return;
+  
+  try {
+    await apiFetch(`/api/users/${userId}`, { method: 'DELETE' });
+    DB.users = DB.users.filter(u => u.id !== userId);
+    renderStaff();
+    openNotify('Staff removed successfully');
+  } catch (err) {
+    openNotify('Failed to delete staff', 'red');
+  }
+}
+
+async function openAddStaffModal() {
+  // Simple prompt-based addition - could be enhanced with modal
+  const email = prompt("Enter email:");
+  if (!email) return;
+  const name = prompt("Enter full name:");
+  if (!name) return;
+  const password = prompt("Enter temporary password (min 6 chars):");
+  if (!password || password.length < 6) {
+    alert('Password must be at least 6 characters');
+    return;
+  }
+  const role = confirm("Should this user be an Admin?") ? 'admin' : 'staff';
+
+  try {
+    const res = await apiFetch('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role, phone: null })
+    });
+    if (res.success) {
+      // Refresh staff list by re-fetching
+      await loadFromAPI();
+      renderStaff();
+      openNotify(`Staff member added successfully (${role})`);
+    }
+  } catch (err) {
+    openNotify('Failed to add staff: ' + err.message, 'red');
+  }
 }
 
 async function openClientDrawer(clientId) {
@@ -1294,11 +1504,13 @@ async function init() {
 
   try {
     await loadFromAPI();
+    loadUsers(); // Preload users for staff view
     setupNavigation();
     setupSidebar();
     setupModalsAndDrawers();
     setupSearch();
     setupTimeline();
+    setupStaff();
     // Default view
     switchView('overview');
   } catch (err) {
@@ -1317,6 +1529,9 @@ window.openLeadDrawer = openLeadDrawer;
 window.composeEmail = composeEmail;
 window.openBookingDrawer = openBookingDrawer;
 window.openClientDrawer = openClientDrawer;
+window.openAddStaffModal = openAddStaffModal;
+window.openEditStaff = openEditStaff;
+window.deleteStaff = deleteStaff;
 window.toggleTrigger = toggleTrigger;
 window.toggleNotifSetting = toggleNotifSetting;
 window.sendMessage = sendMessage;

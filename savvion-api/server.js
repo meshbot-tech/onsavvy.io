@@ -87,6 +87,9 @@ app.use('/api/analytics', protect, adminOnly, require('./routes/analytics'));
 // Automation (admin only)
 app.use('/api/automation', protect, adminOnly, require('./routes/automation'));
 
+// Users / Staff Management (admin only)
+app.use('/api/users', protect, adminOnly, require('./routes/users'));
+
 // Notifications (protected - users see their own)
 app.use('/api/notifications', protect, require('./routes/notifications'));
 

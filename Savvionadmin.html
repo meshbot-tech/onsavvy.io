@@ -332,8 +332,9 @@ a{text-decoration:none;color:inherit}
     <div class="sb-item active" data-v="overview" onclick="nav('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="sb-lbl">Overview</span></div>
     <div class="sb-item" data-v="leads" onclick="nav('leads')"><i class="ti ti-filter" aria-hidden="true"></i><span class="sb-lbl">Leads</span><span class="sb-badge a">12</span></div>
     <div class="sb-item" data-v="bookings" onclick="nav('bookings')"><i class="ti ti-calendar-event" aria-hidden="true"></i><span class="sb-lbl">Bookings</span><span class="sb-badge g">7</span></div>
-    <div class="sb-item" data-v="clients" onclick="nav('clients')"><i class="ti ti-users" aria-hidden="true"></i><span class="sb-lbl">Clients</span></div>
-    <div class="sb-sec">Client Views</div>
+     <div class="sb-item" data-v="clients" onclick="nav('clients')"><i class="ti ti-users" aria-hidden="true"></i><span class="sb-lbl">Clients</span></div>
+     <div class="sb-item" data-v="staff" onclick="nav('staff')"><i class="ti ti-users-group" aria-hidden="true"></i><span class="sb-lbl">Staff</span></div>
+     <div class="sb-sec">Client Views</div>
     <div class="sb-item" data-v="client-dashboard" onclick="nav('client-dashboard')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span class="sb-lbl">Client Dashboard</span></div>
     <div class="sb-item" data-v="client-portal" onclick="nav('client-portal')"><i class="ti ti-user" aria-hidden="true"></i><span class="sb-lbl">Client Portal</span></div>
     <div class="sb-sec">Engagement</div>
@@ -444,20 +445,46 @@ a{text-decoration:none;color:inherit}
       </div>
     </div>
 
-    <!-- ═══ CLIENTS ════════════════════════════════ -->
-    <div class="view" id="v-clients">
-      <div class="ph">
-        <div><h2>Clients</h2><p>142 active · click any card for full history &amp; services</p></div>
-        <div class="ph-r">
-          <div class="search" style="width:210px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="cl-search" placeholder="Search clients…" oninput="renderClients()"/></div>
-          <button class="btn btn-g btn-sm"><i class="ti ti-user-plus" aria-hidden="true"></i> Add Client</button>
-        </div>
-      </div>
-      <div id="cl-detail"></div>
-      <div class="cl-grid" id="cl-grid"></div>
-    </div>
+     <!-- ═══ CLIENTS ════════════════════════════════ -->
+     <div class="view" id="v-clients">
+       <div class="ph">
+         <div><h2>Clients</h2><p>142 active · click any card for full history &amp; services</p></div>
+         <div class="ph-r">
+           <div class="search" style="width:210px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="cl-search" placeholder="Search clients…" oninput="renderClients()"/></div>
+           <button class="btn btn-g btn-sm"><i class="ti ti-user-plus" aria-hidden="true"></i> Add Client</button>
+         </div>
+       </div>
+       <div id="cl-detail"></div>
+       <div class="cl-grid" id="cl-grid"></div>
+     </div>
 
-    <!-- ═══ AUTOMATION ═════════════════════════════ -->
+     <!-- ═══ STAFF ════════════════════════════════════ -->
+     <div class="view" id="v-staff">
+       <div class="ph">
+         <div><h2>Staff Management</h2><p>Manage team members and their access levels</p></div>
+         <div class="ph-r">
+           <div class="search" style="width:210px"><i class="ti ti-search" aria-hidden="true"></i><input type="text" id="st-search" placeholder="Search staff…" oninput="renderStaff()"/></div>
+           <button class="btn btn-g btn-sm" onclick="openAddStaffModal()"><i class="ti ti-user-plus" aria-hidden="true"></i> Add Staff</button>
+         </div>
+       </div>
+       <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
+         <table class="tbl" style="margin-bottom:0">
+           <thead>
+             <tr>
+               <th>Name</th>
+               <th>Email</th>
+               <th>Role</th>
+               <th>Phone</th>
+               <th>Status</th>
+               <th></th>
+             </tr>
+           </thead>
+           <tbody id="st-body"></tbody>
+         </table>
+       </div>
+     </div>
+
+     <!-- ═══ AUTOMATION ═════════════════════════════ -->
     <div class="view" id="v-automation">
       <div class="ph">
         <div><h2>Automation</h2><p>WhatsApp, email templates, and smart trigger rules</p></div>
