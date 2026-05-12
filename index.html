@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfNp9csAAAAALm-6YX75g15HG7vFcE83_U03IR5" async defer onload="window.recaptchaLoaded=true" onerror="window.recaptchaFailed=true"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -4175,7 +4175,7 @@ body.dark-theme .preloader-progress-bar{
       }
     }
 
-    // Initialize service mappings on load
+// Initialize service mappings on load
     fetchServiceMappings();
 
     // Form submission handler for BWC form
@@ -4208,6 +4208,89 @@ body.dark-theme .preloader-progress-bar{
           }, 2000);
           return;
         }
+
+        const lead = {
+          id: Date.now(),
+          name,
+          email,
+          phone,
+          services,
+          budget,
+          description,
+          timestamp: Date.now(),
+          status: 'new'
+        };
+
+        try {
+          // Save to localStorage (offline fallback)
+          const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
+          leads.unshift(lead);
+          localStorage.setItem('savvion_leads', JSON.stringify(leads));
+
+          // Also send to API
+          const API_BASE = location.origin; // assumes API on same origin; override if needed
+          const payload = {
+            name,
+            email,
+            phone,
+            source: 'website',
+            service: services.join(', ') || 'General Inquiry',
+            value: 0,
+            notes: `Budget: ${budget}\nServices: ${services.join(', ')}\n${description}`
+          };
+
+          try {
+            await fetch(`${API_BASE}/api/leads`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+          } catch (apiErr) {
+            console.warn('API submit failed (localStorage only):', apiErr);
+          }
+
+          leadSubmitBtn.textContent = "✓ Received — we'll be in touch shortly";
+          leadSubmitBtn.style.background = '#0D7A4E';
+          leadSubmitBtn.style.pointerEvents = 'none';
+
+          // Reset form after 1 second
+          setTimeout(() => {
+            document.getElementById('leadName').value = '';
+            document.getElementById('leadEmail').value = '';
+            document.getElementById('leadPhone').value = '';
+            document.getElementById('leadDescription').value = '';
+            document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
+
+            // Reset button after 3 seconds
+            leadSubmitBtn.textContent = "Submit →";
+            leadSubmitBtn.style.background = '';
+            leadSubmitBtn.style.pointerEvents = '';
+          }, 3000);
+
+        } catch (err) {
+          console.error('Failed to save lead:', err);
+          leadSubmitBtn.textContent = "Error — try again";
+          leadSubmitBtn.style.background = '#B8720A';
+          setTimeout(() => {
+            leadSubmitBtn.textContent = "Submit →";
+            leadSubmitBtn.style.background = '';
+          }, 2000);
+        }
+      });
+    }
+
+    // CTA form simple acknowledgment
+    const ctaSubmitBtn = document.getElementById('submitBtnCta');
+    if (ctaSubmitBtn) {
+      ctaSubmitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        this.textContent = '✓ Request received — we\'ll be in touch shortly';
+        this.style.background = '#0D7A4E';
+        this.style.pointerEvents = 'none';
+      });
+    }
+
+  })(); // End of fetchServiceMappings
 
         // Determine primary service (first selected or default)
         const primaryService = services.length > 0 ? services[0] : 'General Inquiry';
@@ -4537,116 +4620,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-// Lead capture for main BWC form (Build With Confidence)
-const leadSubmitBtn = document.getElementById('submitBtn');
-if (leadSubmitBtn) {
-  leadSubmitBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
 
-    const name = document.getElementById('leadName')?.value.trim();
-    const email = document.getElementById('leadEmail')?.value.trim();
-    const phone = document.getElementById('leadPhone')?.value.trim();
-    const description = document.getElementById('leadDescription')?.value.trim();
-
-    // Get selected services (multi-select)
-    const services = Array.from(document.querySelectorAll('.bwc-pill[data-group="services"].active'))
-                          .map(p => p.textContent.trim());
-
-    // Get selected budget (single-select)
-    const budgetEl = document.querySelector('.bwc-pill[data-group="budget"].active');
-    const budget = budgetEl ? budgetEl.textContent.trim() : '';
-
-    // Basic required validation
-    if (!name || !email) {
-      leadSubmitBtn.textContent = "Please fill in required fields";
-      leadSubmitBtn.style.background = '#B83030';
-      setTimeout(() => {
-        leadSubmitBtn.textContent = "Submit →";
-        leadSubmitBtn.style.background = '';
-      }, 2000);
-      return;
-    }
-
-    const lead = {
-      id: Date.now(),
-      name,
-      email,
-      phone,
-      services,
-      budget,
-      description,
-      timestamp: Date.now(),
-      status: 'new'
-    };
-
-    try {
-      // Save to localStorage (offline fallback)
-      const leads = JSON.parse(localStorage.getItem('savvion_leads')) || [];
-      leads.unshift(lead);
-      localStorage.setItem('savvion_leads', JSON.stringify(leads));
-
-      // Also send to API
-      const API_BASE = location.origin; // assumes API on same origin; override if needed
-      const payload = {
-        name,
-        email,
-        phone,
-        source: 'website',
-        service: services.join(', ') || 'General Inquiry',
-        value: 0,
-        notes: `Budget: ${budget}\nServices: ${services.join(', ')}\n${description}`
-      };
-
-      try {
-        await fetch(`${API_BASE}/api/leads`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (apiErr) {
-        console.warn('API submit failed (localStorage only):', apiErr);
-      }
-
-      leadSubmitBtn.textContent = "✓ Received — we'll be in touch shortly";
-      leadSubmitBtn.style.background = '#0D7A4E';
-      leadSubmitBtn.style.pointerEvents = 'none';
-
-      // Reset form after 1 second
-      setTimeout(() => {
-        document.getElementById('leadName').value = '';
-        document.getElementById('leadEmail').value = '';
-        document.getElementById('leadPhone').value = '';
-        document.getElementById('leadDescription').value = '';
-        document.querySelectorAll('.bwc-pill.active').forEach(p => p.classList.remove('active'));
-
-        // Reset button after 3 seconds
-        leadSubmitBtn.textContent = "Submit →";
-        leadSubmitBtn.style.background = '';
-        leadSubmitBtn.style.pointerEvents = '';
-      }, 3000);
-
-    } catch (err) {
-      console.error('Failed to save lead:', err);
-      leadSubmitBtn.textContent = "Error — try again";
-      leadSubmitBtn.style.background = '#B8720A';
-      setTimeout(() => {
-        leadSubmitBtn.textContent = "Submit →";
-        leadSubmitBtn.style.background = '';
-      }, 2000);
-    }
-  });
-}
-
-// CTA form simple acknowledgment
-const ctaSubmitBtn = document.getElementById('submitBtnCta');
-if (ctaSubmitBtn) {
-  ctaSubmitBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    this.textContent = '✓ Request received — we\'ll be in touch shortly';
-    this.style.background = '#0D7A4E';
-    this.style.pointerEvents = 'none';
-  });
-}
 
 // Stagger work card reveal delays
 document.querySelectorAll('.work-card').forEach((c, i) => { c.style.transitionDelay = (i * 0.08) + 's'; });
